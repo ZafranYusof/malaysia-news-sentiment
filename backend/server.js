@@ -63,7 +63,12 @@ app.use(express.json({ limit: '2mb' }));
 // Rate limiters disabled for development/testing as requested
 
 
-// ── Routes ────────────────────────────────────────────────────
+// ── Routes (v1) ───────────────────────────────────────────────
+app.use('/api/v1/auth', require('./routes/authRoutes'));
+app.use('/api/v1/news', require('./routes/newsRoutes'));
+app.use('/api/v1/history', require('./routes/historyRoutes'));
+
+// ── Backward compatibility — old routes redirect to v1 ───────
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/news', require('./routes/newsRoutes'));
 app.use('/api/history', require('./routes/historyRoutes'));
