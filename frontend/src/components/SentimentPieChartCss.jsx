@@ -7,7 +7,7 @@ const SentimentPieChartCss = ({ distribution }) => {
 
   const data = [
     { name: 'Positive', value: Number(distribution.Positive || 0), color: 'var(--pos)', grad: 'var(--pos-grad)' },
-    { name: 'Neutral',  value: Number(distribution.Neutral  || 0), color: 'var(--neu)', grad: 'linear-gradient(to right, #d97706, #fbbf24)' },
+    { name: 'Neutral',  value: Number(distribution.Neutral  || 0), color: 'var(--neu)', grad: 'linear-gradient(to right, #F7A501, #FFD166)' },
     { name: 'Negative', value: Number(distribution.Negative || 0), color: 'var(--neg)', grad: 'var(--neg-grad)' },
   ].filter(d => d.value > 0);
 

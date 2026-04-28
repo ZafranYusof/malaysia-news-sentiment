@@ -1,7 +1,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const COLORS = { Positive: '#10b981', Negative: '#ef4444', Neutral: '#f59e0b' };
+const COLORS = { Positive: '#30CF79', Negative: '#F54E4E', Neutral: '#F7A501' };
 const RADIAN = Math.PI / 180;
 
 const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
@@ -52,21 +52,21 @@ const SentimentPieChart = ({ distribution }) => {
           <PieChart>
             <defs>
               <linearGradient id="piePos" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#34d399" />
-                <stop offset="100%" stopColor="#059669" />
+                <stop offset="0%" stopColor="#6DDFA3" />
+                <stop offset="100%" stopColor="#30CF79" />
               </linearGradient>
               <linearGradient id="pieNeg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f87171" />
-                <stop offset="100%" stopColor="#dc2626" />
+                <stop offset="0%" stopColor="#FF8080" />
+                <stop offset="100%" stopColor="#F54E4E" />
               </linearGradient>
               <linearGradient id="pieNeu" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fbbf24" />
-                <stop offset="100%" stopColor="#d97706" />
+                <stop offset="0%" stopColor="#FFD166" />
+                <stop offset="100%" stopColor="#F7A501" />
               </linearGradient>
             </defs>
             <Pie data={data} cx="50%" cy="50%" innerRadius={50} outerRadius={85}
-              paddingAngle={4} dataKey="value" labelLine={false} label={renderLabel}
-              isAnimationActive={true} animationDuration={1000} animationEasing="ease-out"
+              paddingAngle={5} dataKey="value" labelLine={false} label={renderLabel}
+              isAnimationActive={true} animationDuration={1400} animationEasing="ease-out" animationBegin={200}
               stroke="none">
               {data.map(e => <Cell key={e.name} fill={`url(#pie${e.name.substring(0,3)})`} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.1))' }} />)}
             </Pie>

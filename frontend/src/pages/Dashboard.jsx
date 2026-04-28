@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import SearchBar from '../components/SearchBar';
 import ArticleCard from '../components/ArticleCard';
-import SentimentPieChartCss from '../components/SentimentPieChartCss';
-import SentimentBarChartCss from '../components/SentimentBarChartCss';
+import SentimentPieChart from '../components/SentimentPieChart';
+import SentimentBarChart from '../components/SentimentBarChart';
 import TrendLineChart from '../components/TrendLineChart';
 import TopSourcesChart from '../components/TopSourcesChart';
 import AiDigestCard from '../components/AiDigestCard';
@@ -13,6 +13,7 @@ import WordCloud from '../components/WordCloud';
 import ForecastCard from '../components/ForecastCard';
 import SentimentMap from '../components/SentimentMap';
 import ScrollToTop from '../components/ScrollToTop';
+import AnalyzingOverlay from '../components/AnalyzingOverlay';
 import { InlineErrorBoundary } from '../components/ErrorBoundary';
 import { Skeleton } from 'boneyard-js/react';
 import { 
@@ -235,6 +236,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-root">
+      <AnalyzingOverlay progress={analysisProgress} />
       <SearchBar onSearch={handleSearch} loading={searchLoading} />
 
       {error && (
@@ -310,10 +312,10 @@ const Dashboard = () => {
                 <Skeleton name="charts-grid" loading={isLoading}>
                   <div className="charts-grid">
                     <InlineErrorBoundary name="Pie Chart">
-                      <SentimentPieChartCss distribution={distribution} />
+                      <SentimentPieChart distribution={distribution} />
                     </InlineErrorBoundary>
                     <InlineErrorBoundary name="Bar Chart">
-                      <SentimentBarChartCss distribution={distribution} />
+                      <SentimentBarChart distribution={distribution} />
                     </InlineErrorBoundary>
                     <InlineErrorBoundary name="Sentiment Map">
                       <SentimentMap data={regionalData} loading={isLoading} />

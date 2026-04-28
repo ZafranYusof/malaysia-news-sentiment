@@ -18,9 +18,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const SentimentBarChart = ({ distribution }) => {
   const data = [
-    { name: 'Positive', value: distribution.Positive || 0, color: '#10b981' },
-    { name: 'Negative', value: distribution.Negative || 0, color: '#ef4444' },
-    { name: 'Neutral',  value: distribution.Neutral  || 0, color: '#f59e0b' },
+    { name: 'Positive', value: distribution.Positive || 0, color: '#30CF79' },
+    { name: 'Negative', value: distribution.Negative || 0, color: '#F54E4E' },
+    { name: 'Neutral',  value: distribution.Neutral  || 0, color: '#F7A501' },
   ];
 
   return (
@@ -38,23 +38,23 @@ const SentimentBarChart = ({ distribution }) => {
         <BarChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="barPos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#34d399" />
-              <stop offset="100%" stopColor="#059669" />
+              <stop offset="0%" stopColor="#6DDFA3" />
+              <stop offset="100%" stopColor="#30CF79" />
             </linearGradient>
             <linearGradient id="barNeg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f87171" />
-              <stop offset="100%" stopColor="#dc2626" />
+              <stop offset="0%" stopColor="#FF8080" />
+              <stop offset="100%" stopColor="#F54E4E" />
             </linearGradient>
             <linearGradient id="barNeu" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fbbf24" />
-              <stop offset="100%" stopColor="#d97706" />
+              <stop offset="0%" stopColor="#FFD166" />
+              <stop offset="100%" stopColor="#F7A501" />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
           <XAxis dataKey="name" tick={{ fill: 'var(--text-400)', fontSize: 12, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: 'var(--text-400)', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} allowDecimals={false} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg)', opacity: 0.5 }} />
-          <Bar dataKey="value" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1200} animationEasing="ease-out">
+          <Bar dataKey="value" radius={[8, 8, 0, 0]} isAnimationActive={true} animationDuration={1400} animationEasing="ease-out" animationBegin={300} barSize={50}>
             {data.map(d => <Cell key={d.name} fill={`url(#bar${d.name.substring(0,3)})`} />)}
           </Bar>
         </BarChart>

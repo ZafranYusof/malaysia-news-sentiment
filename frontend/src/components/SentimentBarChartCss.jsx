@@ -6,9 +6,9 @@ const SentimentBarChartCss = ({ distribution }) => {
   const getPct = (val) => (total > 0 ? Number(val) / total : 0);
 
   const data = [
-    { name: 'Positive', value: Number(distribution.Positive || 0), color: 'var(--pos)', grad: 'linear-gradient(to top, rgba(16, 185, 129, 0.8), rgba(52, 211, 153, 0.7))' },
-    { name: 'Neutral',  value: Number(distribution.Neutral  || 0), color: 'var(--neu)', grad: 'linear-gradient(to top, rgba(217, 119, 6, 0.8), rgba(251, 191, 36, 0.7))' },
-    { name: 'Negative', value: Number(distribution.Negative || 0), color: 'var(--neg)', grad: 'linear-gradient(to top, rgba(244, 63, 94, 0.8), rgba(251, 113, 133, 0.7))' },
+    { name: 'Positive', value: Number(distribution.Positive || 0), color: 'var(--pos)', grad: 'linear-gradient(to top, rgba(48, 207, 121, 0.9), rgba(109, 223, 163, 0.75))' },
+    { name: 'Neutral',  value: Number(distribution.Neutral  || 0), color: 'var(--neu)', grad: 'linear-gradient(to top, rgba(247, 165, 1, 0.9), rgba(255, 209, 102, 0.75))' },
+    { name: 'Negative', value: Number(distribution.Negative || 0), color: 'var(--neg)', grad: 'linear-gradient(to top, rgba(245, 78, 78, 0.9), rgba(255, 128, 128, 0.75))' },
   ];
   
   const maxVal = Math.max(...data.map(d => d.value), 1);

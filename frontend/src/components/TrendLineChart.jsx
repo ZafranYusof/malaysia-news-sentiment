@@ -36,16 +36,16 @@ const TrendLineChart = ({ trendsData = [] }) => (
         <AreaChart data={trendsData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="gPos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="#10b981" stopOpacity={0.25}/>
-              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+              <stop offset="5%"  stopColor="#30CF79" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#30CF79" stopOpacity={0.02}/>
             </linearGradient>
             <linearGradient id="gNeg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="#ef4444" stopOpacity={0.25}/>
-              <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+              <stop offset="5%"  stopColor="#F54E4E" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#F54E4E" stopOpacity={0.02}/>
             </linearGradient>
             <linearGradient id="gNeu" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="#f59e0b" stopOpacity={0.25}/>
-              <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+              <stop offset="5%"  stopColor="#F7A501" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#F7A501" stopOpacity={0.02}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
@@ -53,9 +53,9 @@ const TrendLineChart = ({ trendsData = [] }) => (
           <YAxis tick={{ fill: 'var(--text-400)', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} allowDecimals={false} />
           <Tooltip content={<CustomTooltip />} />
           <Legend formatter={v => <span style={{ color: 'var(--text-500)', fontSize: 12, fontFamily: 'Inter' }}>{v}</span>} />
-          <Area isAnimationActive={true} animationDuration={1500} type="monotone" dataKey="Positive" stroke="#10b981" strokeWidth={3} fill="url(#gPos)" dot={{ fill: '#10b981', r: 3, strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)' }} />
-          <Area isAnimationActive={true} animationDuration={1500} type="monotone" dataKey="Negative" stroke="#ef4444" strokeWidth={3} fill="url(#gNeg)" dot={{ fill: '#ef4444', r: 3, strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)' }} />
-          <Area isAnimationActive={true} animationDuration={1500} type="monotone" dataKey="Neutral"  stroke="#f59e0b" strokeWidth={3} fill="url(#gNeu)" dot={{ fill: '#f59e0b', r: 3, strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)' }} />
+          <Area isAnimationActive={true} animationDuration={1800} animationBegin={200} type="monotone" dataKey="Positive" stroke="#30CF79" strokeWidth={2.5} fill="url(#gPos)" dot={false} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)', fill: '#30CF79' }} />
+          <Area isAnimationActive={true} animationDuration={1800} animationBegin={400} type="monotone" dataKey="Negative" stroke="#F54E4E" strokeWidth={2.5} fill="url(#gNeg)" dot={false} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)', fill: '#F54E4E' }} />
+          <Area isAnimationActive={true} animationDuration={1800} animationBegin={600} type="monotone" dataKey="Neutral"  stroke="#F7A501" strokeWidth={2.5} fill="url(#gNeu)" dot={false} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)', fill: '#F7A501' }} />
         </AreaChart>
       </ResponsiveContainer>
     )}
