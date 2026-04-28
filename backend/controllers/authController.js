@@ -6,6 +6,27 @@ const { sendVerificationEmail, sendResetEmail } = require('../services/emailServ
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// ── Firebase Admin (optional — graceful no-op if not configured) ──────────
+let firebaseAdmin = null;
+try {
+  const admin = require('firebase-admin');
+  if (!admin.apps.length) {
+    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
+      ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)
+      : null;
+    if (serviceAccount) {
+      admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+      firebaseAdmin = admin;
+    } else {
+      console.warn('⚠️  FIREBASE_SERVICE_ACCOUNT_JSON not set — Firebase token verification disabled.');
+    }
+  } else {
+    firebaseAdmin = admin;
+  }
+} catch (e) {
+  console.warn('⚠️  firebase-admin not available:', e.message);
+}
+
 // ── REGISTER ──────────────────────────────────────────────────
 const register = async (req, res) => {
   try {
@@ -70,7 +91,7 @@ const login = async (req, res) => {
       return res.status(403).json({ error: 'Please verify your email before logging in.', unverified: true });
     }
 
-    const token = signToken(user._id);
+    const token = signToken(user._id, user.role);
     res.json({
       token,
       user: {
@@ -85,7 +106,7 @@ const login = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Login error:', err.message);
+    console.error('Login error:', err); // Log full error for diagnosis
     res.status(500).json({ error: 'Login failed. Please try again.' });
   }
 };
@@ -119,37 +140,58 @@ const googleLogin = async (req, res) => {
       await user.save();
     }
 
-    const token = signToken(user._id);
+    const token = signToken(user._id, user.role);
     res.json({
       token,
       user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar, role: user.role, provider: user.provider, preferences: user.preferences },
     });
   } catch (err) {
-    console.error('Google login error:', err.message);
+    console.error('Google login error:', err); // Log full error for diagnosis
     res.status(401).json({ error: 'Google authentication failed.' });
   }
 };
 
 // ── FIREBASE GOOGLE LOGIN ─────────────────────────────────────
-// This is the bridge for modern Firebase-based login
+// Server-side token verification via firebase-admin
 const googleFirebaseLogin = async (req, res) => {
   try {
-    const { token, name, email, picture } = req.body;
-    
-    // Note: In production, you MUST use 'firebase-admin' to verify this token!
-    if (!token || !email) {
-      return res.status(400).json({ error: 'Auth token or email missing.' });
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Firebase ID token is required.' });
+    }
+
+    if (!firebaseAdmin) {
+      return res.status(503).json({ error: 'Firebase authentication is not configured on this server.' });
+    }
+
+    // Verify the Firebase ID token — never trust req.body for identity claims
+    let decodedToken;
+    try {
+      decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+    } catch (verifyErr) {
+      console.error('Firebase token verification failed:', verifyErr.message);
+      return res.status(401).json({ error: 'Invalid or expired Firebase token.' });
+    }
+
+    // Security #8: Ignore req.body identity fields (name/email/picture).
+    // All identity claims MUST come from the verified Firebase token, not the client.
+    // Frontend should only send { token: idToken }.
+    const { email, name, picture } = decodedToken;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Firebase token does not contain an email address.' });
     }
 
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = await User.create({ 
-        name: name || 'Google User', 
-        email, 
-        avatar: picture, 
-        provider: 'google', 
-        isVerified: true 
+      user = await User.create({
+        name: name || 'Google User',
+        email,
+        avatar: picture || '',
+        provider: 'google',
+        isVerified: true,
       });
     } else {
       user.provider = 'google';
@@ -158,17 +200,17 @@ const googleFirebaseLogin = async (req, res) => {
       await user.save();
     }
 
-    const localToken = signToken(user._id);
+    const localToken = signToken(user._id, user.role);
     res.json({
       token: localToken,
-      user: { 
-        id: user._id, 
-        name: user.name, 
-        email: user.email, 
-        avatar: user.avatar, 
-        role: user.role, 
-        provider: user.provider, 
-        preferences: user.preferences 
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
+        provider: user.provider,
+        preferences: user.preferences,
       },
     });
   } catch (err) {
@@ -193,7 +235,7 @@ const verifyEmail = async (req, res) => {
     user.verificationExpires = undefined;
     await user.save();
 
-    const token = signToken(user._id);
+    const token = signToken(user._id, user.role);
     res.json({ message: 'Email verified successfully! You are now logged in.', token, user: { id: user._id, name: user.name, email: user.email, preferences: user.preferences } });
   } catch (err) {
     res.status(500).json({ error: 'Verification failed.' });
@@ -251,7 +293,7 @@ const resetPassword = async (req, res) => {
     user.resetExpires = undefined;
     await user.save();
 
-    const jwtToken = signToken(user._id);
+    const jwtToken = signToken(user._id, user.role);
     res.json({ message: 'Password reset successful!', token: jwtToken, user: { id: user._id, name: user.name, email: user.email, preferences: user.preferences } });
   } catch (err) {
     res.status(500).json({ error: 'Password reset failed.' });
@@ -272,13 +314,25 @@ const getMe = async (req, res) => {
 // ── UPDATE PREFERENCES ────────────────────────────────────────
 const updatePreferences = async (req, res) => {
   try {
-    const updates = req.body;
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ error: 'User not found.' });
+    // Security #5: Whitelist allowed preference keys before merging.
+    // Prevents injection of arbitrary fields into the preferences subdocument.
+    const ALLOWED_PREFS = ['theme', 'language', 'articlesPerPage', 'emailNotifications', 'alertNotifications', 'autoRefresh', 'defaultTopic'];
+    const safeUpdates = {};
+    ALLOWED_PREFS.forEach(key => {
+      if (req.body[key] !== undefined) safeUpdates[`preferences.${key}`] = req.body[key];
+    });
 
-    // Merge preferences
-    Object.assign(user.preferences, updates);
-    await user.save();
+    if (Object.keys(safeUpdates).length === 0) {
+      return res.status(400).json({ error: 'No valid preference fields provided.' });
+    }
+
+    // $set with runValidators enforces Mongoose enum/type constraints
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { $set: safeUpdates },
+      { new: true, runValidators: true }
+    );
+    if (!user) return res.status(404).json({ error: 'User not found.' });
 
     res.json({ message: 'Preferences updated.', preferences: user.preferences });
   } catch (err) {
@@ -316,19 +370,28 @@ const updateProfile = async (req, res) => {
 
 // ── RESEND VERIFICATION ────────────────────────────────────────
 const resendVerification = async (req, res) => {
+  // Security #9: Always return the same generic message regardless of outcome
+  // to prevent user-existence enumeration attacks.
+  const GENERIC_MSG = { message: 'If this email is registered and unverified, a new link has been sent.' };
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
 
     if (!user || user.isVerified) {
-      return res.json({ message: 'If this email is registered and unverified, a new link has been sent.' });
+      return res.json(GENERIC_MSG);
     }
 
     const token = user.generateVerificationToken();
     await user.save({ validateBeforeSave: false });
-    await sendVerificationEmail(user, token);
 
-    res.json({ message: 'Verification email resent.' });
+    try {
+      await sendVerificationEmail(user, token);
+    } catch (emailErr) {
+      // Log the real error server-side but never expose it to the client
+      console.error('Resend verification email failed (non-fatal):', emailErr.message);
+    }
+
+    res.json(GENERIC_MSG);
   } catch (err) {
     res.status(500).json({ error: 'Failed to resend verification.' });
   }

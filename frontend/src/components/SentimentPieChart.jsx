@@ -21,9 +21,9 @@ const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0];
   return (
-    <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: 'var(--shadow-lg)' }}>
       <p style={{ fontSize: 11, fontWeight: 700, color: COLORS[name], marginBottom: 2 }}>{name}</p>
-      <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{value} articles</p>
+      <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-900)' }}>{value} articles</p>
     </div>
   );
 };
@@ -50,12 +50,28 @@ const SentimentPieChart = ({ distribution }) => {
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <PieChart>
+            <defs>
+              <linearGradient id="piePos" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#34d399" />
+                <stop offset="100%" stopColor="#059669" />
+              </linearGradient>
+              <linearGradient id="pieNeg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f87171" />
+                <stop offset="100%" stopColor="#dc2626" />
+              </linearGradient>
+              <linearGradient id="pieNeu" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#fbbf24" />
+                <stop offset="100%" stopColor="#d97706" />
+              </linearGradient>
+            </defs>
             <Pie data={data} cx="50%" cy="50%" innerRadius={50} outerRadius={85}
-              paddingAngle={3} dataKey="value" labelLine={false} label={renderLabel}>
-              {data.map(e => <Cell key={e.name} fill={COLORS[e.name]} />)}
+              paddingAngle={4} dataKey="value" labelLine={false} label={renderLabel}
+              isAnimationActive={true} animationDuration={1000} animationEasing="ease-out"
+              stroke="none">
+              {data.map(e => <Cell key={e.name} fill={`url(#pie${e.name.substring(0,3)})`} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.1))' }} />)}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <Legend formatter={v => <span style={{ color: '#6b7280', fontSize: 12, fontFamily: 'Inter,sans-serif' }}>{v}</span>} />
+            <Legend formatter={v => <span style={{ color: 'var(--text-500)', fontSize: 12, fontFamily: 'Inter,sans-serif' }}>{v}</span>} />
           </PieChart>
         </ResponsiveContainer>
       )}

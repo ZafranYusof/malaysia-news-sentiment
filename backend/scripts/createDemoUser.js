@@ -2,7 +2,7 @@
  * Creates a demo account via the running API and then marks it verified directly.
  * Usage: node scripts/createDemoUser.js
  */
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const http = require('http');
 const mongoose = require('mongoose');
 
@@ -26,7 +26,7 @@ const req = http.request(
       // Step 2 — mark as verified via direct DB update using shared mongoose
       try {
         await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 15000 });
-        const User = require('./models/User');
+        const User = require('../models/User');
         const user = await User.findOneAndUpdate(
           { email: 'demo@mynews.my' },
           { isVerified: true, verificationToken: undefined, verificationExpires: undefined },

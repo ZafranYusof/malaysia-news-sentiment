@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
-const Article = require('./models/Article');
-const User = require('./models/User');
+const Article = require('../../models/Article');
+const User = require('../../models/User');
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const testAdminAPI = async () => {
   try {

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { geminiModel } from '../config/firebase';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api';
 
@@ -16,6 +17,84 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+/**
+ * Map API/network errors to user-friendly messages
+ */
+const getFriendlyError = (error) => {
+  // No response at all — network/server down
+  if (!error.response) {
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      return 'Request timed out. The server might be busy — please try again.';
+    }
+    if (error.message?.includes('Network Error')) {
+      return 'Cannot connect to the server. Please check if the backend is running.';
+    }
+    return 'Connection failed. Please check your internet connection.';
+  }
+
+  const status = error.response.status;
+  const serverMsg = error.response.data?.error || error.response.data?.message;
+
+  switch (status) {
+    case 400: return serverMsg || 'Invalid request. Please check your input.';
+    case 401: return 'Session expired. Please log in again.';
+    case 403: return 'You don\'t have permission to do this.';
+    case 404: return serverMsg || 'The requested resource was not found.';
+    case 429: return 'Too many requests. Please wait a moment and try again.';
+    case 500: return serverMsg || 'Server error. The AI service might be temporarily unavailable.';
+    case 502:
+    case 503:
+    case 504: return 'Server is temporarily unavailable. Please try again in a moment.';
+    default:  return serverMsg || `Something went wrong (Error ${status}).`;
+  }
+};
+
+/**
+ * Retry a failed request (for 5xx and network errors only)
+ */
+const retryRequest = async (error, maxRetries = 2) => {
+  const config = error.config;
+  if (!config) return Promise.reject(error);
+
+  config.__retryCount = config.__retryCount || 0;
+
+  // Only retry on network errors or 5xx server errors
+  const isRetryable = !error.response || (error.response.status >= 500 && error.response.status < 600);
+  
+  if (!isRetryable || config.__retryCount >= maxRetries) {
+    // Attach friendly message before rejecting
+    error.friendlyMessage = getFriendlyError(error);
+    return Promise.reject(error);
+  }
+
+  config.__retryCount += 1;
+  const delay = config.__retryCount * 1500; // 1.5s, 3s
+  console.warn(`[API] Retrying request (${config.__retryCount}/${maxRetries}) after ${delay}ms...`);
+
+  await new Promise(resolve => setTimeout(resolve, delay));
+  return api(config);
+};
+
+// Add response interceptor to handle errors, retries, and expired tokens
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    // Handle 401 — expired token
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+        window.location.href = '/login';
+      }
+      error.friendlyMessage = getFriendlyError(error);
+      return Promise.reject(error);
+    }
+
+    // Auto-retry for server/network errors
+    return retryRequest(error);
+  }
+);
 
 /**
  * Fetch and analyze news for a given search query
@@ -72,6 +151,39 @@ export const getKeywords = async (params = {}) => {
  * Generate an AI digest summary for a batch of articles
  */
 export const generateDigest = async (articles, topic) => {
+  if (geminiModel) {
+    try {
+      const articleSummary = articles
+        .slice(0, 15)
+        .map((a, i) => `${i + 1}. [${a.sentiment}] ${a.title}`)
+        .join('\n');
+
+      const prompt = `You are an expert Malaysian news analyst fluent in English and Bahasa Malaysia.
+Summarize the recent news about "${topic || 'General News'}":
+
+${articleSummary}
+
+Task: Provide a structured digest that is extremely clear and professional.
+1. Start with an 'Executive overview:' header followed by 1-2 sentences. 
+2. Use a 'Key news themes' header.
+3. List news themes starting with a bullet character '•'.
+
+Format as strict JSON ONLY, no markdown formatting:
+{
+  "en": "Executive overview: ...\\n\\nKey news themes:\\n• ...",
+  "ms": "Ringkasan eksekutif: ...\\n\\nTema utama berita:\\n• ..."
+}`;
+
+      const result = await geminiModel.generateContent(prompt);
+      let responseText = await result.response.text();
+      responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(responseText);
+      return { digest: parsed };
+    } catch (error) {
+      console.error("Firebase AI Logic digest failed, falling back to backend:", error);
+    }
+  }
+
   const response = await api.post('/news/digest', { articles, topic });
   return response.data;
 };
@@ -80,6 +192,42 @@ export const generateDigest = async (articles, topic) => {
  * Generate a 7-day AI forecast based on analyzed articles
  */
 export const generateForecast = async (articles, topic) => {
+  if (geminiModel) {
+    try {
+      const summary = articles.slice(0, 30)
+        .map(a => `- [${a.sentiment}] ${a.title}`)
+        .join('\n');
+    
+      const prompt = `You are a Malaysian political and economic analyst. Forecast sentiment trends based on news headlines.
+Based on these recent headlines regarding "${topic || 'General'}", provide a 7-day outlook.
+Include translation for both English (en) and Bahasa Melayu (ms).
+
+Format as strict JSON ONLY, no markdown formatting:
+{ 
+  "projectionScore": 85,
+  "en": {
+    "outlook": ["Paragraph 1", "Paragraph 2", "Paragraph 3"],
+    "risks": ["risk1", "risk2", "risk3"]
+  },
+  "ms": {
+    "outlook": ["Perenggan 1", "Perenggan 2", "Perenggan 3"],
+    "risks": ["risiko1", "risiko2", "risiko3"]
+  }
+}
+
+Headlines:
+${summary}`;
+      
+      const result = await geminiModel.generateContent(prompt);
+      let responseText = await result.response.text();
+      // Remove any markdown fencing before parsing
+      responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.error("Firebase AI Logic forecast failed, falling back to backend:", error);
+    }
+  }
+
   const response = await api.post('/news/forecast', { articles, topic });
   return response.data;
 };
@@ -148,6 +296,23 @@ export const getAdminStats = async () => {
  */
 export const getAdminInsights = async () => {
   const response = await api.get('/news/admin/insights');
+  return response.data;
+};
+
+/**
+ * Performance #15: Composite dashboard init — replaces 4 parallel calls on mount.
+ * Returns { history, stats, trends, keywords } in one round-trip.
+ */
+export const getDashboardInit = async (params = {}) => {
+  const response = await api.get('/history/dashboard-init', { params });
+  return response.data;
+};
+
+/**
+ * Get detailed AI analysis for a specific article (Summary, Entities, Sentiment Breakdown)
+ */
+export const getArticleAnalysis = async (article) => {
+  const response = await api.post('/news/analyze-article', { article });
   return response.data;
 };
 

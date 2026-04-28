@@ -1,5 +1,15 @@
 const nodemailer = require('nodemailer');
 
+const escapeHtml = (text) => {
+  if (!text) return '';
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 /**
  * Creates a reusable transporter.
  * Set EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS in .env
@@ -78,7 +88,7 @@ const sendVerificationEmail = async (user, token) => {
     to: user.email,
     subject: 'Verify your email — MY News Sentiment',
     html: emailTemplate('Verify Your Email', `
-      <p>Hi <strong>${user.name}</strong>,</p>
+      <p>Hi <strong>${escapeHtml(user.name)}</strong>,</p>
       <p>Thank you for registering! Click the button below to verify your email address:</p>
       <a class="btn" href="${link}">Verify Email</a>
       <p style="color:#9ca3af;font-size:12px;">Link expires in 24 hours. If you didn't register, ignore this email.</p>
@@ -101,7 +111,7 @@ const sendResetEmail = async (user, token) => {
     to: user.email,
     subject: 'Reset your password — MY News Sentiment',
     html: emailTemplate('Reset Your Password', `
-      <p>Hi <strong>${user.name}</strong>,</p>
+      <p>Hi <strong>${escapeHtml(user.name)}</strong>,</p>
       <p>We received a request to reset your password. Click below to set a new password:</p>
       <a class="btn" href="${link}">Reset Password</a>
       <p style="color:#9ca3af;font-size:12px;">Link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>

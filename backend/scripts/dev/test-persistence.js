@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Article = require('./models/Article');
-const { getAndAnalyzeNews } = require('./controllers/newsController');
-require('dotenv').config();
+const Article = require('../../models/Article');
+const { getAndAnalyzeNews } = require('../../controllers/newsController');
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 
 async function testPersistence() {
     console.log('🧪 TESTING HISTORY PERSISTENCE...');

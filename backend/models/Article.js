@@ -19,6 +19,9 @@ const articleSchema = new mongoose.Schema(
     reason:      { type: String, default: '' },
     isAlert:     { type: Boolean, default: false },
     stateLocation: { type: String, default: 'General' }, 
+    language:      { type: String, default: 'en' },
+    analysis_source: { type: String, default: 'local' }, 
+    embedding:     { type: [Number], index: false }, // 384 dimensions
 
     // ── Popularity & User Stats (#1-3) ────────────────────────
     viewCount: { type: Number, default: 0, index: -1 },
@@ -31,6 +34,8 @@ const articleSchema = new mongoose.Schema(
       Neutral:  { type: Number, default: 0 },
       upVotes:  { type: Number, default: 0 },
       downVotes: { type: Number, default: 0 },
+      // Tracks who already voted to prevent duplicates (#Bug3)
+      voters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     },
 
     // ── Metrics & Reach (#Meltwater Style) ────────────────────

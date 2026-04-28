@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SentimentBadge from './SentimentBadge';
 import AlertBadge from './AlertBadge';
+import { useArticleAnalysis } from '../context/ArticleAnalysisContext';
+import { useSocket } from '../context/SocketContext';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
@@ -9,13 +11,64 @@ const formatDate = (dateStr) => {
   });
 };
 
+const deriveSourceLabel = (source, url) => {
+  if (source && source !== 'Unknown' && source !== 'Source' && source !== 'Media Source') {
+    return source;
+  }
+
+  if (!url) return 'News Source';
+
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '');
+    const label = host.split('.')[0] || host;
+    return label
+      .split(/[-_]/)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  } catch {
+    return 'News Source';
+  }
+};
+
 const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked }) => {
+  const { openArticlePanel } = useArticleAnalysis();
+  const socket = useSocket();
+  const [localViewCount, setLocalViewCount] = useState(article.viewCount || article.views || 0);
+  const [localBookmarkCount, setLocalBookmarkCount] = useState(article.bookmarksCount || 0);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const articleId = article._id || article.id;
+    
+    const handleViewUpdate = (data) => {
+      if (data.articleId === articleId) {
+        setLocalViewCount(data.viewCount);
+      }
+    };
+
+    const handleBookmarkUpdate = (data) => {
+      if (data.articleId === articleId) {
+        setLocalBookmarkCount(data.bookmarksCount);
+      }
+    };
+
+    socket.on('view_updated', handleViewUpdate);
+    socket.on('bookmark_updated', handleBookmarkUpdate);
+
+    return () => {
+      socket.off('view_updated', handleViewUpdate);
+      socket.off('bookmark_updated', handleBookmarkUpdate);
+    };
+  }, [socket, article._id, article.id]);
+
   const { 
     id, _id, title, description, source, url, urlToImage, 
     publishedAt, topic, sentiment, reason, confidence, isAlert 
   } = article;
 
   const articleId = _id || id;
+  const sourceLabel = deriveSourceLabel(source, url);
 
   const handlePreview = (e) => {
     // If user clicks the direct link or delete/bookmark btn, don't open preview
@@ -24,7 +77,11 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
     if (e.target.closest('.art-bookmark-btn')) return;
     
     e.preventDefault();
-    if (onPreview) onPreview(article);
+    if (onPreview) {
+      onPreview(article);
+    } else {
+      openArticlePanel(article);
+    }
   };
 
   const handleDelete = (e) => {
@@ -74,7 +131,7 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
       {/* Body */}
       <div className="art-body">
         <div className="art-meta">
-          <span className="art-source">{source === 'Unknown' ? 'Media Source' : source}</span>
+          <span className="art-source">{sourceLabel}</span>
           <span className="art-sep">·</span>
           <span className="art-date">{formatDate(publishedAt)}</span>
           {topic && <span className="art-topic">#{topic}</span>}
@@ -100,7 +157,33 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
             )}
           </div>
           
-          <div className="art-footer-right" style={{ display: 'flex', gap: 8 }}>
+          <div className="art-footer-right" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+             <div className="art-view-pill" style={{ 
+               display: 'flex', alignItems: 'center', gap: 6, 
+               fontSize: 11, fontWeight: 700, color: 'var(--text-400)',
+               padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)',
+               border: '1px solid rgba(255,255,255,0.05)'
+             }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                {localViewCount}
+             </div>
+
+             <div className="art-bookmark-pill" style={{ 
+               display: 'flex', alignItems: 'center', gap: 6, 
+               fontSize: 11, fontWeight: 700, color: localBookmarkCount > 0 ? '#f59e0b' : 'var(--text-400)',
+               padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)',
+               border: '1px solid rgba(255,255,255,0.05)',
+               opacity: localBookmarkCount > 0 ? 1 : 0.6
+             }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill={localBookmarkCount > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+                </svg>
+                {localBookmarkCount}
+             </div>
+
              {onBookmark && (
                <button 
                 className={`art-bookmark-btn ${isBookmarked ? 'active' : ''}`}

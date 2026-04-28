@@ -64,6 +64,7 @@ const Bookmarks = () => {
       )}
 
       <ArticlePreviewModal 
+        key={selectedArticle?._id || selectedArticle?.id || 'bookmark-preview'}
         article={selectedArticle} 
         isOpen={!!selectedArticle} 
         onClose={() => setSelectedArticle(null)}

@@ -1,27 +1,135 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import ScrollToTop from '../components/ScrollToTop';
 import Spline from '@splinetool/react-spline';
 
 const LandingPage = () => {
   const { user } = useAuth();
-  const { t } = useLanguage(); // Keep for context compatibility
+  useLanguage();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  // Redirect to dashboard if logged in
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark');
+  };
 
-  // Scroll reveal logic
+  // === Enhancement 1: Animated Stats Counter ===
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [counters, setCounters] = useState({ articles: 0, accuracy: 0, models: 0 });
+  const statsRef = useRef(null);
+
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setStatsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!statsVisible) return;
+    const targets = { articles: 10000, accuracy: 98, models: 3 };
+    const duration = 2000;
+    const steps = 60;
+    const interval = duration / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = Math.min(step / steps, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCounters({
+        articles: Math.round(targets.articles * eased),
+        accuracy: Math.round(targets.accuracy * eased),
+        models: Math.round(targets.models * eased),
+      });
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [statsVisible]);
+
+  // === Enhancement 6: Typing Animation ===
+  const typingWords = ['Malaysia', 'Rakyat', 'Markets', 'Politics'];
+  const [typingIndex, setTypingIndex] = useState(0);
+  const [typingText, setTypingText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentWord = typingWords[typingIndex];
+    let timeout;
+    if (!isDeleting && typingText === currentWord) {
+      timeout = setTimeout(() => setIsDeleting(true), 2000);
+    } else if (isDeleting && typingText === '') {
+      setIsDeleting(false);
+      setTypingIndex((prev) => (prev + 1) % typingWords.length);
+    } else {
+      const speed = isDeleting ? 60 : 120;
+      timeout = setTimeout(() => {
+        setTypingText(isDeleting ? currentWord.substring(0, typingText.length - 1) : currentWord.substring(0, typingText.length + 1));
+      }, speed);
+    }
+    return () => clearTimeout(timeout);
+  }, [typingText, isDeleting, typingIndex]);
+
+  // === Enhancement 3: Testimonial Carousel ===
+  const testimonials = [
+    { name: 'Dr. Aisha Rahman', role: 'Political Analyst, UKM', quote: 'This platform transformed how we track public sentiment during elections. The real-time insights are unmatched.' },
+    { name: 'Marcus Tan', role: 'Head of Strategy, Bursa Analytics', quote: 'We reduced our media monitoring costs by 70% while getting 10x more actionable intelligence.' },
+    { name: 'Priya Nair', role: 'Journalist, The Edge Malaysia', quote: 'The AI accuracy is remarkable. It catches narrative shifts hours before they hit mainstream coverage.' },
+  ];
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // === Enhancement 4: Live Demo Preview (bar animation triggered by visibility) ===
+  const [barsVisible, setBarsVisible] = useState(false);
+  const barsRef = useRef(null);
+
+  useEffect(() => {
+    const el = barsRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setBarsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // === Enhancement 5: Hover Micro-interactions ===
+  const handleCardMouseMove = useCallback((e) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.background = `radial-gradient(300px circle at ${x}px ${y}px, rgba(99,102,241,0.12), rgba(255,255,255,0.03) 70%)`;
+  }, []);
+  const handleCardMouseLeave = useCallback((e) => {
+    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+  }, []);
+
+  // Scroll reveal logic (Enhanced with stagger - Enhancement 7)
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('is-visible');
+            // Stagger children
+            const staggerChildren = entry.target.querySelectorAll('.stagger-child');
+            staggerChildren.forEach((child, i) => {
+              child.style.transitionDelay = `${i * 120}ms`;
+              child.classList.add('is-visible');
+            });
           }
         });
       },
@@ -42,6 +150,11 @@ const LandingPage = () => {
     }
   };
 
+  // Redirect to dashboard if logged in
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="dark-landing">
       <ScrollToTop />
@@ -60,6 +173,9 @@ const LandingPage = () => {
             <Link to="/contact">Contact</Link>
           </div>
           <div className="d-nav-actions">
+            <button className="btn-theme-toggle" onClick={toggleTheme} title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+              {isDark ? '☀️' : '🌙'}
+            </button>
             <Link to="/login" className="btn-ghost">Log In</Link>
             <button className="btn-neon" onClick={() => navigate('/register')}>Get Started</button>
           </div>
@@ -68,9 +184,10 @@ const LandingPage = () => {
 
       {/* 1. HERO SECTION */}
       <header className="d-hero">
-        {/* Glow Effects */}
-        <div className="hero-glow hero-glow-1" />
-        <div className="hero-glow hero-glow-2" />
+        {/* Animated Gradient Orbs - Enhancement 2 */}
+        <div className="hero-orb hero-orb-1" />
+        <div className="hero-orb hero-orb-2" />
+        <div className="hero-orb hero-orb-3" />
         
         {/* Spline 3D Scene */}
         <div className="hero-spline-wrapper">
@@ -84,7 +201,7 @@ const LandingPage = () => {
           </div>
           <h1 className="d-headline">
             Decode the Voice <br />
-            of <span className="text-gradient-purple">Malaysia</span>
+            of <span className="text-gradient-purple typing-word">{typingText}<span className="typing-cursor">|</span></span>
           </h1>
           <p className="d-subheadline">
             Harness real-time AI to monitor national narratives, identify market shifts, and stay ahead of every headline with enterprise-grade intelligence.
@@ -92,6 +209,22 @@ const LandingPage = () => {
           <div className="d-hero-cta">
             <button className="btn-neon large" onClick={() => navigate('/register')}>Start Analyzing Now</button>
             <button className="btn-glass large" onClick={(e) => smoothScroll(e, 'features')}>Explore More</button>
+          </div>
+
+          {/* Enhancement 1: Animated Stats Counter */}
+          <div className="hero-stats" ref={statsRef}>
+            <div className="hero-stat">
+              <span className="stat-number">{counters.articles.toLocaleString()}+</span>
+              <span className="stat-label">Articles Analyzed</span>
+            </div>
+            <div className="hero-stat">
+              <span className="stat-number">{counters.accuracy}%</span>
+              <span className="stat-label">AI Accuracy</span>
+            </div>
+            <div className="hero-stat">
+              <span className="stat-number">{counters.models}</span>
+              <span className="stat-label">AI Models</span>
+            </div>
           </div>
         </div>
       </header>
@@ -114,7 +247,7 @@ const LandingPage = () => {
               { t: 'Entity Recognition', d: 'Automatically extract and track public figures, companies, and locations.', i: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg> },
               { t: 'Temporal Mapping', d: 'Track narrative evolution over time to predict upcoming shifts.', i: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg> }
             ].map((f, i) => (
-              <div key={i} className="d-card reveal" style={{ transitionDelay: `${i * 100}ms` }}>
+              <div key={i} className="d-card reveal stagger-child" style={{ transitionDelay: `${i * 100}ms` }} onMouseMove={handleCardMouseMove} onMouseLeave={handleCardMouseLeave}>
                 <div className="d-card-icon">{f.i}</div>
                 <h3>{f.t}</h3>
                 <p>{f.d}</p>
@@ -153,14 +286,13 @@ const LandingPage = () => {
                <div className="panel-header">
                  <div className="dots"><span/><span/><span/></div>
                  <div className="url">dashboard.mynews.ai</div>
+                 <div className="live-indicator"><span className="live-pulse-dot"></span> LIVE</div>
                </div>
                <div className="panel-body">
-                  <div className="mockup-chart">
-                    <div className="bar pos" style={{ height: '70%' }}></div>
-                    <div className="bar neu" style={{ height: '40%' }}></div>
-                    <div className="bar neg" style={{ height: '20%' }}></div>
-                    <div className="bar pos" style={{ height: '80%' }}></div>
-                    <div className="bar neg" style={{ height: '50%' }}></div>
+                  <div className="mockup-chart" ref={barsRef}>
+                    {[{cls:'pos',h:70},{cls:'neu',h:40},{cls:'neg',h:20},{cls:'pos',h:80},{cls:'neg',h:50}].map((bar, idx) => (
+                      <div key={idx} className={`bar ${bar.cls} ${barsVisible ? 'bar-animate' : ''}`} style={{ height: barsVisible ? `${bar.h}%` : '0%', transitionDelay: `${idx * 150}ms` }}></div>
+                    ))}
                   </div>
                   <div className="mockup-stats">
                      <div className="line" style={{width: '100%'}}></div>
@@ -190,6 +322,35 @@ const LandingPage = () => {
             <div className="fake-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg> OribtMedia</div>
             <div className="fake-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg> BlockResearch</div>
             <div className="fake-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12h20M12 2v20"/></svg> NexusGov</div>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIAL CAROUSEL - Enhancement 3 */}
+      <section className="d-section testimonial-section">
+        <div className="d-container">
+          <div className="section-header reveal">
+            <h2>Trusted by Industry Leaders</h2>
+            <p>Hear from professionals who rely on our platform daily.</p>
+          </div>
+          <div className="testimonial-carousel reveal">
+            {testimonials.map((t, i) => (
+              <div key={i} className={`testimonial-card ${i === activeTestimonial ? 'testimonial-active' : ''}`}>
+                <div className="testimonial-quote">"{t.quote}"</div>
+                <div className="testimonial-author">
+                  <div className="testimonial-avatar">{t.name.charAt(0)}</div>
+                  <div>
+                    <div className="testimonial-name">{t.name}</div>
+                    <div className="testimonial-role">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <div className="testimonial-dots">
+              {testimonials.map((_, i) => (
+                <button key={i} className={`t-dot ${i === activeTestimonial ? 't-dot-active' : ''}`} onClick={() => setActiveTestimonial(i)} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -391,6 +552,112 @@ const LandingPage = () => {
           gap: 20px;
         }
 
+        .btn-theme-toggle {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          cursor: pointer;
+          font-size: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+        }
+        .btn-theme-toggle:hover {
+          background: rgba(255, 255, 255, 0.15);
+          transform: rotate(20deg);
+        }
+
+        /* ── Light Mode Overrides ── */
+        [data-theme='light'] .dark-landing {
+          background-color: #f8fafc;
+          color: #1e293b;
+        }
+        [data-theme='light'] .d-navbar {
+          background: rgba(255, 255, 255, 0.85);
+          border-bottom-color: #e2e8f0;
+        }
+        [data-theme='light'] .d-logo { color: #0f172a; }
+        [data-theme='light'] .d-nav-links a { color: #64748b; }
+        [data-theme='light'] .d-nav-links a:hover { color: #0f172a; }
+        [data-theme='light'] .btn-ghost { color: #64748b; }
+        [data-theme='light'] .btn-ghost:hover { color: #0f172a; }
+        [data-theme='light'] .btn-theme-toggle {
+          background: rgba(0, 0, 0, 0.05);
+          border-color: #e2e8f0;
+        }
+        [data-theme='light'] .btn-theme-toggle:hover {
+          background: rgba(0, 0, 0, 0.1);
+        }
+        [data-theme='light'] .d-headline { color: #0f172a; }
+        [data-theme='light'] .d-subheadline { color: #64748b; }
+        [data-theme='light'] .badge-glass {
+          background: rgba(99, 102, 241, 0.1);
+          border-color: rgba(99, 102, 241, 0.2);
+          color: #6366f1;
+        }
+        [data-theme='light'] .d-card {
+          background: white;
+          border-color: #e2e8f0;
+        }
+        [data-theme='light'] .d-card { background: white; border: 1px solid #e2e8f0; }
+        [data-theme='light'] .d-card h3 { color: #0f172a; }
+        [data-theme='light'] .d-card p { color: #475569; }
+        [data-theme='light'] .d-card-icon { background: rgba(99,102,241,0.1); }
+        [data-theme='light'] .d-card-icon svg { color: #6366f1; }
+        [data-theme='light'] .section-header h2 { color: #0f172a; }
+        [data-theme='light'] .section-header p { color: #475569; }
+        [data-theme='light'] .d-section { color: #1e293b; }
+        [data-theme='light'] .features-section { background: #f8fafc; }
+        [data-theme='light'] .product-section { background: #ffffff; }
+        [data-theme='light'] .split-text h2 { color: #0f172a; }
+        [data-theme='light'] .split-text p { color: #475569; }
+        [data-theme='light'] .split-text li span { color: #334155; }
+        [data-theme='light'] .d-benefits-list li { color: #334155; }
+        [data-theme='light'] .btn-glass { background: rgba(0,0,0,0.05); border-color: #e2e8f0; color: #0f172a; }
+        [data-theme='light'] .btn-glass:hover { background: rgba(0,0,0,0.1); }
+        [data-theme='light'] .d-features-grid { color: #1e293b; }
+        [data-theme='light'] .d-benefits-list .check-icon { background: #ecfdf5; }
+        [data-theme='light'] .visual-glass-panel {
+          background: white;
+          border-color: #e2e8f0;
+        }
+        [data-theme='light'] .panel-header { border-bottom-color: #e2e8f0; }
+        [data-theme='light'] .panel-header .url { color: #64748b; }
+        [data-theme='light'] .trust-label { color: #94a3b8; }
+        [data-theme='light'] .fake-logo { color: #64748b; border-color: #e2e8f0; }
+        [data-theme='light'] .cta-box {
+          background: #0f172a;
+        }
+        [data-theme='light'] .d-footer {
+          background: #f1f5f9;
+          border-top-color: #e2e8f0;
+        }
+        [data-theme='light'] .d-footer .copyright { color: #94a3b8; }
+        [data-theme='light'] .footer-links a { color: #64748b; }
+        [data-theme='light'] .footer-links h4 { color: #0f172a; }
+        [data-theme='light'] .hero-glow { opacity: 0.15; }
+        [data-theme='light'] .features-spline-wrapper { opacity: 0.3; }
+        [data-theme='light'] .stats-counter { background: white; border-color: #e2e8f0; }
+        [data-theme='light'] .stat-number { color: #0f172a; }
+        [data-theme='light'] .stat-label { color: #64748b; }
+        [data-theme='light'] .testimonial-card,
+        [data-theme='light'] [class*="testimonial"] {
+          background: white !important;
+          border-color: #e2e8f0 !important;
+        }
+        [data-theme='light'] .testimonial-card p,
+        [data-theme='light'] [class*="testimonial"] p,
+        [data-theme='light'] .testimonial-quote { color: #334155 !important; }
+        [data-theme='light'] .testimonial-name { color: #0f172a !important; }
+        [data-theme='light'] .testimonial-role { color: #64748b !important; }
+        [data-theme='light'] .trust-section,
+        [data-theme='light'] .trust-section * { color: #1e293b; }
+        [data-theme='light'] .trust-section p { color: #475569 !important; }
+        [data-theme='light'] .trust-section h2 { color: #0f172a !important; }
+
         /* Hero */
         .d-hero {
           position: relative;
@@ -400,20 +667,48 @@ const LandingPage = () => {
           padding-top: 72px; /* nav offset */
           overflow: hidden;
         }
-        .hero-glow {
+        /* Enhancement 2: Animated Gradient Orbs */
+        .hero-orb {
           position: absolute;
-          width: 600px;
-          height: 600px;
           border-radius: 50%;
           filter: blur(120px);
           z-index: 0;
-          opacity: 0.4;
           pointer-events: none;
+          will-change: transform;
         }
-        .hero-glow-1 {
+        .hero-orb-1 {
+          width: 600px; height: 600px;
           background: var(--accent-purple);
-          top: -200px;
-          left: -200px;
+          top: -200px; left: -200px;
+          opacity: 0.4;
+          animation: orbFloat1 8s ease-in-out infinite;
+        }
+        .hero-orb-2 {
+          width: 500px; height: 500px;
+          background: var(--accent-blue);
+          bottom: 10%; right: 10%;
+          opacity: 0.2;
+          animation: orbFloat2 10s ease-in-out infinite;
+        }
+        .hero-orb-3 {
+          width: 400px; height: 400px;
+          background: linear-gradient(135deg, #ec4899, #8b5cf6);
+          top: 40%; left: 30%;
+          opacity: 0.15;
+          animation: orbFloat3 12s ease-in-out infinite;
+        }
+        @keyframes orbFloat1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(60px, 40px) scale(1.1); }
+          66% { transform: translate(-30px, 60px) scale(0.95); }
+        }
+        @keyframes orbFloat2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-50px, -40px) scale(1.15); }
+        }
+        @keyframes orbFloat3 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+          50% { transform: translate(40px, -30px) scale(1.2); opacity: 0.25; }
         }
         .features-section {
           position: relative;
@@ -440,11 +735,44 @@ const LandingPage = () => {
           position: relative;
           z-index: 10;
         }
-        .hero-glow-2 {
-          background: var(--accent-blue);
-          bottom: 10%;
-          right: 10%;
-          opacity: 0.2;
+        /* Enhancement 1: Hero Stats */
+        .hero-stats {
+          display: flex;
+          gap: 40px;
+          margin-top: 48px;
+          padding-top: 32px;
+          border-top: 1px solid var(--border);
+        }
+        .hero-stat {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .stat-number {
+          font-size: 28px;
+          font-weight: 800;
+          background: linear-gradient(135deg, #a855f7, #3b82f6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .stat-label {
+          font-size: 13px;
+          color: var(--text-muted);
+          font-weight: 500;
+        }
+
+        /* Enhancement 6: Typing Cursor */
+        .typing-word {
+          position: relative;
+        }
+        .typing-cursor {
+          font-weight: 300;
+          animation: cursorBlink 0.7s step-end infinite;
+          -webkit-text-fill-color: #a855f7;
+        }
+        @keyframes cursorBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
 
         /* Spline Container */
@@ -703,6 +1031,33 @@ const LandingPage = () => {
           flex: 1;
           border-radius: 4px 4px 0 0;
           background: var(--border);
+          transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .mockup-chart .bar.bar-animate {
+          /* height set inline */
+        }
+
+        /* Enhancement 4: Live Indicator */
+        .live-indicator {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 10px;
+          font-weight: 700;
+          color: #22c55e;
+          letter-spacing: 1px;
+          margin-left: auto;
+        }
+        .live-pulse-dot {
+          width: 6px; height: 6px;
+          background: #22c55e;
+          border-radius: 50%;
+          box-shadow: 0 0 8px #22c55e;
+          animation: livePulse 1.5s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.6); opacity: 0.5; }
         }
         .mockup-chart .bar.pos { background: linear-gradient(to top, #0f172a, #22c55e); }
         .mockup-chart .bar.neu { background: linear-gradient(to top, #0f172a, #eab308); }
@@ -758,6 +1113,104 @@ const LandingPage = () => {
         }
         .fake-logo:hover { filter: grayscale(0); opacity: 1; color: white; }
         .fake-logo svg { width: 28px; height: 28px; color: var(--accent-blue); }
+
+        /* Enhancement 3: Testimonial Carousel */
+        .testimonial-section {
+          background: rgba(255,255,255,0.01);
+        }
+        .testimonial-carousel {
+          position: relative;
+          max-width: 700px;
+          margin: 0 auto;
+          min-height: 240px;
+        }
+        .testimonial-card {
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: 24px;
+          padding: 40px;
+          opacity: 0;
+          transform: translateY(20px) scale(0.97);
+          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          pointer-events: none;
+        }
+        .testimonial-card.testimonial-active {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          pointer-events: auto;
+        }
+        .testimonial-quote {
+          font-size: 18px;
+          line-height: 1.7;
+          color: #e2e8f0;
+          font-style: italic;
+          margin-bottom: 24px;
+        }
+        [data-theme='light'] .testimonial-quote { color: #334155 !important; }
+        [data-theme='light'] .testimonial-card { background: white !important; border: 1px solid #e2e8f0 !important; }
+        [data-theme='light'] .testimonial-section { background: #f8fafc; }
+        [data-theme='light'] .testimonial-section h2 { color: #0f172a; }
+        [data-theme='light'] .testimonial-section p { color: #475569; }
+        .testimonial-author {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .testimonial-avatar {
+          width: 44px; height: 44px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #6366f1, #3b82f6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 18px;
+          color: white;
+        }
+        .testimonial-name {
+          font-weight: 600;
+          font-size: 15px;
+        }
+        .testimonial-role {
+          font-size: 13px;
+          color: var(--text-muted);
+        }
+        .testimonial-dots {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          position: absolute;
+          bottom: -40px;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        .t-dot {
+          width: 10px; height: 10px;
+          border-radius: 50%;
+          border: none;
+          background: #334155;
+          cursor: pointer;
+          transition: all 0.3s;
+          padding: 0;
+        }
+        .t-dot-active {
+          background: var(--accent-purple);
+          box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+          transform: scale(1.3);
+        }
+
+        /* Enhancement 7: Stagger children */
+        .stagger-child {
+          opacity: 0;
+          transform: translateY(25px);
+          transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stagger-child.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
 
         /* CTA Section */
         .cta-section { padding: 160px 0; }
@@ -827,6 +1280,10 @@ const LandingPage = () => {
           .d-hero-content { padding: 0 20px; z-index: 2; }
           .d-nav-links { display: none; }
           .footer-links { flex-wrap: wrap; gap: 40px; }
+          .hero-stats { gap: 24px; flex-wrap: wrap; }
+          .stat-number { font-size: 22px; }
+          .testimonial-carousel { min-height: 300px; }
+          .testimonial-card { padding: 28px; }
         }
       `}</style>
     </div>

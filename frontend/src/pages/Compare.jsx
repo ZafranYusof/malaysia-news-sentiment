@@ -44,7 +44,7 @@ const ComparePage = () => {
       });
 
       toast.success('Comparison calculated!', { id: compareToast });
-    } catch (err) {
+    } catch {
       toast.error('Failed to compare topics', { id: compareToast });
     } finally {
       setLoading(false);

@@ -5,7 +5,7 @@ const ScrollToTop = () => {
 
   // Show button when page is scrolled up to given distance
   const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
+    if (window.scrollY > 300) {
       setIsVisible(true);
     } else {
       setIsVisible(false);
@@ -15,10 +15,8 @@ const ScrollToTop = () => {
   // Custom cinematic smooth scroll with easing
   const scrollToTop = () => {
     const scrollDuration = 800; // ms
-    const scrollStep = -window.scrollY / (scrollDuration / 15);
-    
     // Simple cubic ease-in-out
-    const start = window.pageYOffset;
+    const start = window.scrollY;
     const startTime = 'now' in window.performance ? performance.now() : new Date().getTime();
 
     const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
@@ -30,7 +28,7 @@ const ScrollToTop = () => {
       
       window.scroll(0, Math.ceil(timeFunction * (0 - start) + start));
 
-      if (window.pageYOffset === 0 || time === 1) return;
+      if (window.scrollY === 0 || time === 1) return;
       requestAnimationFrame(scroll);
     };
 

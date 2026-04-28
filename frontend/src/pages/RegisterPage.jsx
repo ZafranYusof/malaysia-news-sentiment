@@ -11,7 +11,6 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -96,33 +95,6 @@ const RegisterPage = () => {
           <Link to="/login" className="auth-btn-primary" style={{ display: 'block', textDecoration: 'none', textAlign: 'center' }}>
             Go to Login
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (success) {
-    return (
-      <div className="auth-page dragonfly-bg">
-        <style>{`
-          .dragonfly-bg { display: flex; align-items: center; justify-content: center; background: #f8fafc; min-height: 100vh; font-family: "Inter", sans-serif; position: relative; overflow: hidden; }
-          .dragonfly-bg .background { position: absolute; inset: 0; width: 100%; height: 100%; background: radial-gradient(125% 125% at 50% 10%, #f8fbff 30%, #7c3aed 100%); z-index: 0; }
-          .form_container { width: 420px; display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 40px; background-color: #ffffff; box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01), 0px 59px 36px rgba(0, 0, 0, 0.05), 0px 26px 26px rgba(0, 0, 0, 0.09), 0px 7px 15px rgba(0, 0, 0, 0.1); border-radius: 11px; text-align: center; position: relative; z-index: 2; }
-          .logo_container { width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-          .title { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0; }
-          .subtitle { font-size: 0.9rem; color: #64748b; line-height: 1.4; margin-top: 10px; }
-          .btn-back-login { width: 100%; height: 44px; background: #1e293b; color: white; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; margin-top: 20px; }
-        `}</style>
-        <div className="background" />
-        <div className="form_container">
-          <div className="logo_container">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          </div>
-          <p className="title">Check your Inbox</p>
-          <span className="subtitle">{success}</span>
-          <Link to="/login" className="btn-back-login">Back to Login</Link>
         </div>
       </div>
     );

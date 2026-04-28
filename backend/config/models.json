@@ -1,0 +1,11 @@
+{
+  "models": [
+    {
+      "title": "enowx-ai",
+      "provider": "openai",
+      "model": "claude-opus-4.6",
+      "apiBase": "http://localhost:1430/v1",
+      "apiKey": "${ENOWX_API_KEY}"
+    }
+  ]
+}

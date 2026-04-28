@@ -83,6 +83,7 @@ const Trending = () => {
       )}
 
       <ArticlePreviewModal 
+        key={selectedArticle?._id || 'trending-preview'}
         article={selectedArticle} 
         isOpen={!!selectedArticle} 
         onClose={() => setSelectedArticle(null)}

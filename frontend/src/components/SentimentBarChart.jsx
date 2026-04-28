@@ -4,11 +4,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 4 }}>{label}</p>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: 'var(--shadow-lg)' }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-500)', marginBottom: 4 }}>{label}</p>
       {payload.map(p => (
-        <p key={p.name} style={{ fontSize: 12.5, color: p.fill, marginTop: 2 }}>
-          {p.name}: <strong style={{ color: '#0f172a' }}>{p.value}</strong>
+        <p key={p.name} style={{ fontSize: 12.5, color: p.payload?.color || '#0f172a', marginTop: 2, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: p.payload?.color || '#0f172a' }}></span>
+          {p.name}: <strong style={{ color: 'var(--text-900)' }}>{p.value}</strong>
         </p>
       ))}
     </div>
@@ -35,12 +36,26 @@ const SentimentBarChart = ({ distribution }) => {
       </div>
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f2f5" />
-          <XAxis dataKey="name" tick={{ fill: '#9ca3af', fontSize: 12, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: '#9ca3af', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} allowDecimals={false} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-          <Bar dataKey="value" radius={[5, 5, 0, 0]}>
-            {data.map(d => <Cell key={d.name} fill={d.color} />)}
+          <defs>
+            <linearGradient id="barPos" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#059669" />
+            </linearGradient>
+            <linearGradient id="barNeg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f87171" />
+              <stop offset="100%" stopColor="#dc2626" />
+            </linearGradient>
+            <linearGradient id="barNeu" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fbbf24" />
+              <stop offset="100%" stopColor="#d97706" />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
+          <XAxis dataKey="name" tick={{ fill: 'var(--text-400)', fontSize: 12, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: 'var(--text-400)', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} allowDecimals={false} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg)', opacity: 0.5 }} />
+          <Bar dataKey="value" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1200} animationEasing="ease-out">
+            {data.map(d => <Cell key={d.name} fill={`url(#bar${d.name.substring(0,3)})`} />)}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

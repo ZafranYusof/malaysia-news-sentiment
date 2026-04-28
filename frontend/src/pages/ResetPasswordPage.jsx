@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const verifyToken = searchParams.get('token'); // reuse for verify-email
-  const isVerify = useSearchParams()[0].has('verify');
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [password, setPassword] = useState('');
@@ -38,7 +34,7 @@ const ResetPasswordPage = () => {
         .catch(err => setError(err.response?.data?.error || 'Verification failed.'))
         .finally(() => setVerifying(false));
     }
-  }, [token]);
+  }, [navigate, token]);
 
   const handleReset = async (e) => {
     e.preventDefault();

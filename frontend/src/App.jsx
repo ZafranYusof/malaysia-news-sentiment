@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -17,10 +18,32 @@ import Trending from './pages/Trending';
 import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import StaticPage from './pages/StaticPage';
+import ContactPage from './pages/ContactPage';
+import FeaturesPage from './pages/FeaturesPage';
 import NotFound from './pages/NotFound';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import LoadingScreen from './components/LoadingScreen';
+import ErrorBoundary from './components/ErrorBoundary';
+import { ArticleAnalysisProvider } from './context/ArticleAnalysisContext';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: (failureCount, error) => {
+        // Don't retry on 4xx client errors (except 429 rate limit)
+        if (error?.response?.status && error.response.status < 500 && error.response.status !== 429) {
+          return false;
+        }
+        return failureCount < 2;
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const SideLink = ({ to, children, icon, onClick }) => {
   const loc = useLocation();
@@ -28,7 +51,7 @@ const SideLink = ({ to, children, icon, onClick }) => {
   return (
     <Link to={to} className={`sidebar-link ${active ? 'active' : ''}`} onClick={onClick}>
       {icon}
-      {children}
+      <span>{children}</span>
     </Link>
   );
 };
@@ -40,7 +63,17 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-const Sidebar = ({ isOpen, onClose }) => {
+// Code Quality #20: Separate guard for admin-only routes — checks role, not just auth.
+// Without this, any logged-in user could navigate to /admin via the URL bar.
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen message="Verifying Access..." />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const initials = (user?.name || user?.email || 'User').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -48,7 +81,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   return (
     <>
       <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose} />
-      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+      <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-logo">
           <div className="logo-mark">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -131,6 +164,9 @@ const Sidebar = ({ isOpen, onClose }) => {
   );
 };
 
+
+import SidebarToggle from './components/SidebarToggle';
+
 const TITLES = { 
   '/dashboard': 'dashboard', 
   '/history': 'history', 
@@ -143,21 +179,40 @@ const TITLES = {
 
 const AppShell = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('sidebar-collapsed') === 'true';
+  });
+  
   const { t, lang, toggleLanguage } = useLanguage();
   const loc = useLocation();
   const titleKey = TITLES[loc.pathname] || 'dashboard';
 
+  const toggleSidebar = () => {
+    if (window.innerWidth > 1024) {
+      const newState = !isSidebarCollapsed;
+      setIsSidebarCollapsed(newState);
+      localStorage.setItem('sidebar-collapsed', newState);
+    } else {
+      setIsSidebarOpen(!isSidebarOpen);
+    }
+  };
+
   return (
     <div className="app-shell">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        isCollapsed={isSidebarCollapsed} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
       <div className="main-area">
         <header className="topbar">
           <div className="topbar-left">
-            <button className="topbar-hamburger" onClick={() => setIsSidebarOpen(true)}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
-            </button>
+            <div className="topbar-hamburger-wrap">
+              <SidebarToggle 
+                isOpen={window.innerWidth > 1024 ? !isSidebarCollapsed : isSidebarOpen} 
+                onToggle={toggleSidebar} 
+              />
+            </div>
             <h1 className="topbar-title">{t(titleKey)}</h1>
           </div>
           <div className="topbar-actions">
@@ -178,24 +233,28 @@ const AppShell = ({ children }) => {
   );
 };
 
+import { SocketProvider } from './context/SocketContext';
+
 const AppInner = () => (
   <Routes>
     <Route path="/"               element={<LandingPage />} />
     <Route path="/login"          element={<LoginPage />} />
     <Route path="/register"       element={<RegisterPage />} />
     <Route path="/reset-password" element={<ResetPasswordPage />} />
-    <Route path="/verify-email"   element={<ResetPasswordPage />} />
+    <Route path="/verify-email"   element={<VerifyEmailPage />} />
 
     <Route path="/dashboard" element={<ProtectedRoute><AppShell><Dashboard /></AppShell></ProtectedRoute>} />
     <Route path="/trending" element={<ProtectedRoute><AppShell><Trending /></AppShell></ProtectedRoute>} />
     <Route path="/compare" element={<ProtectedRoute><AppShell><ComparePage /></AppShell></ProtectedRoute>} />
     <Route path="/history" element={<ProtectedRoute><AppShell><History /></AppShell></ProtectedRoute>} />
     <Route path="/bookmarks" element={<ProtectedRoute><AppShell><Bookmarks /></AppShell></ProtectedRoute>} />
-    <Route path="/admin" element={<ProtectedRoute><AppShell><AdminDashboard /></AppShell></ProtectedRoute>} />
+    <Route path="/admin" element={<AdminRoute><AppShell><AdminDashboard /></AppShell></AdminRoute>} />
     <Route path="/settings" element={<ProtectedRoute><AppShell><SettingsPage /></AppShell></ProtectedRoute>} />
     
     {/* Static Informational Pages */}
     <Route path="/api" element={<StaticPage />} />
+    <Route path="/contact" element={<ContactPage />} />
+    <Route path="/features" element={<FeaturesPage />} />
     <Route path="/pricing" element={<StaticPage />} />
     <Route path="/about" element={<StaticPage />} />
     <Route path="/jobs" element={<StaticPage />} />
@@ -207,35 +266,44 @@ const AppInner = () => (
 );
 
 const App = () => (
-  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-    <ThemeProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <Router>
-            <AppInner />
-            <Toaster 
-              position="top-center"
-              containerStyle={{
-                top: 10,
-              }}
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: 'var(--card-bg)',
-                  color: 'var(--text-900)',
-                  border: '1px solid var(--border)',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '14px',
-                  borderRadius: '8px',
-                  boxShadow: 'var(--shadow-lg)'
-                },
-              }}
-            />
-          </Router>
-        </AuthProvider>
-      </LanguageProvider>
-    </ThemeProvider>
-  </GoogleOAuthProvider>
+  <ErrorBoundary>
+  <QueryClientProvider client={queryClient}>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <SocketProvider>
+              <ArticleAnalysisProvider>
+                <Router>
+                  <AppInner />
+                  <Toaster 
+                    position="top-center"
+                    containerStyle={{
+                      top: 10,
+                    }}
+                    toastOptions={{
+                      duration: 4000,
+                      style: {
+                        background: 'var(--card-bg)',
+                        color: 'var(--text-900)',
+                        border: '1px solid var(--border)',
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '14px',
+                        borderRadius: '8px',
+                        boxShadow: 'var(--shadow-lg)'
+                      },
+                    }}
+                  />
+                </Router>
+              </ArticleAnalysisProvider>
+            </SocketProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </GoogleOAuthProvider>
+  </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
+

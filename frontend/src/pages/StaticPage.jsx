@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 
+const JOBS = [
+  { title: 'Senior AI Engineer', dept: 'Inference Lab', type: 'Full-time', location: 'Kuantan', status: 'Priority' },
+  { title: 'Rust Backend Developer', dept: 'Real-time Mesh', type: 'Contract', location: 'Remote', status: 'Hot' },
+  { title: 'Media Analyst (BM/EN)', dept: 'Narratives', type: 'Full-time', location: 'Cyberjaya', status: 'New' },
+  { title: 'Security Ops Architect', dept: 'System Security', type: 'Full-time', location: 'Remote', status: null },
+];
+
 /* ─── Root wrapper forces light theme & adds animations ───── */
 const PageRoot = ({ children }) => (
   <div className="static-page-root" style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif", color: '#1e293b', overflowX: 'hidden' }}>
@@ -149,9 +156,9 @@ const ApiPage = () => {
   const [activeEndpoint, setActiveEndpoint] = useState(null);
 
   const endpoints = [
-    { method: 'GET', path: '/api/news', desc: 'Fetch latest Malaysian news with real-time sentiment.', response: '{ \"articles\": [...], \"total\": 150239 }' },
-    { method: 'POST', path: '/api/news/analyze', desc: 'Submit text for GPT-4o inference analysis.', response: '{ \"sentiment\": \"Positive\", \"score\": 0.89, \"impact\": \"High\" }' },
-    { method: 'GET', path: '/api/trends', desc: 'Retrieve trending Malaysian narrative trajectories.', response: '{ \"trends\": [\"Budget 2024\", \"Digital Ringgit\"] }' },
+    { method: 'GET', path: '/api/news', desc: 'Fetch latest Malaysian news with real-time sentiment.', response: '{ "articles": [...], "total": 150239 }' },
+    { method: 'POST', path: '/api/news/analyze', desc: 'Submit text for GPT-4o inference analysis.', response: '{ "sentiment": "Positive", "score": 0.89, "impact": "High" }' },
+    { method: 'GET', path: '/api/trends', desc: 'Retrieve trending Malaysian narrative trajectories.', response: '{ "trends": ["Budget 2024", "Digital Ringgit"] }' },
   ];
 
   return (
@@ -321,7 +328,6 @@ const PricingPage = () => {
 
 /* ─── ABOUT PAGE ─────────────────────────────────────────── */
 const AboutPage = () => {
-  const navigate = useNavigate();
   const [stats, setStats] = useState({ indexed: 0, accuracy: 0, sources: 0 });
 
   useEffect(() => {
@@ -393,15 +399,8 @@ const JobsPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const jobs = [
-    { title: 'Senior AI Engineer', dept: 'Inference Lab', type: 'Full-time', location: 'Kuantan', status: 'Priority' },
-    { title: 'Rust Backend Developer', dept: 'Real-time Mesh', type: 'Contract', location: 'Remote', status: 'Hot' },
-    { title: 'Media Analyst (BM/EN)', dept: 'Narratives', type: 'Full-time', location: 'Cyberjaya', status: 'New' },
-    { title: 'Security Ops Architect', dept: 'System Security', type: 'Full-time', location: 'Remote', status: null },
-  ];
-
   const filteredJobs = useMemo(() => 
-    jobs.filter(j => j.title.toLowerCase().includes(searchTerm.toLowerCase())), 
+    JOBS.filter(j => j.title.toLowerCase().includes(searchTerm.toLowerCase())), 
   [searchTerm]);
 
   return (
@@ -496,6 +495,8 @@ const StaticPage = () => {
     case '/api':      return <ApiPage />;
     case '/pricing':  return <PricingPage />;
     case '/about':    return <AboutPage />;
+    case '/contact':  return <ContactPage />;
+    case '/features': return <FeaturesPage />;
     case '/jobs':     return <JobsPage />;
     case '/privacy':  return <PrivacyPage />;
     default:          return <AboutPage />;

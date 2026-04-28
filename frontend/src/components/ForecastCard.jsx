@@ -1,6 +1,9 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 const ForecastCard = ({ forecast, loading, topic }) => {
+  const { lang, t } = useLanguage();
+
   if (loading) {
     return (
       <div className="forecast-panel is-loading">
@@ -13,9 +16,14 @@ const ForecastCard = ({ forecast, loading, topic }) => {
     );
   }
 
-  if (!forecast || !forecast.outlook) return null;
+  if (!forecast) return null;
 
-  const { outlook, risks, projectionScore } = forecast;
+  const { projectionScore } = forecast;
+  // Use current language data, fallback to 'en'
+  const langData = forecast[lang] || forecast['en'] || {};
+  const { outlook, risks } = langData;
+
+  if (!outlook) return null;
 
   // Color mapping based on projection score
   const getScoreColor = (score) => {
@@ -25,36 +33,49 @@ const ForecastCard = ({ forecast, loading, topic }) => {
   };
 
   return (
-    <div className="forecast-panel">
-      <div className="forecast-header">
-        <div className="forecast-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10Z"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
-          </svg>
-          7-DAY SENTIMENT FORECAST
-        </div>
-        <div className="forecast-topic">Topic: <strong>{topic || 'General Outlook'}</strong></div>
+    <div className="forecast-panel premium-forecast">
+      {/* Cinematic Header Bar */}
+      <div className="forecast-title-bar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+        </svg>
+        {t('forecastTitle') || 'RAMALAN SENTIMEN AI'}
       </div>
 
-      <div className="forecast-main">
-        <div className="forecast-projection">
-          <div className="projection-value" style={{ color: getScoreColor(projectionScore) }}>
-            {projectionScore}
-            <span className="projection-unit">/100</span>
+      <div className="forecast-meta-row">
+        <span className="forecast-topic-label">{t('topic')}:</span>
+        <span className="forecast-topic-value">{topic || t('generalOutlook')}</span>
+      </div>
+
+      <div className="forecast-split-layout">
+        {/* Left column: Score Box */}
+        <div className="forecast-score-box">
+          <div className="score-main">
+            <span className="score-num" style={{ color: getScoreColor(projectionScore) }}>{projectionScore}</span>
+            <span className="score-slash">/100</span>
           </div>
-          <div className="projection-label">Projected Sentiment</div>
+          <div className="score-desc">{t('projectedSentiment') || 'SENTIMEN TERUNJUR'}</div>
         </div>
         
-        <div className="forecast-content">
-          <p className="forecast-outlook">{outlook}</p>
+        {/* Right column: Interpretations */}
+        <div className="forecast-details">
+          <div className="outlook-section">
+            {Array.isArray(outlook) ? (
+              outlook.map((para, idx) => (
+                <p key={idx} className="outlook-p">{String(para).replace(/\*/g, '')}</p>
+              ))
+            ) : (
+              <p className="outlook-p">{String(outlook).replace(/\*/g, '')}</p>
+            )}
+          </div>
           
           {risks && risks.length > 0 && (
-            <div className="forecast-risks">
-              <span className="risk-label">Rising Trends / Risks:</span>
-              <ul className="risk-list">
+            <div className="risks-section">
+              <h4 className="risks-title">{t('risksTrends') || 'TREND MENINGKAT / RISIKO'}:</h4>
+              <ul className="risks-ul">
                 {risks.map((risk, idx) => (
-                  <li key={idx} className="risk-item">
-                    <span className="risk-bullet">•</span> {risk}
+                  <li key={idx} className="risk-li">
+                    <span className="bullet">•</span> {String(risk).replace(/\*/g, '')}
                   </li>
                 ))}
               </ul>
@@ -63,10 +84,8 @@ const ForecastCard = ({ forecast, loading, topic }) => {
         </div>
       </div>
 
-      <div className="forecast-footer">
-        <div className="forecast-disclaimer">
-          AI-generated prediction based on recent news sentiment patterns.
-        </div>
+      <div className="forecast-disclaimer-bar">
+        {t('forecastDisclaimer') || 'Ramalan yang dijana AI berasaskan corak sentimen berita terkini.'}
       </div>
     </div>
   );

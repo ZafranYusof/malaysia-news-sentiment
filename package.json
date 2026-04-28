@@ -1,0 +1,17 @@
+{
+  "name": "malaysia-news-sentiment",
+  "version": "1.0.0",
+  "description": "A **Final Year Project (FYP)** — Real-time Malaysian news sentiment analysis using **NewsAPI** and **OpenAI GPT-4o-mini**, displayed in an interactive React dashboard.",
+  "main": "test_mkini.js",
+  "scripts": {
+    "test": "npx playwright test --reporter=list",
+    "test:headed": "npx playwright test --headed --reporter=list",
+    "test:ui": "npx playwright test --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

@@ -47,7 +47,7 @@ const SettingsPage = () => {
 
   const prefs = user?.preferences || {};
   const [name, setName] = useState(user?.name || '');
-  const [saving, setSaving] = useState(null); // which field is saving
+  const [, setSaving] = useState(null); // which field is saving
   const [saved, setSaved] = useState(null);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);

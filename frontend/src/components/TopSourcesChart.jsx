@@ -4,18 +4,17 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      <p style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', marginBottom: 5 }}>{label}</p>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: 'var(--shadow-lg)' }}>
+      <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-900)', marginBottom: 5 }}>{label}</p>
       {payload.map(p => (
-        <p key={p.name} style={{ fontSize: 12, color: p.fill || p.color, marginTop: 2 }}>
-          {p.name}: <strong style={{ color: '#0f172a' }}>{p.value}</strong>
+        <p key={p.name} style={{ fontSize: 12, color: p.fill || p.color, marginTop: 2, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: p.fill || p.color }}></span>
+          {p.name}: <strong style={{ color: 'var(--text-900)' }}>{p.value}</strong>
         </p>
       ))}
     </div>
   );
 };
-
-const TOP_COLORS = { Positive: '#10b981', Negative: '#ef4444', Neutral: '#f59e0b' };
 
 const TopSourcesChart = ({ sourcesData = [] }) => {
   if (!sourcesData || sourcesData.length === 0) {
@@ -58,15 +57,29 @@ const TopSourcesChart = ({ sourcesData = [] }) => {
         </h3>
         <span className="chart-panel-pill">Sources</span>
       </div>
-      <ResponsiveContainer width="100%" height={260}>
+      <ResponsiveContainer width="100%" height={260} debounce={200}>
         <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 16, left: 8, bottom: 0 }}>
-          <XAxis type="number" tick={{ fill: '#9ca3af', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
-          <YAxis type="category" dataKey="name" width={130} tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-          <Legend formatter={v => <span style={{ color: '#6b7280', fontSize: 12, fontFamily: 'Inter' }}>{v}</span>} />
-          <Bar dataKey="Positive" stackId="a" fill={TOP_COLORS.Positive} />
-          <Bar dataKey="Negative" stackId="a" fill={TOP_COLORS.Negative} />
-          <Bar dataKey="Neutral"  stackId="a" fill={TOP_COLORS.Neutral} radius={[0, 4, 4, 0]} />
+          <defs>
+            <linearGradient id="topPos" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#059669" />
+            </linearGradient>
+            <linearGradient id="topNeg" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#f87171" />
+              <stop offset="100%" stopColor="#dc2626" />
+            </linearGradient>
+            <linearGradient id="topNeu" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#fbbf24" />
+              <stop offset="100%" stopColor="#d97706" />
+            </linearGradient>
+          </defs>
+          <XAxis type="number" tick={{ fill: 'var(--text-400)', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
+          <YAxis type="category" dataKey="name" width={130} tick={{ fill: 'var(--text-500)', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg)', opacity: 0.5 }} />
+          <Legend formatter={v => <span style={{ color: 'var(--text-500)', fontSize: 12, fontFamily: 'Inter' }}>{v}</span>} />
+          <Bar isAnimationActive={true} animationDuration={1000} dataKey="Positive" stackId="a" fill="url(#topPos)" />
+          <Bar isAnimationActive={true} animationDuration={1000} dataKey="Negative" stackId="a" fill="url(#topNeg)" />
+          <Bar isAnimationActive={true} animationDuration={1000} dataKey="Neutral"  stackId="a" fill="url(#topNeu)" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

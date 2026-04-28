@@ -14,18 +14,20 @@ const formatDate = (dateStr) => {
 const ArticlePreviewModal = ({ article, isOpen, onClose }) => {
   const [voted, setVoted] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [localFeedback, setLocalFeedback] = useState(null);
+  const [localFeedback, setLocalFeedback] = useState(article?.feedback || null);
 
   useEffect(() => {
     if (isOpen && article?._id) {
       document.body.style.overflow = 'hidden';
       trackView(article._id).catch(() => {});
-      setVoted(false);
-      setLocalFeedback(article.feedback);
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [isOpen, article]);
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen, article?._id]);
 
   if (!isOpen || !article) return null;
 

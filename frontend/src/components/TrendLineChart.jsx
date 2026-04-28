@@ -4,11 +4,11 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 4 }}>{label}</p>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', fontFamily: 'Inter,sans-serif', boxShadow: 'var(--shadow-lg)' }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-400)', marginBottom: 4 }}>{label}</p>
       {payload.map(p => (
         <p key={p.name} style={{ fontSize: 12.5, color: p.stroke, marginTop: 2 }}>
-          {p.name}: <strong style={{ color: '#0f172a' }}>{p.value}</strong>
+          {p.name}: <strong style={{ color: 'var(--text-900)' }}>{p.value}</strong>
         </p>
       ))}
     </div>
@@ -32,30 +32,30 @@ const TrendLineChart = ({ trendsData = [] }) => (
         <span>Trends build as you analyze news over multiple days</span>
       </div>
     ) : (
-      <ResponsiveContainer width="100%" height={220}>
+      <ResponsiveContainer width="100%" height={220} debounce={200}>
         <AreaChart data={trendsData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="gPos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="#10b981" stopOpacity={0.12}/>
+              <stop offset="5%"  stopColor="#10b981" stopOpacity={0.25}/>
               <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
             </linearGradient>
             <linearGradient id="gNeg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="#ef4444" stopOpacity={0.12}/>
+              <stop offset="5%"  stopColor="#ef4444" stopOpacity={0.25}/>
               <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
             </linearGradient>
             <linearGradient id="gNeu" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="#f59e0b" stopOpacity={0.12}/>
+              <stop offset="5%"  stopColor="#f59e0b" stopOpacity={0.25}/>
               <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f2f5" />
-          <XAxis dataKey="date" tick={{ fill: '#9ca3af', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: '#9ca3af', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} allowDecimals={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
+          <XAxis dataKey="date" tick={{ fill: 'var(--text-400)', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: 'var(--text-400)', fontSize: 11, fontFamily: 'Inter' }} axisLine={false} tickLine={false} allowDecimals={false} />
           <Tooltip content={<CustomTooltip />} />
-          <Legend formatter={v => <span style={{ color: '#6b7280', fontSize: 12, fontFamily: 'Inter' }}>{v}</span>} />
-          <Area type="monotone" dataKey="Positive" stroke="#10b981" strokeWidth={2} fill="url(#gPos)" dot={{ fill: '#10b981', r: 3 }} activeDot={{ r: 5 }} />
-          <Area type="monotone" dataKey="Negative" stroke="#ef4444" strokeWidth={2} fill="url(#gNeg)" dot={{ fill: '#ef4444', r: 3 }} activeDot={{ r: 5 }} />
-          <Area type="monotone" dataKey="Neutral"  stroke="#f59e0b" strokeWidth={2} fill="url(#gNeu)" dot={{ fill: '#f59e0b', r: 3 }} activeDot={{ r: 5 }} />
+          <Legend formatter={v => <span style={{ color: 'var(--text-500)', fontSize: 12, fontFamily: 'Inter' }}>{v}</span>} />
+          <Area isAnimationActive={true} animationDuration={1500} type="monotone" dataKey="Positive" stroke="#10b981" strokeWidth={3} fill="url(#gPos)" dot={{ fill: '#10b981', r: 3, strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)' }} />
+          <Area isAnimationActive={true} animationDuration={1500} type="monotone" dataKey="Negative" stroke="#ef4444" strokeWidth={3} fill="url(#gNeg)" dot={{ fill: '#ef4444', r: 3, strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)' }} />
+          <Area isAnimationActive={true} animationDuration={1500} type="monotone" dataKey="Neutral"  stroke="#f59e0b" strokeWidth={3} fill="url(#gNeu)" dot={{ fill: '#f59e0b', r: 3, strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg)' }} />
         </AreaChart>
       </ResponsiveContainer>
     )}

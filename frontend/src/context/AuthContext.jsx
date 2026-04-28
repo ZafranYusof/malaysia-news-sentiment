@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
@@ -8,6 +9,17 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Security warning for local development
+  useEffect(() => {
+    if (import.meta.env.MODE !== 'production') {
+      console.warn(
+        '%c[SECURITY WARNING]%c JWT is being stored in localstorage. This makes the application vulnerable to XSS. For high-security projects, consider using HttpOnly cookies.',
+        'color: #fca5a5; font-weight: bold; font-size: 1.2em;',
+        'color: inherit;'
+      );
+    }
+  }, []);
 
   // Sync session with Backend (verify token and get user profile)
   const syncWithBackend = useCallback(async (token) => {
@@ -82,14 +94,10 @@ export const AuthProvider = ({ children }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       
-      // Send the Firebase ID Token to backend to get/create user
-      // Note: We'll create a simple bridge on the backend for this
-      const res = await api.post('/auth/google-firebase', { 
-        token: idToken,
-        name: result.user.displayName,
-        email: result.user.email,
-        picture: result.user.photoURL
-      });
+      // Security #8: Only send the verified Firebase ID token.
+      // Do NOT send name/email/picture from the client — the backend extracts
+      // those from the verified token via firebase-admin, not from req.body.
+      const res = await api.post('/auth/google-firebase', { token: idToken });
 
       saveSession(res.data.token, res.data.user);
       return res.data;

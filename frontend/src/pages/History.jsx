@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import ArticleCard from '../components/ArticleCard';
 import ArticlePreviewModal from '../components/ArticlePreviewModal';
 import { getHistory, deleteArticle, getStats } from '../services/api';
 import { exportToCSV } from '../services/exportUtils';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const History = () => {
-  const [articles, setArticles] = useState([]);
-  const [stats, setStats]       = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
+  const queryClient = useQueryClient();
   
   // (#6, #7) Filters & Pagination state
   const [params, setParams] = useState({
@@ -19,40 +17,67 @@ const History = () => {
     to: '',
     sortBy: 'newest',
     page: 1,
-    limit: 20
+    limit: 50
   });
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+
+  // Debounced search
+  const [searchInput, setSearchInput] = useState('');
+  const debounceRef = useRef(null);
+
+  const handleSearchChange = (value) => {
+    setSearchInput(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      handleParamChange('search', value);
+    }, 400);
+  };
+
+  useEffect(() => {
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, []);
 
   // (#17) Preview Modal
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [showPreview, setShowPreview]         = useState(false);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const [historyData, statsData] = await Promise.all([
-        getHistory(params),
-        getStats().catch(() => null)
-      ]);
-      
-      setArticles(historyData.articles || []);
-      setTotalPages(historyData.pages || 1);
-      setTotalCount(historyData.total || 0);
-      if (statsData) setStats(statsData);
-      
-    } catch (err) {
-      setError(err.message || 'Failed to load history.');
-      toast.error('Error refreshing history.');
-    } finally {
-      setLoading(false);
-    }
-  }, [params]);
+  // Queries
+  const { 
+    data: historyData, 
+    isLoading: isHistoryLoading,
+    isFetching: isHistoryFetching,
+    error: historyError 
+  } = useQuery({
+    queryKey: ['history', params],
+    queryFn: () => getHistory(params),
+    staleTime: 30000,
+  });
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  const { data: statsData } = useQuery({
+    queryKey: ['stats'],
+    queryFn: () => getStats(),
+    staleTime: 60000,
+  });
+
+  // Mutations
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteArticle(id),
+    onSuccess: () => {
+      toast.success('Article deleted');
+      queryClient.invalidateQueries(['history']);
+      queryClient.invalidateQueries(['stats']);
+    },
+    onError: () => {
+      toast.error('Failed to delete article.');
+    }
+  });
+
+  // Derived data
+  const articles = historyData?.articles || [];
+  const totalPages = historyData?.pages || 1;
+  const totalCount = historyData?.total || 0;
+  const stats = statsData || null;
+  const loading = isHistoryLoading || isHistoryFetching;
+  const error = historyError?.message || '';
 
   const handleParamChange = (name, value) => {
     setParams(prev => ({ ...prev, [name]: value, page: name === 'page' ? value : 1 }));
@@ -60,13 +85,7 @@ const History = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Permanently remove this analysis from history?')) return;
-    try {
-      await deleteArticle(id);
-      toast.success('Article deleted');
-      loadData();
-    } catch {
-      toast.error('Failed to delete article.');
-    }
+    deleteMutation.mutate(id);
   };
 
   const handlePreview = (article) => {
@@ -115,8 +134,8 @@ const History = () => {
           <input 
             type="text" 
             placeholder="Search history..." 
-            value={params.search}
-            onChange={(e) => handleParamChange('search', e.target.value)}
+            value={searchInput}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
 
@@ -194,6 +213,7 @@ const History = () => {
       </div>
 
       <ArticlePreviewModal 
+        key={selectedArticle?._id || 'history-preview'}
         article={selectedArticle} 
         isOpen={showPreview} 
         onClose={() => setShowPreview(false)} 
