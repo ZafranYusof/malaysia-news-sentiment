@@ -86,13 +86,45 @@ const io = new Server(server, {
   }
 });
 
+// ── Socket.io Authentication Middleware ────────────────────
+const jwt = require('jsonwebtoken');
+
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+  if (!token) {
+    // Allow unauthenticated connections for public features (analysis progress)
+    // but mark them as guest
+    socket.userId = null;
+    socket.isGuest = true;
+    return next();
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.id;
+    socket.userRole = decoded.role || 'user';
+    socket.isGuest = false;
+    next();
+  } catch (err) {
+    socket.userId = null;
+    socket.isGuest = true;
+    next(); // Allow connection but as guest
+  }
+});
+
 // Make io accessible to controllers via app.set
 app.set('io', io);
 
 io.on('connection', (socket) => {
-  console.log(`🔌 Client connected: ${socket.id}`);
+  const userType = socket.isGuest ? 'Guest' : `User:${socket.userId}`;
+  console.log(`🔌 ${userType} connected: ${socket.id}`);
+  
+  // Join user-specific room for targeted events
+  if (socket.userId) {
+    socket.join(`user:${socket.userId}`);
+  }
+  
   socket.on('disconnect', () => {
-    console.log(`❌ Client disconnected: ${socket.id}`);
+    console.log(`❌ ${userType} disconnected: ${socket.id}`);
   });
 });
 
