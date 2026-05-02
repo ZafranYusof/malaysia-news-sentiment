@@ -5244,7 +5244,7 @@ body::before {
   .pagination {
     gap: 6px;
     margin-top: 16px;
-    margin-bottom: 100px;
+    margin-bottom: 16px;
   }
   .btn-pagination {
     padding: 8px 12px;
