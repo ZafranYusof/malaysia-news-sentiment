@@ -5746,8 +5746,8 @@ body::before {
 /* Mobile FAB - Primary (AI Forecast) */
 .mobile-fab {
   position: fixed;
-  bottom: 90px;
-  right: 20px;
+  bottom: 140px;
+  right: 16px;
   z-index: 100;
   width: 56px;
   height: 56px;
@@ -5773,8 +5773,8 @@ body::before {
 /* Mobile FAB - Secondary (Export) */
 .mobile-fab-secondary {
   position: fixed;
-  bottom: 154px;
-  right: 26px;
+  bottom: 206px;
+  right: 22px;
   z-index: 100;
   width: 44px;
   height: 44px;
@@ -6119,6 +6119,11 @@ body::before {
 }
 
 /* Bottom Nav Bar */
+/* Hide ScrollToTop on mobile - clashes with bottom nav + FABs */
+@media (max-width: 768px) {
+  .scroll-to-top-btn { display: none !important; }
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
