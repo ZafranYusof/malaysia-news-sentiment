@@ -103,8 +103,11 @@ body::before {
 }
 
 @media (max-width: 1024px) {
-  .sidebar { transform: translateX(-100%); width: 260px !important; }
+  .sidebar { transform: translateX(-100%); width: 280px !important; }
   .sidebar.open { transform: translateX(0); box-shadow: 20px 0 60px rgba(0,0,0,0.15); }
+}
+@media (max-width: 480px) {
+  .sidebar { width: 85vw !important; max-width: 320px; }
 }
 
 /* Desktop Collapsed State */
