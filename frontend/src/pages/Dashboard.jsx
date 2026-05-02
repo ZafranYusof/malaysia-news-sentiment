@@ -62,6 +62,16 @@ const Dashboard = () => {
   const [isHistoryView, setIsHistoryView] = useState(true);
   const [currentQuery, setCurrentQuery]   = useState('');
 
+  // Mobile tab state
+  const [mobileTab, setMobileTab] = useState('overview');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // 1. Dashboard Init Query (History Mode)
   const { 
     data: dashboardData, 
@@ -151,6 +161,7 @@ const Dashboard = () => {
   }, [articles, isHistoryView, digest, forecast, digestLoading, forecastLoading, loadForecastAndDigest]);
 
   const handleManualForecast = () => {
+    if (isMobile) setMobileTab('ai');
     loadForecastAndDigest(articles, isHistoryView ? 'History Overview' : currentQuery);
   };
 
@@ -345,146 +356,331 @@ const Dashboard = () => {
               </motion.div>
             </Skeleton>
 
-            <div className="dashboard-grid-layout">
-              <div className="dashboard-main-content">
-                {(digest || digestLoading) && !isHistoryView && (
-                  <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
+            {/* Mobile Tab Layout */}
+            {isMobile ? (
+              <>
+                <div className="mobile-dash-tabs">
+                  <button
+                    className={`mobile-dash-tab ${mobileTab === 'overview' ? 'active' : ''}`}
+                    onClick={() => setMobileTab('overview')}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    className={`mobile-dash-tab ${mobileTab === 'charts' ? 'active' : ''}`}
+                    onClick={() => setMobileTab('charts')}
+                  >
+                    Charts
+                  </button>
+                  <button
+                    className={`mobile-dash-tab ${mobileTab === 'ai' ? 'active' : ''}`}
+                    onClick={() => setMobileTab('ai')}
+                  >
+                    AI Insights
+                  </button>
+                </div>
+
+                {mobileTab === 'overview' && (
+                  <div className="mobile-tab-content">
+                    <Skeleton name="kpi-row" loading={isLoading}>
+                      <motion.div 
+                        className="kpi-row"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        {KPI.map(c => (
+                          <motion.div 
+                            key={c.label} 
+                            className="kpi-card"
+                            variants={kpiItemVariants}
+                            whileHover={{ scale: 1.03, y: -4 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                          >
+                            <div className="kpi-label">{c.label}</div>
+                            <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
+                            <div className="kpi-sub">{c.sub}</div>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    </Skeleton>
+
+                    <Skeleton name="charts-grid" loading={isLoading}>
+                      <motion.div 
+                        className="charts-grid"
+                        variants={chartVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <InlineErrorBoundary name="Pie Chart">
+                          <SentimentPieChart distribution={distribution} />
+                        </InlineErrorBoundary>
+                      </motion.div>
+                    </Skeleton>
+
+                    <div className="articles-section" id="analysis-results" style={{ marginTop: '16px' }}>
+                      <div className="section-toolbar">
+                        <h2 className="section-heading">
+                          {t('analysisResults')} <Skeleton name="article-count" loading={isLoading} inline><span className="section-count">{filteredArticles.length}</span></Skeleton>
+                        </h2>
+                        <div className="filter-rail">
+                          {FILTER_OPTIONS.map(opt => (
+                            <motion.button 
+                              key={opt.key} 
+                              className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
+                              onClick={() => setFilter(opt.key)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              {opt.label}
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <motion.div 
+                        className="articles-list"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <Skeleton name="article-card" loading={isLoading || historyLoading} count={3}>
+                          {filteredArticles.slice(0, 5).map((article) => (
+                            <motion.div
+                              key={article._id || article.url}
+                              variants={articleVariants}
+                            >
+                              <ArticleCard 
+                                article={article} 
+                                onBookmark={toggleBookmark}
+                                isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
+                              />
+                            </motion.div>
+                          ))}
+                        </Skeleton>
+                      </motion.div>
+
+                      {isHistoryView && stats.total > LIMIT && (
+                        <div className="pagination" style={{ marginTop: '20px' }}>
+                          <button 
+                            disabled={page === 1 || isLoading} 
+                            onClick={() => handlePageChange(page - 1)}
+                            className="btn-pagination"
+                          >
+                            Previous
+                          </button>
+                          <div className="pagination-info">
+                             Page <strong>{page}</strong> of {Math.ceil(stats.total / LIMIT)}
+                             <span className="total-label">({stats.total} total)</span>
+                          </div>
+                          <button 
+                            disabled={page >= Math.ceil(stats.total / LIMIT) || isLoading} 
+                            onClick={() => handlePageChange(page + 1)}
+                            className="btn-pagination"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
-                
-                <Skeleton name="kpi-row" loading={isLoading}>
+
+                {mobileTab === 'charts' && (
+                  <div className="mobile-tab-content">
+                    <Skeleton name="charts-grid" loading={isLoading}>
+                      <motion.div 
+                        className="charts-grid"
+                        variants={chartVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <InlineErrorBoundary name="Bar Chart">
+                          <SentimentBarChart distribution={distribution} />
+                        </InlineErrorBoundary>
+                        <InlineErrorBoundary name="Trend Chart">
+                          <TrendLineChart trendsData={trends} />
+                        </InlineErrorBoundary>
+                        <InlineErrorBoundary name="Sentiment Map">
+                          <SentimentMap data={regionalData} loading={isLoading} />
+                        </InlineErrorBoundary>
+                        <InlineErrorBoundary name="Sources Chart">
+                          <TopSourcesChart sourcesData={sources} />
+                        </InlineErrorBoundary>
+                      </motion.div>
+                    </Skeleton>
+                  </div>
+                )}
+
+                {mobileTab === 'ai' && (
+                  <div className="mobile-tab-content">
+                    {(digest || digestLoading) && (
+                      <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
+                    )}
+                    <div className="forecast-wide-wrapper" style={{ marginTop: '16px' }}>
+                      <InlineErrorBoundary name="AI Forecast">
+                        <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
+                      </InlineErrorBoundary>
+                    </div>
+                    <div style={{ marginTop: '16px' }}>
+                      <Skeleton name="word-cloud" loading={isLoading}>
+                        <InlineErrorBoundary name="Word Cloud">
+                          <WordCloud words={keywords} />
+                        </InlineErrorBoundary>
+                      </Skeleton>
+                    </div>
+                    <div style={{ marginTop: '16px' }}>
+                      <InlineErrorBoundary name="Source Credibility">
+                        <SourceCredibility />
+                      </InlineErrorBoundary>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Desktop Layout - unchanged */
+              <>
+                <div className="dashboard-grid-layout">
+                  <div className="dashboard-main-content">
+                    {(digest || digestLoading) && !isHistoryView && (
+                      <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
+                    )}
+                    
+                    <Skeleton name="kpi-row" loading={isLoading}>
+                      <motion.div 
+                        className="kpi-row"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        {KPI.map(c => (
+                          <motion.div 
+                            key={c.label} 
+                            className="kpi-card"
+                            variants={kpiItemVariants}
+                            whileHover={{ scale: 1.03, y: -4 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                          >
+                            <div className="kpi-label">{c.label}</div>
+                            <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
+                            <div className="kpi-sub">{c.sub}</div>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    </Skeleton>
+
+                    <Skeleton name="charts-grid" loading={isLoading}>
+                      <motion.div 
+                        className="charts-grid"
+                        variants={chartVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <InlineErrorBoundary name="Pie Chart">
+                          <SentimentPieChart distribution={distribution} />
+                        </InlineErrorBoundary>
+                        <InlineErrorBoundary name="Bar Chart">
+                          <SentimentBarChart distribution={distribution} />
+                        </InlineErrorBoundary>
+                        <InlineErrorBoundary name="Sentiment Map">
+                          <SentimentMap data={regionalData} loading={isLoading} />
+                        </InlineErrorBoundary>
+                        <InlineErrorBoundary name="Trend Chart">
+                          <TrendLineChart trendsData={trends} />
+                        </InlineErrorBoundary>
+                        <InlineErrorBoundary name="Sources Chart">
+                          <TopSourcesChart sourcesData={sources} />
+                        </InlineErrorBoundary>
+                      </motion.div>
+                    </Skeleton>
+                    
+                    <div className="forecast-wide-wrapper" style={{ marginTop: '32px' }}>
+                      <InlineErrorBoundary name="AI Forecast">
+                        <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
+                      </InlineErrorBoundary>
+                    </div>
+                  </div>
+                  
+                  <aside className="dashboard-side-panels">
+                    <Skeleton name="word-cloud" loading={isLoading}>
+                      <InlineErrorBoundary name="Word Cloud">
+                        <WordCloud words={keywords} />
+                      </InlineErrorBoundary>
+                    </Skeleton>
+                    <InlineErrorBoundary name="Source Credibility">
+                      <SourceCredibility />
+                    </InlineErrorBoundary>
+                  </aside>
+                </div>
+
+                <div className="articles-section" id="analysis-results" style={{ marginTop: '40px' }}>
+                  <div className="section-toolbar">
+                    <h2 className="section-heading">
+                      {t('analysisResults')} <Skeleton name="article-count" loading={isLoading} inline><span className="section-count">{filteredArticles.length}</span></Skeleton>
+                    </h2>
+                    <div className="filter-rail">
+                      {FILTER_OPTIONS.map(opt => (
+                        <motion.button 
+                          key={opt.key} 
+                          className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
+                          onClick={() => setFilter(opt.key)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {opt.label}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+
                   <motion.div 
-                    className="kpi-row"
+                    className="articles-list"
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                   >
-                    {KPI.map(c => (
-                      <motion.div 
-                        key={c.label} 
-                        className="kpi-card"
-                        variants={kpiItemVariants}
-                        whileHover={{ scale: 1.03, y: -4 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                    <Skeleton name="article-card" loading={isLoading || historyLoading} count={3}>
+                      {filteredArticles.map((article, idx) => (
+                        <motion.div
+                          key={article._id || article.url}
+                          variants={articleVariants}
+                        >
+                          <ArticleCard 
+                            article={article} 
+                            onBookmark={toggleBookmark}
+                            isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
+                          />
+                        </motion.div>
+                      ))}
+                    </Skeleton>
+                  </motion.div>
+
+                  {/* Pagination Controls (#6) */}
+                  {isHistoryView && stats.total > LIMIT && (
+                    <div className="pagination" style={{ marginTop: '20px' }}>
+                      <button 
+                        disabled={page === 1 || isLoading} 
+                        onClick={() => handlePageChange(page - 1)}
+                        className="btn-pagination"
                       >
-                        <div className="kpi-label">{c.label}</div>
-                        <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
-                        <div className="kpi-sub">{c.sub}</div>
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                </Skeleton>
-
-                <Skeleton name="charts-grid" loading={isLoading}>
-                  <motion.div 
-                    className="charts-grid"
-                    variants={chartVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <InlineErrorBoundary name="Pie Chart">
-                      <SentimentPieChart distribution={distribution} />
-                    </InlineErrorBoundary>
-                    <InlineErrorBoundary name="Bar Chart">
-                      <SentimentBarChart distribution={distribution} />
-                    </InlineErrorBoundary>
-                    <InlineErrorBoundary name="Sentiment Map">
-                      <SentimentMap data={regionalData} loading={isLoading} />
-                    </InlineErrorBoundary>
-                    <InlineErrorBoundary name="Trend Chart">
-                      <TrendLineChart trendsData={trends} />
-                    </InlineErrorBoundary>
-                    <InlineErrorBoundary name="Sources Chart">
-                      <TopSourcesChart sourcesData={sources} />
-                    </InlineErrorBoundary>
-
-                  </motion.div>
-                </Skeleton>
-                
-                <div className="forecast-wide-wrapper" style={{ marginTop: '32px' }}>
-                  <InlineErrorBoundary name="AI Forecast">
-                    <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
-                  </InlineErrorBoundary>
+                        Previous
+                      </button>
+                      <div className="pagination-info">
+                         Page <strong>{page}</strong> of {Math.ceil(stats.total / LIMIT)}
+                         <span className="total-label">({stats.total} total)</span>
+                      </div>
+                      <button 
+                        disabled={page >= Math.ceil(stats.total / LIMIT) || isLoading} 
+                        onClick={() => handlePageChange(page + 1)}
+                        className="btn-pagination"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
-              
-              <aside className="dashboard-side-panels">
-                <Skeleton name="word-cloud" loading={isLoading}>
-                  <InlineErrorBoundary name="Word Cloud">
-                    <WordCloud words={keywords} />
-                  </InlineErrorBoundary>
-                </Skeleton>
-                <InlineErrorBoundary name="Source Credibility">
-                  <SourceCredibility />
-                </InlineErrorBoundary>
-              </aside>
-            </div>
-
-            <div className="articles-section" id="analysis-results" style={{ marginTop: '40px' }}>
-              <div className="section-toolbar">
-                <h2 className="section-heading">
-                  {t('analysisResults')} <Skeleton name="article-count" loading={isLoading} inline><span className="section-count">{filteredArticles.length}</span></Skeleton>
-                </h2>
-                <div className="filter-rail">
-                  {FILTER_OPTIONS.map(opt => (
-                    <motion.button 
-                      key={opt.key} 
-                      className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
-                      onClick={() => setFilter(opt.key)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {opt.label}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              <motion.div 
-                className="articles-list"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Skeleton name="article-card" loading={isLoading || historyLoading} count={3}>
-                  {filteredArticles.map((article, idx) => (
-                    <motion.div
-                      key={article._id || article.url}
-                      variants={articleVariants}
-                    >
-                      <ArticleCard 
-                        article={article} 
-                        onBookmark={toggleBookmark}
-                        isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
-                      />
-                    </motion.div>
-                  ))}
-                </Skeleton>
-              </motion.div>
-
-              {/* Pagination Controls (#6) */}
-              {isHistoryView && stats.total > LIMIT && (
-                <div className="pagination" style={{ marginTop: '20px' }}>
-                  <button 
-                    disabled={page === 1 || isLoading} 
-                    onClick={() => handlePageChange(page - 1)}
-                    className="btn-pagination"
-                  >
-                    Previous
-                  </button>
-                  <div className="pagination-info">
-                     Page <strong>{page}</strong> of {Math.ceil(stats.total / LIMIT)}
-                     <span className="total-label">({stats.total} total)</span>
-                  </div>
-                  <button 
-                    disabled={page >= Math.ceil(stats.total / LIMIT) || isLoading} 
-                    onClick={() => handlePageChange(page + 1)}
-                    className="btn-pagination"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
+              </>
+            )}
           </>
         )}
       </div>
