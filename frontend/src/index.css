@@ -5228,6 +5228,7 @@ body::before {
   .pagination {
     gap: 6px;
     margin-top: 16px;
+    margin-bottom: 100px;
   }
   .btn-pagination {
     padding: 8px 12px;
@@ -5729,8 +5730,8 @@ body::before {
 /* Mobile FAB - Primary (AI Forecast) */
 .mobile-fab {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 80px;
+  right: 20px;
   z-index: 100;
   width: 56px;
   height: 56px;
@@ -5756,8 +5757,8 @@ body::before {
 /* Mobile FAB - Secondary (Export) */
 .mobile-fab-secondary {
   position: fixed;
-  bottom: 90px;
-  right: 30px;
+  bottom: 144px;
+  right: 26px;
   z-index: 100;
   width: 44px;
   height: 44px;
