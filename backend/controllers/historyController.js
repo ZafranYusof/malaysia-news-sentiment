@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const isValidObjectId = (id) => id && mongoose.Types.ObjectId.isValid(id) && id !== 'guest';
 const Article  = require('../models/Article');
 const User     = require('../models/User');
 
@@ -86,7 +87,7 @@ const getHistory = async (req, res) => {
     const now = new Date();
 
     const filter = {};
-    if (userId) {
+    if (isValidObjectId(userId)) {
       const { bookmarked } = req.query;
       if (bookmarked === 'true') {
         const user = await User.findById(userId).select('bookmarks').lean();
@@ -173,7 +174,7 @@ const getTrends = async (req, res) => {
     const userId = req.userId;
     const match  = {};
 
-    if (userId) {
+    if (isValidObjectId(userId)) {
       match.userId = new mongoose.Types.ObjectId(userId);
     } else {
       match.$or = [{ userId: null }, { userId: { $exists: false } }];
@@ -219,7 +220,7 @@ const getStats = async (req, res) => {
     const userId = req.userId;
     const match  = {};
 
-    if (userId) {
+    if (isValidObjectId(userId)) {
       match.userId = new mongoose.Types.ObjectId(userId);
     } else {
       match.$or = [{ userId: null }, { userId: { $exists: false } }];
@@ -292,7 +293,7 @@ const dashboardInit = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const match = {};
-    if (userId) {
+    if (isValidObjectId(userId)) {
       match.userId = new mongoose.Types.ObjectId(userId);
     } else {
       match.$or = [{ userId: null }, { userId: { $exists: false } }];
