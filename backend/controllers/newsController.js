@@ -268,7 +268,7 @@ const getAndAnalyzeNews = async (req, res) => {
     });
 
     const payload = { total: results.length, sentimentDistribution: sentimentCounts, articles: results };
-    if (req.userId) {
+    if (isValidObjectId(req.userId)) {
       const User = require('../models/User');
       const updatedUser = await User.findByIdAndUpdate(
         req.userId, 

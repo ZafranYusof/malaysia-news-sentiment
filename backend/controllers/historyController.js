@@ -233,7 +233,7 @@ const getStats = async (req, res) => {
       else if (timeframe === '30d') match.createdAt = { $gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) };
     }
 
-    const user = userId ? await User.findById(userId).select('analysisCount') : null;
+    const user = isValidObjectId(userId) ? await User.findById(userId).select('analysisCount') : null;
 
     const [sentiments, alerts] = await Promise.all([
       Article.aggregate([
@@ -324,7 +324,7 @@ const dashboardInit = async (req, res) => {
       sentimentMap[key] = (sentimentMap[key] || 0) + count;
       total += count; 
     });
-    const user = userId ? await User.findById(userId).select('analysisCount').lean() : null;
+    const user = isValidObjectId(userId) ? await User.findById(userId).select('analysisCount').lean() : null;
 
     const grouped = {};
     trendsAgg.forEach(({ _id, count }) => {

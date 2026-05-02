@@ -18,8 +18,8 @@ const trackNewsView = async (req, res) => {
     );
     if (!article) return res.status(404).json({ error: 'Article not found.' });
 
-    // Track recently viewed if logged in
-    if (req.userId) {
+    // Track recently viewed if logged in (skip for guest)
+    if (req.userId && req.userId !== 'guest' && !req.isGuest) {
       await User.findByIdAndUpdate(req.userId, {
         $push: {
           recentlyViewed: {

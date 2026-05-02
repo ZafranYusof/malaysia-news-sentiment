@@ -303,6 +303,10 @@ const resetPassword = async (req, res) => {
 // ── GET ME ────────────────────────────────────────────────────
 const getMe = async (req, res) => {
   try {
+    // Guest user - return synthetic user object
+    if (req.isGuest || req.userId === 'guest') {
+      return res.json({ user: { id: 'guest', name: 'Guest User', email: 'guest@mynews.my', role: 'guest', isGuest: true, preferences: { theme: 'dark', language: 'en' }, bookmarks: [] } });
+    }
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ error: 'User not found.' });
     res.json({ user: { id: user._id, name: user.name, email: user.email, phone: user.phone, avatar: user.avatar, role: user.role, provider: user.provider, preferences: user.preferences } });
