@@ -8,6 +8,9 @@ const { fetchMalaysiakiniNews } = require('../services/malaysiakiniService');
 const { analyzeSentiment, analyseArticle, getClient } = require('../services/openaiService');
 const Article = require('../models/Article');
 
+// Helper: check if string is valid MongoDB ObjectId
+const isValidObjectId = (id) => id && mongoose.Types.ObjectId.isValid(id) && id !== 'guest';
+
 // ── In-memory cache — 15 min TTL ──────────────────────
 const cache = new NodeCache({ stdTTL: 900, checkperiod: 120 });
 const sentimentCache = new NodeCache({ stdTTL: 3600, checkperiod: 300 }); // 1hr cache for sentiment results
@@ -305,7 +308,7 @@ const getTopSources = async (req, res) => {
       else if (timeframe === '7d') match.createdAt = { $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) };
       else if (timeframe === '30d') match.createdAt = { $gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) };
     }
-    if (userId) {
+    if (isValidObjectId(userId)) {
       match.userId = new mongoose.Types.ObjectId(userId);
     } else {
       match.$or = [{ userId: null }, { userId: { $exists: false } }];
@@ -347,7 +350,7 @@ const getKeywords = async (req, res) => {
     const { timeframe } = req.query;
     const userId = req.userId;
     const match  = {};
-    if (userId) {
+    if (isValidObjectId(userId)) {
       match.$or = [{ userId: new mongoose.Types.ObjectId(userId) }, { userId: null }, { userId: { $exists: false } }];
     }
     if (timeframe) {
@@ -396,7 +399,7 @@ const getRegionalSentiment = async (req, res) => {
       else if (timeframe === '7d') match.createdAt = { $gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) };
       else if (timeframe === '30d') match.createdAt = { $gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) };
     }
-    if (userId) {
+    if (isValidObjectId(userId)) {
       match.userId = new mongoose.Types.ObjectId(userId);
     } else {
       match.$or = [{ userId: null }, { userId: { $exists: false } }];

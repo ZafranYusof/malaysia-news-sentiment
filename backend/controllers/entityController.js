@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+const isValidObjectId = (id) => id && mongoose.Types.ObjectId.isValid(id) && id !== 'guest';
 const Article = require('../models/Article');
 
 // Malaysian entity extraction patterns
@@ -66,7 +68,7 @@ const getEntityGraph = async (req, res) => {
     const userId = req.user?.id;
 
     const filter = { ...getTimeFilter(timeframe) };
-    if (userId) filter.userId = userId;
+    if (isValidObjectId(userId)) filter.userId = userId;
     if (query) {
       filter.$or = [
         { title: { $regex: query, $options: 'i' } },
@@ -170,7 +172,7 @@ const getEntityDetail = async (req, res) => {
     const userId = req.user?.id;
 
     const filter = {};
-    if (userId) filter.userId = userId;
+    if (isValidObjectId(userId)) filter.userId = userId;
     filter.$or = [
       { title: { $regex: name, $options: 'i' } },
       { description: { $regex: name, $options: 'i' } },
