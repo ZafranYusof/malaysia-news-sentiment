@@ -202,7 +202,7 @@ const getAndAnalyzeNews = async (req, res) => {
                 if (io) io.emit('analysis_progress', { done: analyzed, total: totalToAnalyze });
                 return await Article.findOneAndUpdate(
                   { _id: existing._id },
-                  { $set: { userId: req.userId || existing.userId || null, topic: q || existing.topic, source: correctedSource } },
+                  { $set: { userId: req.isGuest ? (existing.userId || null) : (req.userId || existing.userId || null), topic: q || existing.topic, source: correctedSource } },
                   { new: true, lean: true } 
                 );
               }
@@ -234,7 +234,7 @@ const getAndAnalyzeNews = async (req, res) => {
               topic:       q,
               ...analysis,
               isAlert:     alert,
-              userId:      req.userId || null,
+              userId:      (req.isGuest ? null : req.userId) || null,
               impactScore: impact,
             };
 
