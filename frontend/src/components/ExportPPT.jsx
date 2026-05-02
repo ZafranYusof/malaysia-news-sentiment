@@ -305,7 +305,7 @@ const ExportPPT = ({ articles = [], distribution = {}, sources = [], query = '' 
   return (
     <>
       <motion.button
-        className="btn-text-only export-ppt-btn"
+        className="btn-text-only export-ppt-btn export-ppt-trigger"
         onClick={() => setIsModalOpen(true)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}

@@ -98,6 +98,7 @@ const Dashboard = () => {
   const [forecast, setForecast]           = useState(null);
   const [forecastLoading, setForecastLoading] = useState(false);
   const [manualError, setManualError]     = useState('');
+  const [showExportSheet, setShowExportSheet] = useState(false);
 
   // Reset page when timeframe changes
   useEffect(() => {
@@ -321,7 +322,7 @@ const Dashboard = () => {
                       {TIME_OPTIONS.map(opt => (
                         <motion.button
                           key={opt.key}
-                          className={`btn-text-only ${timeframe === opt.key ? 'is-active' : ''}`}
+                          className={`btn-text-only time-filter-btn ${timeframe === opt.key ? 'is-active' : ''}`}
                           onClick={() => { setTimeframe(opt.key); setPage(1); }}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -487,6 +488,85 @@ const Dashboard = () => {
           </>
         )}
       </div>
+
+      {/* Mobile FABs - AI Forecast + Export */}
+      <div className="mobile-fab-container">
+        <motion.button
+          className="mobile-fab-secondary"
+          onClick={() => setShowExportSheet(true)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label="Export options"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </motion.button>
+        <motion.button
+          className="mobile-fab"
+          onClick={handleManualForecast}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label="AI Forecast"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/>
+            <path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/>
+            <path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/>
+          </svg>
+        </motion.button>
+      </div>
+
+      {/* Export Bottom Sheet */}
+      <AnimatePresence>
+        {showExportSheet && (
+          <>
+            <motion.div
+              className="export-sheet-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowExportSheet(false)}
+            />
+            <motion.div
+              className="export-sheet"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              drag="y"
+              dragConstraints={{ top: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100) setShowExportSheet(false);
+              }}
+            >
+              <div className="export-sheet-handle" />
+              <div className="export-sheet-title">Export Options</div>
+              <button className="export-sheet-option" onClick={() => { document.querySelector('.export-ppt-trigger')?.click(); setShowExportSheet(false); }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>
+                </svg>
+                <span>Export PPTX</span>
+              </button>
+              <button className="export-sheet-option" onClick={() => { handlePrint(); setShowExportSheet(false); }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                <span>Print Report</span>
+              </button>
+              <button className="export-sheet-option" onClick={() => { handleExport(); setShowExportSheet(false); }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>Export CSV</span>
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <ScrollToTop />
     </div>
