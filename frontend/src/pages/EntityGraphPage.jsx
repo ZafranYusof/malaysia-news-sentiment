@@ -7,6 +7,7 @@ const SENTIMENT_COLORS = { Positive: '#10B981', Negative: '#EF4444', Neutral: '#
 const SENTIMENT_GLOW = { Positive: 'rgba(16,185,129,0.4)', Negative: 'rgba(239,68,68,0.4)', Neutral: 'rgba(245,158,11,0.4)' };
 const TYPE_LABELS = { politicians: 'Politicians', parties: 'Parties', organizations: 'Organizations', locations: 'Locations' };
 const TYPE_ICONS = { politicians: '👤', parties: '🏛️', organizations: '🏢', locations: '📍' };
+const TYPE_COLORS = { politicians: '#6366f1', parties: '#8b5cf6', organizations: '#06b6d4', locations: '#f59e0b' };
 
 export default function EntityGraphPage() {
   const { theme } = useTheme();
@@ -20,9 +21,23 @@ export default function EntityGraphPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [timeframe, setTimeframe] = useState('');
+  const [viewMode, setViewMode] = useState('graph');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const graphRef = useRef(null);
   const containerRef = useRef(null);
   const graphInstance = useRef(null);
+
+  // Detect mobile and set default view
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    if (window.innerWidth <= 768) setViewMode('list');
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const fetchGraph = useCallback(async () => {
     setLoading(true);
@@ -61,6 +76,14 @@ export default function EntityGraphPage() {
   // Initialize/update G6 graph
   useEffect(() => {
     if (loading || !data.nodes.length || !graphRef.current) return;
+    // Don't render graph if mobile list view is active
+    if (isMobile && viewMode === 'list') {
+      if (graphInstance.current) {
+        graphInstance.current.destroy();
+        graphInstance.current = null;
+      }
+      return;
+    }
 
     // Destroy previous instance
     if (graphInstance.current) {
@@ -72,12 +95,26 @@ export default function EntityGraphPage() {
     const width = container.offsetWidth || 800;
     const height = container.offsetHeight || 600;
 
-    const maxMentions = Math.max(...data.nodes.map(n => n.mentions), 1);
+    // On mobile graph mode, limit to top 15 nodes by mentions
+    const mobileGraphMode = isMobile && viewMode === 'graph';
+    let graphNodes = data.nodes;
+    let graphEdges = data.edges;
+    if (mobileGraphMode) {
+      const sorted = [...data.nodes].sort((a, b) => b.mentions - a.mentions);
+      graphNodes = sorted.slice(0, 15);
+      const nodeIds = new Set(graphNodes.map(n => n.id));
+      graphEdges = data.edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
+    }
+
+    const maxMentions = Math.max(...graphNodes.map(n => n.mentions), 1);
+    const maxNodeSize = mobileGraphMode ? 40 : 80;
+    const baseNodeSize = mobileGraphMode ? 20 : 28;
+    const sizeRange = mobileGraphMode ? 20 : 52;
 
     const g6Data = {
-      nodes: data.nodes.map(n => {
+      nodes: graphNodes.map(n => {
         const color = SENTIMENT_COLORS[n.sentiment] || SENTIMENT_COLORS.Neutral;
-        const nodeSize = 28 + (n.mentions / maxMentions) * 52;
+        const nodeSize = baseNodeSize + (n.mentions / maxMentions) * sizeRange;
         return {
           id: n.id,
           data: {
@@ -94,20 +131,20 @@ export default function EntityGraphPage() {
             lineWidth: 2.5,
             shadowColor: SENTIMENT_GLOW[n.sentiment] || SENTIMENT_GLOW.Neutral,
             shadowBlur: 12,
-            labelText: n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label,
+            labelText: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
             labelFill: isDark ? '#f1f5f9' : '#0f172a',
-            labelFontSize: 12,
+            labelFontSize: mobileGraphMode ? 10 : 12,
             labelFontWeight: 600,
             labelPlacement: 'bottom',
             labelOffsetY: 6,
-            labelBackground: true,
+            labelBackground: !mobileGraphMode,
             labelBackgroundFill: isDark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)',
             labelBackgroundRadius: 4,
             labelBackgroundPadding: [2, 6, 2, 6],
           },
         };
       }),
-      edges: data.edges.map((e, i) => ({
+      edges: graphEdges.map((e, i) => ({
         id: `edge-${i}`,
         source: e.source,
         target: e.target,
@@ -128,9 +165,9 @@ export default function EntityGraphPage() {
       layout: {
         type: 'force',
         preventOverlap: true,
-        nodeSpacing: 80,
-        linkDistance: (edge) => 180 + (edge.data?.weight || 1) * 12,
-        nodeStrength: -1200,
+        nodeSpacing: mobileGraphMode ? 100 : 80,
+        linkDistance: (edge) => (mobileGraphMode ? 120 : 180) + (edge.data?.weight || 1) * 12,
+        nodeStrength: mobileGraphMode ? -800 : -1200,
         edgeStrength: 0.25,
         collideStrength: 1,
         alphaDecay: 0.015,
@@ -186,7 +223,7 @@ export default function EntityGraphPage() {
         graphInstance.current = null;
       }
     };
-  }, [data, loading, isDark]);
+  }, [data, loading, isDark, viewMode, isMobile]);
 
   // Handle resize
   useEffect(() => {
@@ -241,27 +278,82 @@ export default function EntityGraphPage() {
             </span>
           ))}
         </div>
+        {/* Mobile View Toggle */}
+        {isMobile && data.nodes.length > 0 && (
+          <div className="view-toggle">
+            <button className={`view-toggle-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')} title="List View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button className={`view-toggle-btn${viewMode === 'graph' ? ' active' : ''}`} onClick={() => setViewMode('graph')} title="Graph View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="18" r="2"/><line x1="6" y1="7" x2="10" y2="10"/><line x1="14" y1="14" x2="18" y2="17"/></svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Graph + Sidebar */}
       <div className="eg-graph-container" style={{ flex: 1, display: 'flex', borderRadius: 16, overflow: 'hidden', border: `1px solid ${border}`, background: isDark ? 'rgba(8,10,18,0.7)' : '#fafbfc', boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 2px 12px rgba(0,0,0,0.06)', position: 'relative' }}>
         {/* Background gradient */}
         {isDark && <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(16,185,129,0.04) 0%, transparent 50%)', pointerEvents: 'none', zIndex: 0 }} />}
-        <div ref={graphRef} className="eg-graph-area" style={{ flex: 1, minHeight: 550, position: 'relative', zIndex: 1 }}>
-          {loading && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: text2, gap: 12 }}>
-              <div style={{ width: 40, height: 40, border: `3px solid ${isDark ? 'rgba(99,102,241,0.3)' : '#e0e7ff'}`, borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-              <span style={{ fontSize: 13 }}>Mapping entity connections...</span>
-            </div>
-          )}
-          {!loading && !data.nodes.length && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: text2, gap: 16 }}>
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3"><circle cx="12" cy="12" r="3" /><circle cx="4" cy="6" r="2" /><circle cx="20" cy="6" r="2" /><circle cx="4" cy="18" r="2" /><circle cx="20" cy="18" r="2" /><line x1="6" y1="7" x2="10" y2="10" /><line x1="18" y1="7" x2="14" y2="10" /></svg>
-              <p style={{ fontSize: 14, fontWeight: 500 }}>No entity data yet</p>
-              <p style={{ fontSize: 12, opacity: 0.7 }}>Analyze some articles to see the relationship graph</p>
-            </div>
-          )}
-        </div>
+
+        {/* Mobile List View */}
+        {isMobile && viewMode === 'list' && !loading && data.nodes.length > 0 && (
+          <div className="entity-list-view">
+            {[...data.nodes]
+              .sort((a, b) => b.mentions - a.mentions)
+              .slice(0, 20)
+              .map(node => {
+                const connectedCount = data.edges.filter(e => e.source === node.id || e.target === node.id).length;
+                return (
+                  <div key={node.id} className="entity-card" onClick={() => handleNodeClick(node.id)}>
+                    <div className="entity-card-top">
+                      <div className="entity-card-info">
+                        <span className="entity-card-name">{node.label}</span>
+                        <span className="entity-card-badge" style={{ background: `${TYPE_COLORS[node.category] || '#6366f1'}20`, color: TYPE_COLORS[node.category] || '#6366f1' }}>
+                          {TYPE_ICONS[node.category] || '📊'} {TYPE_LABELS[node.category] || node.category}
+                        </span>
+                      </div>
+                      <div className="entity-card-mentions">{node.mentions}</div>
+                    </div>
+                    <div className="entity-card-bottom">
+                      <div className="entity-card-sentiment">
+                        <span className="entity-card-sentiment-dot" style={{ background: SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral, boxShadow: `0 0 6px ${SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral}` }} />
+                        <span className="entity-card-sentiment-label">{node.sentiment}</span>
+                      </div>
+                      <span className="entity-card-connections">{connectedCount} connection{connectedCount !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+
+        {/* Graph View */}
+        {(!isMobile || viewMode === 'graph') && (
+          <div ref={graphRef} className="eg-graph-area" style={{ flex: 1, minHeight: isMobile ? 350 : 550, position: 'relative', zIndex: 1 }}>
+            {loading && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: text2, gap: 12 }}>
+                <div style={{ width: 40, height: 40, border: `3px solid ${isDark ? 'rgba(99,102,241,0.3)' : '#e0e7ff'}`, borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                <span style={{ fontSize: 13 }}>Mapping entity connections...</span>
+              </div>
+            )}
+            {!loading && !data.nodes.length && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: text2, gap: 16 }}>
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3"><circle cx="12" cy="12" r="3" /><circle cx="4" cy="6" r="2" /><circle cx="20" cy="6" r="2" /><circle cx="4" cy="18" r="2" /><circle cx="20" cy="18" r="2" /><line x1="6" y1="7" x2="10" y2="10" /><line x1="18" y1="7" x2="14" y2="10" /></svg>
+                <p style={{ fontSize: 14, fontWeight: 500 }}>No entity data yet</p>
+                <p style={{ fontSize: 12, opacity: 0.7 }}>Analyze some articles to see the relationship graph</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Loading state for list view */}
+        {isMobile && viewMode === 'list' && loading && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 300, color: text2, gap: 12, width: '100%' }}>
+            <div style={{ width: 40, height: 40, border: `3px solid ${isDark ? 'rgba(99,102,241,0.3)' : '#e0e7ff'}`, borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <span style={{ fontSize: 13 }}>Loading entities...</span>
+          </div>
+        )}
 
         {/* Sidebar */}
         <AnimatePresence>
