@@ -50,23 +50,6 @@ const extractJsonObject = (raw) => {
  * Tries Gemini first (if key exists), then fallback to OpenAI/Ollama
  */
 const performAiRequest = async (prompt, model, temperature = 0.2, max_tokens = 500, extraBody = {}) => {
-  // 1. Try Gemini first as it's often more reliable for this project
-  if (process.env.GEMINI_API_KEY) {
-    const modelsToTry = ['gemini-2.0-flash', 'gemini-2.0-flash', 'gemini-2.0-flash'];
-    for (const mName of modelsToTry) {
-      try {
-        const gModel = getGeminiModel(mName);
-        if (gModel) {
-          const result = await gModel.generateContent(prompt);
-          const response = await result.response;
-          return response.text();
-        }
-      } catch (err) {
-        console.warn(`Gemini Request (${mName}) Failed: ${err.message}. ${mName === modelsToTry[modelsToTry.length - 1] ? 'Trying OpenAI/Ollama...' : 'Trying next Gemini model...'}`);
-      }
-    }
-  }
-
   const baseURL = process.env.OPENAI_BASE_URL || '';
   const apiKey = process.env.OPENAI_API_KEY;
 
