@@ -6114,25 +6114,7 @@ body::before {
     display: none !important;
   }
   .main-area {
-    padding-bottom: 64px !important;
-    min-height: auto !important;
-  }
-  .app-shell {
-    min-height: auto !important;
-    height: auto !important;
-  }
-  html, body, #root {
-    overflow-x: hidden;
-    overscroll-behavior-y: none;
-    min-height: auto !important;
-  }
-  .dashboard-root {
-    padding-bottom: 0 !important;
-    min-height: auto !important;
-  }
-  .articles-section {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
+    padding-bottom: 68px !important;
   }
 }
 
