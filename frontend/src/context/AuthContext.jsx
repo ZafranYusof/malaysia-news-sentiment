@@ -88,6 +88,12 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  const guestLogin = async () => {
+    const res = await api.post('/auth/guest');
+    saveSession(res.data.token, res.data.user);
+    return res.data;
+  };
+
   // Modern Google Login using Firebase Popup
   const firebaseGoogleLogin = async () => {
     try {
@@ -146,7 +152,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ 
-      user, loading, login, googleLogin: firebaseGoogleLogin, 
+      user, loading, login, guestLogin, googleLogin: firebaseGoogleLogin, 
       logout, updatePreferences, updateProfile, toggleBookmark 
     }}>
       {children}

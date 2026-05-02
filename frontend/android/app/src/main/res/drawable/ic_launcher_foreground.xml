@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Gradient circle background -->
+    <path
+        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0"
+        android:fillColor="#6366f1"/>
+    <!-- Inner circle for depth -->
+    <path
+        android:pathData="M54,54m-35,0a35,35 0,1 1,70 0a35,35 0,1 1,-70 0"
+        android:fillColor="#4f46e5"/>
+    <!-- Letter M -->
+    <path
+        android:pathData="M30,62L30,46L35.5,55L41,46L41,62L38,62L38,54L35.5,59L33,54L33,62Z"
+        android:fillColor="#ffffff"/>
+    <!-- Letter Y -->
+    <path
+        android:pathData="M45,46L50,55L50,62L47,62L47,55L42,46Z M50,55L55,46L58,46L53,55L50,55Z"
+        android:fillColor="#ffffff"/>
+    <!-- Small bar/accent -->
+    <path
+        android:pathData="M62,46L78,46L78,49L62,49Z"
+        android:fillColor="#818cf8"/>
+    <!-- "News" text approximation - small -->
+    <path
+        android:pathData="M62,52L64,52L64,56L66,52L68,52L68,62L66,62L66,58L64,62L62,62Z"
+        android:fillColor="#c7d2fe"/>
+</vector>

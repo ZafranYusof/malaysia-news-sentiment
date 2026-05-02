@@ -28,9 +28,42 @@ connectDB();
 
 const app = express();
 
-// ── Timing Middleware (#Admin Telemetry) ──────────────────────
+// ── API Metrics Tracking ──────────────────────────────────────
+const apiMetrics = {
+  totalCalls: 0,
+  endpoints: {},
+  methods: { GET: 0, POST: 0, PUT: 0, DELETE: 0, PATCH: 0 },
+  statusCodes: {},
+  avgResponseTime: 0,
+  responseTimes: [],
+  startedAt: new Date(),
+  hourly: {},
+  errors: 0,
+};
+
 app.use((req, res, next) => {
   req.startTime = Date.now();
+  
+  res.on('finish', () => {
+    const duration = Date.now() - req.startTime;
+    const route = req.route?.path || req.path;
+    const key = `${req.method} ${route}`;
+    
+    apiMetrics.totalCalls++;
+    apiMetrics.methods[req.method] = (apiMetrics.methods[req.method] || 0) + 1;
+    apiMetrics.statusCodes[res.statusCode] = (apiMetrics.statusCodes[res.statusCode] || 0) + 1;
+    apiMetrics.endpoints[key] = (apiMetrics.endpoints[key] || 0) + 1;
+    
+    if (res.statusCode >= 400) apiMetrics.errors++;
+    
+    apiMetrics.responseTimes.push(duration);
+    if (apiMetrics.responseTimes.length > 500) apiMetrics.responseTimes.shift();
+    apiMetrics.avgResponseTime = Math.round(apiMetrics.responseTimes.reduce((a, b) => a + b, 0) / apiMetrics.responseTimes.length);
+    
+    const hour = new Date().getHours();
+    apiMetrics.hourly[hour] = (apiMetrics.hourly[hour] || 0) + 1;
+  });
+  
   next();
 });
 
@@ -62,16 +95,47 @@ app.use(express.json({ limit: '2mb' }));
 // ── Rate limiting ─────────────────────────────────────────────
 // Rate limiters disabled for development/testing as requested
 
+// ── API Metrics Endpoint (after CORS) ───────────────────
+app.get('/api/v1/admin/metrics', (req, res) => {
+  const topEndpoints = Object.entries(apiMetrics.endpoints)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15)
+    .map(([endpoint, count]) => ({ endpoint, count }));
+  const uptimeMs = Date.now() - apiMetrics.startedAt.getTime();
+  const uptimeHours = Math.floor(uptimeMs / 3600000);
+  const uptimeMins = Math.floor((uptimeMs % 3600000) / 60000);
+  res.json({
+    totalCalls: apiMetrics.totalCalls,
+    methods: apiMetrics.methods,
+    statusCodes: apiMetrics.statusCodes,
+    avgResponseTime: apiMetrics.avgResponseTime,
+    topEndpoints,
+    errors: apiMetrics.errors,
+    errorRate: apiMetrics.totalCalls ? ((apiMetrics.errors / apiMetrics.totalCalls) * 100).toFixed(2) : '0.00',
+    uptime: `${uptimeHours}h ${uptimeMins}m`,
+    startedAt: apiMetrics.startedAt,
+    requestsPerMinute: apiMetrics.totalCalls > 0 ? (apiMetrics.totalCalls / (uptimeMs / 60000)).toFixed(1) : '0.0',
+    hourlyDistribution: apiMetrics.hourly,
+  });
+});
 
 // ── Routes (v1) ───────────────────────────────────────────────
 app.use('/api/v1/auth', require('./routes/authRoutes'));
 app.use('/api/v1/news', require('./routes/newsRoutes'));
 app.use('/api/v1/history', require('./routes/historyRoutes'));
 
+// ── New feature routes ────────────────────────────────────────
+app.use('/api/v1/entities', require('./routes/entityRoutes'));
+app.use('/api/v1/sources', require('./routes/sourceRoutes'));
+
 // ── Backward compatibility — old routes redirect to v1 ───────
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/news', require('./routes/newsRoutes'));
 app.use('/api/history', require('./routes/historyRoutes'));
+app.use('/api/entities', require('./routes/entityRoutes'));
+app.use('/api/sources', require('./routes/sourceRoutes'));
+// Metrics backward compat
+app.get('/api/admin/metrics', (req, res) => res.redirect('/api/v1/admin/metrics'));
 // ── Global error handler ──────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);

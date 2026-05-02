@@ -1,92 +1,115 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const FeaturesPage = () => {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('fp-visible'); }),
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll('.fp-reveal').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const features = [
-    { icon: '📡', title: 'Multi-Source Aggregation', desc: 'Real-time RSS feeds from Astro Awani, FMT, Malaysiakini and other major Malaysian news outlets — all in one dashboard.', color: '#3b82f6' },
-    { icon: '🤖', title: 'AI Sentiment Analysis', desc: 'Triple-layer AI: Gemini Pro for accuracy, Malaya NLP for Bahasa Malaysia, and rule-based fallback for 100% uptime.', color: '#8b5cf6' },
-    { icon: '📊', title: 'Interactive Dashboard', desc: 'Pie charts, bar charts, trend lines, word clouds, and regional heatmaps — all updating in real-time.', color: '#10b981' },
-    { icon: '🌐', title: 'Bilingual Support', desc: 'Full BM/EN interface with one-click language toggle. AI understands both languages natively.', color: '#f59e0b' },
-    { icon: '🔮', title: '7-Day AI Forecast', desc: 'Predict sentiment trends for the next week based on current news patterns and historical data.', color: '#ef4444' },
-    { icon: '📥', title: 'Export & Reports', desc: 'One-click CSV export, printable reports, and bookmarking for articles that matter most.', color: '#06b6d4' },
-    { icon: '🗺️', title: 'Regional Heatmap', desc: 'Visualize sentiment distribution across all 13 Malaysian states and federal territories.', color: '#ec4899' },
-    { icon: '🔔', title: 'Crisis Alerts', desc: 'Automatic detection of crisis keywords (banjir, rasuah, kemalangan) with real-time alert badges.', color: '#f97316' },
-    { icon: '🔐', title: 'Secure Authentication', desc: 'Firebase Auth + Google OAuth + JWT tokens. Email verification and password reset included.', color: '#6366f1' },
+    { icon: '📡', title: 'Multi-Source Aggregation', desc: 'Real-time RSS feeds from Astro Awani, FMT, Malaysiakini and other major Malaysian news outlets — all in one dashboard.', color: '#4D7AFF' },
+    { icon: '🧠', title: 'AI Sentiment Analysis', desc: 'Triple-layer AI: GPT-4o-mini for accuracy, Malaya NLP for Bahasa Malaysia, and rule-based fallback for 100% uptime.', color: '#30CF79' },
+    { icon: '📊', title: 'Interactive Dashboard', desc: 'Pie charts, bar charts, trend lines, word clouds, and regional heatmaps — all updating in real-time.', color: '#F7A501' },
+    { icon: '🌐', title: 'Bilingual Support', desc: 'Full BM/EN interface with one-click language toggle. AI understands both languages natively.', color: '#4D7AFF' },
+    { icon: '📈', title: '7-Day AI Forecast', desc: 'Predict sentiment trends for the next week based on current news patterns and historical data.', color: '#F54E4E' },
+    { icon: '📄', title: 'Export and Reports', desc: 'One-click CSV export, printable reports, and bookmarking for articles that matter most.', color: '#30CF79' },
+    { icon: '🗺️', title: 'Regional Heatmap', desc: 'Visualize sentiment distribution across all 13 Malaysian states and federal territories.', color: '#F7A501' },
+    { icon: '🚨', title: 'Crisis Alerts', desc: 'Automatic detection of crisis keywords (banjir, rasuah, kemalangan) with real-time alert badges.', color: '#F54E4E' },
+    { icon: '🔒', title: 'Secure Authentication', desc: 'Firebase Auth + Google OAuth + JWT tokens. Email verification and password reset included.', color: '#4D7AFF' },
   ];
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: "'Inter', system-ui, sans-serif", color: '#1e293b' }}>
+    <div style={{ background: '#1D1F27', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: '#EEEFE9' }}>
       <style>{`
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .anim { animation: fadeInUp 0.6s ease-out forwards; }
-        .hlift { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .hlift:hover { transform: translateY(-6px); }
-        .feat-card:hover { border-color: #3b82f6 !important; box-shadow: 0 12px 40px rgba(59,130,246,0.08) !important; }
+        .fp-reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+        .fp-visible { opacity: 1; transform: translateY(0); }
+        .fp-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(29,31,39,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 16px 0; }
+        .fp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+        .fp-logo { font-size: 18px; font-weight: 800; color: #EEEFE9; text-decoration: none; }
+        .fp-logo span { color: #4D7AFF; }
+        .fp-nav-links { display: flex; gap: 32px; align-items: center; }
+        .fp-nav-links a { color: #9BA1B0; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .fp-nav-links a:hover { color: #EEEFE9; }
+        .fp-btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; border: none; }
+        .fp-btn-solid { background: #3366FF; color: #fff; }
+        .fp-btn-solid:hover { background: #5588FF; transform: translateY(-1px); }
+        .fp-btn-ghost { background: transparent; color: #9BA1B0; border: 1px solid rgba(255,255,255,0.1); }
+        .fp-btn-ghost:hover { color: #EEEFE9; border-color: rgba(255,255,255,0.2); }
+        .fp-hero { padding: 140px 32px 80px; text-align: center; max-width: 800px; margin: 0 auto; }
+        .fp-badge { display: inline-block; padding: 6px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #4D7AFF; background: rgba(77,122,255,0.1); border: 1px solid rgba(77,122,255,0.2); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .fp-title { font-size: 48px; font-weight: 800; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
+        .fp-title span { color: #4D7AFF; }
+        .fp-subtitle { font-size: 18px; color: #9BA1B0; line-height: 1.6; max-width: 600px; margin: 0 auto; }
+        .fp-grid { max-width: 1200px; margin: 0 auto; padding: 0 32px 80px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .fp-card { background: #252730; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 32px; transition: all 0.3s ease; cursor: default; }
+        .fp-card:hover { transform: translateY(-4px); border-color: rgba(77,122,255,0.3); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .fp-card-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+        .fp-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #EEEFE9; }
+        .fp-card p { font-size: 14px; color: #9BA1B0; line-height: 1.6; }
+        .fp-cta { text-align: center; padding: 80px 32px; }
+        .fp-cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; }
+        .fp-cta p { color: #9BA1B0; font-size: 16px; margin-bottom: 32px; }
+        .fp-footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 32px; text-align: center; color: #5A5B55; font-size: 13px; }
+        @media (max-width: 768px) {
+          .fp-grid { grid-template-columns: 1fr; }
+          .fp-title { font-size: 32px; }
+          .fp-nav-links { display: none; }
+        }
       `}</style>
 
-      {/* Nav */}
-      <nav style={{ padding: '16px 0', borderBottom: '1px solid #e2e8f0', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', color: '#64748b', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>← Back to Home</button>
-          <span style={{ fontWeight: 900, fontSize: 18, color: '#0f172a' }}>MY News <span style={{ color: '#3b82f6' }}>Sentiment</span></span>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: '#0f172a', padding: '10px 16px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Login</button>
-            <button onClick={() => navigate('/register')} style={{ background: '#0f172a', color: 'white', padding: '10px 24px', borderRadius: 12, border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' }} className="hlift">Get Started</button>
+      {/* Navbar */}
+      <nav className="fp-nav">
+        <div className="fp-nav-inner">
+          <Link to="/" className="fp-logo">MY <span>News</span> Sentiment</Link>
+          <div className="fp-nav-links">
+            <Link to="/features">Features</Link>
+            <Link to="/pricing">Pricing</Link>
+            <Link to="/about">About</Link>
+            <Link to="/contact">Contact</Link>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <Link to="/login" className="fp-btn fp-btn-ghost">Log In</Link>
+            <button className="fp-btn fp-btn-solid" onClick={() => navigate('/register')}>Get Started</button>
           </div>
         </div>
       </nav>
 
-      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '100px 24px' }}>
-        {/* Hero */}
-        <div style={{ textAlign: 'center', marginBottom: 80 }} className="anim">
-          <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#8b5cf6', padding: '6px 16px', borderRadius: 100, fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 24 }}>Platform Capabilities</span>
-          <h1 style={{ fontSize: 'clamp(36px, 6vw, 64px)', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: 24 }}>
-            Everything you need to{' '}
-            <span style={{ background: 'linear-gradient(135deg, #3b82f6, #9333ea)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>decode the news</span>
-          </h1>
-          <p style={{ fontSize: 20, color: '#64748b', lineHeight: 1.8, maxWidth: 650, margin: '0 auto' }}>
-            Built for researchers, analysts, and anyone who wants to understand Malaysian media sentiment at scale.
-          </p>
-        </div>
+      {/* Hero */}
+      <div className="fp-hero fp-reveal">
+        <div className="fp-badge">Platform Capabilities</div>
+        <h1 className="fp-title">Everything you need to <span>decode the news</span></h1>
+        <p className="fp-subtitle">Built for researchers, analysts, and anyone who wants to understand Malaysian media sentiment at scale.</p>
+      </div>
 
-        {/* Features Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 100 }}>
-          {features.map((f, i) => (
-            <div key={f.title} className="hlift feat-card" style={{ background: 'white', border: '1px solid #e2e8f0', padding: '40px', borderRadius: 24, transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', animation: `fadeInUp 0.6s ease-out ${i * 0.08}s forwards`, opacity: 0 }}>
-              <div style={{ fontSize: 40, marginBottom: 20 }}>{f.icon}</div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 12 }}>{f.title}</h3>
-              <p style={{ color: '#64748b', lineHeight: 1.7, fontSize: 15 }}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Tech Stack */}
-        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 32, padding: '60px 48px', marginBottom: 80 }} className="anim">
-          <h2 style={{ fontSize: 28, fontWeight: 900, color: '#0f172a', marginBottom: 8, textAlign: 'center' }}>Built with Modern Tech</h2>
-          <p style={{ color: '#64748b', textAlign: 'center', marginBottom: 40, fontSize: 16 }}>Enterprise-grade stack for reliability and performance</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
-            {['React 19', 'Express 5', 'MongoDB', 'Socket.io', 'Gemini AI', 'Malaya NLP', 'Firebase Auth', 'Vite', 'Recharts', 'JWT', 'Node.js', 'Python FastAPI'].map(tech => (
-              <span key={tech} style={{ background: '#f1f5f9', padding: '10px 20px', borderRadius: 12, fontSize: 14, fontWeight: 700, color: '#475569', border: '1px solid #e2e8f0' }}>{tech}</span>
-            ))}
+      {/* Features Grid */}
+      <div className="fp-grid">
+        {features.map((f, i) => (
+          <div key={i} className="fp-card fp-reveal" style={{ transitionDelay: `${i * 80}ms` }}>
+            <span className="fp-card-icon">{f.icon}</span>
+            <h3>{f.title}</h3>
+            <p>{f.desc}</p>
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* CTA */}
-        <div style={{ textAlign: 'center', background: '#0f172a', borderRadius: 32, padding: '80px 40px', position: 'relative', overflow: 'hidden' }} className="anim">
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, rgba(59,130,246,0.15), transparent 70%)' }} />
-          <div style={{ position: 'relative' }}>
-            <h2 style={{ fontSize: 36, fontWeight: 900, color: 'white', marginBottom: 16 }}>Ready to get started?</h2>
-            <p style={{ color: '#94a3b8', fontSize: 18, marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>Join analysts using MY News Sentiment for media intelligence.</p>
-            <button onClick={() => navigate('/register')} className="hlift" style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '16px 40px', borderRadius: 14, fontWeight: 800, fontSize: 16, cursor: 'pointer', boxShadow: '0 10px 30px rgba(59,130,246,0.3)' }}>Create Free Account →</button>
-          </div>
-        </div>
-      </main>
+      {/* CTA */}
+      <div className="fp-cta fp-reveal">
+        <h2>Ready to get started?</h2>
+        <p>Start analyzing Malaysian news sentiment for free. No credit card required.</p>
+        <button className="fp-btn fp-btn-solid" style={{ padding: '14px 40px', fontSize: '16px' }} onClick={() => navigate('/register')}>Start Free</button>
+      </div>
 
-      <footer style={{ padding: '40px 0', borderTop: '1px solid #e2e8f0', textAlign: 'center', color: '#94a3b8', fontSize: 14, marginTop: 80 }}>
-        © {new Date().getFullYear()} MY News Sentiment Analysis — UMPSA FYP Project
-      </footer>
+      {/* Footer */}
+      <div className="fp-footer">
+        2026 MY News Sentiment. Built at UMPSA.
+      </div>
     </div>
   );
 };

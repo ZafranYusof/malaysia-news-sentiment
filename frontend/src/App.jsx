@@ -20,10 +20,14 @@ import AdminDashboard from './pages/AdminDashboard';
 import StaticPage from './pages/StaticPage';
 import ContactPage from './pages/ContactPage';
 import FeaturesPage from './pages/FeaturesPage';
+import PricingPage from './pages/PricingPage';
+import AboutPage from './pages/AboutPage';
 import NotFound from './pages/NotFound';
+import EntityGraphPage from './pages/EntityGraphPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
+import PageTransition from './components/PageTransition';
 import { ArticleAnalysisProvider } from './context/ArticleAnalysisContext';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -115,6 +119,12 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
             }>{t('history')}</SideLink>
+            <SideLink to="/entities" onClick={onClose} icon={
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/>
+                <line x1="6" y1="7" x2="10" y2="10"/><line x1="18" y1="7" x2="14" y2="10"/><line x1="6" y1="17" x2="10" y2="14"/><line x1="18" y1="17" x2="14" y2="14"/>
+              </svg>
+            }>Entities</SideLink>
           </nav>
         </div>
 
@@ -174,7 +184,8 @@ const TITLES = {
   '/compare': 'compareMode', 
   '/admin': 'admin',
   '/bookmarks': 'bookmarks',
-  '/trending': 'trending'
+  '/trending': 'trending',
+  '/entities': 'entities'
 };
 
 const AppShell = ({ children }) => {
@@ -236,6 +247,7 @@ const AppShell = ({ children }) => {
 import { SocketProvider } from './context/SocketContext';
 
 const AppInner = () => (
+  <PageTransition>
   <Routes>
     <Route path="/"               element={<LandingPage />} />
     <Route path="/login"          element={<LoginPage />} />
@@ -250,19 +262,21 @@ const AppInner = () => (
     <Route path="/bookmarks" element={<ProtectedRoute><AppShell><Bookmarks /></AppShell></ProtectedRoute>} />
     <Route path="/admin" element={<AdminRoute><AppShell><AdminDashboard /></AppShell></AdminRoute>} />
     <Route path="/settings" element={<ProtectedRoute><AppShell><SettingsPage /></AppShell></ProtectedRoute>} />
+    <Route path="/entities" element={<ProtectedRoute><AppShell><EntityGraphPage /></AppShell></ProtectedRoute>} />
     
     {/* Static Informational Pages */}
     <Route path="/api" element={<StaticPage />} />
     <Route path="/contact" element={<ContactPage />} />
     <Route path="/features" element={<FeaturesPage />} />
-    <Route path="/pricing" element={<StaticPage />} />
-    <Route path="/about" element={<StaticPage />} />
+    <Route path="/pricing" element={<PricingPage />} />
+    <Route path="/about" element={<AboutPage />} />
     <Route path="/jobs" element={<StaticPage />} />
     <Route path="/privacy" element={<StaticPage />} />
     
     {/* Cinematic 404 Route */}
     <Route path="*" element={<NotFound />} />
   </Routes>
+  </PageTransition>
 );
 
 const App = () => (

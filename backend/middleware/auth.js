@@ -20,11 +20,24 @@ const protect = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.userId   = decoded.id;
-    req.userRole = decoded.role || 'user'; // surfaced from JWT — no DB needed
+    req.userRole = decoded.role || 'user';
+    req.isGuest  = decoded.isGuest || false;
+    // Guest users get a synthetic user object for compatibility
+    if (decoded.isGuest) {
+      req.user = { _id: 'guest', name: 'Guest User', role: 'guest', isGuest: true };
+    }
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid or expired token. Please log in again.' });
   }
+};
+
+// Middleware: block guest users from write operations
+const blockGuest = (req, res, next) => {
+  if (req.isGuest) {
+    return res.status(403).json({ error: 'Guest users cannot perform this action. Please create an account.' });
+  }
+  next();
 };
 
 // Middleware: restrict to specific roles (synchronous — reads from JWT payload).
@@ -36,4 +49,8 @@ const authorize = (...roles) => (req, res, next) => {
   next();
 };
 
-module.exports = { signToken, protect, authorize };
+// Sign a guest token (limited access, no DB user)
+const signGuestToken = () =>
+  jwt.sign({ id: 'guest', role: 'guest', isGuest: true }, JWT_SECRET, { expiresIn: '24h' });
+
+module.exports = { signToken, signGuestToken, protect, blockGuest, authorize };

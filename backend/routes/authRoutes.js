@@ -6,6 +6,7 @@ const {
   forgotPassword, resetPassword, getMe,
   updatePreferences, updateProfile, resendVerification,
 } = require('../controllers/authController');
+const { signGuestToken } = require('../middleware/auth');
 
 // Public
 router.post('/register',            register);
@@ -16,6 +17,23 @@ router.get('/verify-email/:token',  verifyEmail);
 router.post('/forgot-password',     forgotPassword);
 router.post('/reset-password/:token', resetPassword);
 router.post('/resend-verification', resendVerification);
+
+// Guest mode - limited access without registration
+router.post('/guest', (req, res) => {
+  const token = signGuestToken();
+  res.json({
+    token,
+    user: {
+      _id: 'guest',
+      name: 'Guest User',
+      email: 'guest@mynews.my',
+      role: 'guest',
+      isGuest: true,
+      preferences: { theme: 'dark', language: 'en' },
+      bookmarks: [],
+    },
+  });
+});
 
 // Dev-only: force-verify an account (uses live DB connection)
 if (process.env.NODE_ENV !== 'production') {

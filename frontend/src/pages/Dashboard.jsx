@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -14,6 +15,9 @@ import ForecastCard from '../components/ForecastCard';
 import SentimentMap from '../components/SentimentMap';
 import ScrollToTop from '../components/ScrollToTop';
 import AnalyzingOverlay from '../components/AnalyzingOverlay';
+
+import SourceCredibility from '../components/SourceCredibility';
+import ExportPPT from '../components/ExportPPT';
 import { InlineErrorBoundary } from '../components/ErrorBoundary';
 import { Skeleton } from 'boneyard-js/react';
 import { 
@@ -234,6 +238,47 @@ const Dashboard = () => {
 
   const isLoading = initLoading || searchLoading;
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.05 }
+    }
+  };
+
+  const kpiItemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: { 
+      opacity: 1, y: 0, scale: 1,
+      transition: { type: 'spring', stiffness: 300, damping: 24 }
+    }
+  };
+
+  const chartVariants = {
+    hidden: { opacity: 0, scale: 0.96 },
+    visible: { 
+      opacity: 1, scale: 1,
+      transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] }
+    }
+  };
+
+  const articleVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, y: 0,
+      transition: { type: 'spring', stiffness: 260, damping: 20 }
+    }
+  };
+
+  const bannerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: { 
+      opacity: 1, y: 0,
+      transition: { type: 'spring', stiffness: 300, damping: 25 }
+    }
+  };
+
   return (
     <div className="dashboard-root">
       <AnalyzingOverlay progress={analysisProgress} />
@@ -252,7 +297,12 @@ const Dashboard = () => {
         {!error && (articles.length > 0 || isLoading) && (
           <>
             <Skeleton name="dash-banner" loading={isLoading}>
-              <div className="dash-view-banner">
+              <motion.div 
+                className="dash-view-banner"
+                variants={bannerVariants}
+                initial="hidden"
+                animate="visible"
+              >
                 {isHistoryView ? (
                   <>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -269,13 +319,15 @@ const Dashboard = () => {
                   {isHistoryView && (
                     <div className="time-filter-group">
                       {TIME_OPTIONS.map(opt => (
-                        <button
+                        <motion.button
                           key={opt.key}
                           className={`btn-text-only ${timeframe === opt.key ? 'is-active' : ''}`}
                           onClick={() => { setTimeframe(opt.key); setPage(1); }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                         >
                           {opt.label}
-                        </button>
+                        </motion.button>
                       ))}
                     </div>
                   )}
@@ -285,10 +337,11 @@ const Dashboard = () => {
                     </svg>
                     AI Forecast
                   </button>
+                  <ExportPPT articles={articles} distribution={distribution} sources={sources} query={currentQuery} />
                   <button className="btn-text-only" onClick={handlePrint}>Report</button>
                   <button className="btn-text-only" onClick={handleExport}>CSV</button>
                 </div>
-              </div>
+              </motion.div>
             </Skeleton>
 
             <div className="dashboard-grid-layout">
@@ -298,19 +351,35 @@ const Dashboard = () => {
                 )}
                 
                 <Skeleton name="kpi-row" loading={isLoading}>
-                  <div className="kpi-row">
+                  <motion.div 
+                    className="kpi-row"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     {KPI.map(c => (
-                      <div key={c.label} className="kpi-card">
+                      <motion.div 
+                        key={c.label} 
+                        className="kpi-card"
+                        variants={kpiItemVariants}
+                        whileHover={{ scale: 1.03, y: -4 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                      >
                         <div className="kpi-label">{c.label}</div>
                         <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
                         <div className="kpi-sub">{c.sub}</div>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </Skeleton>
 
                 <Skeleton name="charts-grid" loading={isLoading}>
-                  <div className="charts-grid">
+                  <motion.div 
+                    className="charts-grid"
+                    variants={chartVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     <InlineErrorBoundary name="Pie Chart">
                       <SentimentPieChart distribution={distribution} />
                     </InlineErrorBoundary>
@@ -326,7 +395,8 @@ const Dashboard = () => {
                     <InlineErrorBoundary name="Sources Chart">
                       <TopSourcesChart sourcesData={sources} />
                     </InlineErrorBoundary>
-                  </div>
+
+                  </motion.div>
                 </Skeleton>
                 
                 <div className="forecast-wide-wrapper" style={{ marginTop: '32px' }}>
@@ -342,6 +412,9 @@ const Dashboard = () => {
                     <WordCloud words={keywords} />
                   </InlineErrorBoundary>
                 </Skeleton>
+                <InlineErrorBoundary name="Source Credibility">
+                  <SourceCredibility />
+                </InlineErrorBoundary>
               </aside>
             </div>
 
@@ -352,23 +425,40 @@ const Dashboard = () => {
                 </h2>
                 <div className="filter-rail">
                   {FILTER_OPTIONS.map(opt => (
-                    <button key={opt.key} className={`filter-pill ${filter === opt.key ? 'active' : ''}`} onClick={() => setFilter(opt.key)}>{opt.label}</button>
+                    <motion.button 
+                      key={opt.key} 
+                      className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
+                      onClick={() => setFilter(opt.key)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {opt.label}
+                    </motion.button>
                   ))}
                 </div>
               </div>
 
-              <div className="articles-list">
+              <motion.div 
+                className="articles-list"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
                 <Skeleton name="article-card" loading={isLoading || historyLoading} count={3}>
-                  {filteredArticles.map(article => (
-                    <ArticleCard 
-                      key={article._id || article.url} 
-                      article={article} 
-                      onBookmark={toggleBookmark}
-                      isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
-                    />
+                  {filteredArticles.map((article, idx) => (
+                    <motion.div
+                      key={article._id || article.url}
+                      variants={articleVariants}
+                    >
+                      <ArticleCard 
+                        article={article} 
+                        onBookmark={toggleBookmark}
+                        isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
+                      />
+                    </motion.div>
                   ))}
                 </Skeleton>
-              </div>
+              </motion.div>
 
               {/* Pagination Controls (#6) */}
               {isHistoryView && stats.total > LIMIT && (
