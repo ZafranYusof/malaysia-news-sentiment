@@ -108,6 +108,7 @@ body::before {
 }
 @media (max-width: 480px) {
   .sidebar { width: 85vw !important; max-width: 320px; }
+  .sidebar-footer { margin-top: 24px; }
 }
 
 /* Desktop Collapsed State */
