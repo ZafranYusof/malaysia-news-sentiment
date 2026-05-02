@@ -22,7 +22,7 @@ const getClient = () => {
 
 // Lazy-init Gemini
 let genAI = null;
-const getGeminiModel = (modelName = 'gemini-1.5-flash') => {
+const getGeminiModel = (modelName = 'gemini-2.0-flash') => {
   if (!genAI && process.env.GEMINI_API_KEY) {
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   }
@@ -52,7 +52,7 @@ const extractJsonObject = (raw) => {
 const performAiRequest = async (prompt, model, temperature = 0.2, max_tokens = 500, extraBody = {}) => {
   // 1. Try Gemini first as it's often more reliable for this project
   if (process.env.GEMINI_API_KEY) {
-    const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+    const modelsToTry = ['gemini-2.0-flash', 'gemini-2.0-flash', 'gemini-2.0-flash'];
     for (const mName of modelsToTry) {
       try {
         const gModel = getGeminiModel(mName);
