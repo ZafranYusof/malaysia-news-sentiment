@@ -4837,8 +4837,11 @@ body::before {
   .chart-panel-title { font-size: 11px; }
 
   /* Banner */
-  .dash-view-banner { padding: 12px; font-size: 12px; border-radius: 10px; }
-  .dash-view-banner strong { font-size: 12px; }
+  .dash-view-banner { padding: 8px 12px; font-size: 11px; border-radius: 8px; gap: 6px; margin-bottom: 4px; }
+  .dash-view-banner strong { font-size: 11px; }
+  .dash-view-banner svg { display: none; }
+  .time-filter-group { gap: 4px; }
+  .time-filter-group .btn-text-only { padding: 4px 8px; font-size: 10px; }
   .btn-text-only { padding: 6px 10px; font-size: 10px; min-height: 36px; }
   .time-filter-group { gap: 4px; }
 
@@ -5556,20 +5559,25 @@ body::before {
   gap: 8px;
 }
 .mobile-search-btn {
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
   padding: 0 !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0;
+}
+.mobile-search-btn svg {
+  width: 14px !important;
+  height: 14px !important;
 }
 .mobile-options-btn {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(15,23,42,0.6);
   color: #94a3b8;
@@ -5577,6 +5585,10 @@ body::before {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+.mobile-options-btn svg {
+  width: 14px;
+  height: 14px;
 }
 .mobile-options-btn:active {
   background: rgba(99,102,241,0.15);
@@ -5600,7 +5612,9 @@ body::before {
   white-space: nowrap;
 }
 @media (max-width: 768px) {
-  .filter-bar { padding: 12px !important; margin-bottom: 8px !important; }
+  .filter-bar { padding: 8px 12px !important; margin-bottom: 4px !important; }
+  .filter-bar .filter-input { height: 36px !important; font-size: 13px !important; }
+  .filter-bar .filter-input-wrap { height: 36px; }
   .filter-bar .topic-strips { margin-top: 8px; padding: 0; }
   .filter-bar .topic-chip { font-size: 11px; padding: 4px 10px; }
 }
