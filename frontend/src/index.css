@@ -107,7 +107,15 @@ body::before {
   .sidebar.open { transform: translateX(0); box-shadow: 20px 0 60px rgba(0,0,0,0.15); }
 }
 @media (max-width: 480px) {
-  .sidebar { width: 85vw !important; max-width: 320px; }
+  .sidebar { width: 82vw !important; max-width: 300px; }
+  .sidebar-section { padding: 8px 14px; }
+  .sidebar-link { padding: 10px 12px; gap: 10px; font-size: 13px; }
+  .sidebar-section-label { margin-bottom: 4px; font-size: 10px; }
+  .sidebar-logo { padding: 16px 14px 12px; }
+  .sidebar-footer { margin-top: 20px !important; padding: 16px 14px; }
+  .sidebar-avatar { width: 34px; height: 34px; font-size: 12px; }
+  .sidebar-user-name { font-size: 12px; }
+  .sidebar-user-email { font-size: 10px; }
 }
 
 /* Desktop Collapsed State */
