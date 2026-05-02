@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'react-hot-toast';
@@ -188,6 +188,126 @@ const TITLES = {
   '/entities': 'entities'
 };
 
+// ── Bottom Navigation Bar (Mobile Only) ──────────────────────
+const BottomNav = () => {
+  const loc = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const moreRef = useRef(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Close more popup on route change
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [loc.pathname]);
+
+  const handleMoreNav = useCallback((path) => {
+    navigate(path);
+    setMoreOpen(false);
+  }, [navigate]);
+
+  if (!isMobile) return null;
+
+  const tabs = [
+    { path: '/dashboard', label: t('dashboard'), icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+    )},
+    { path: '/trending', label: t('trending'), icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+    )},
+    { path: '/entities', label: 'Entities', icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/>
+        <line x1="6" y1="7" x2="10" y2="10"/><line x1="18" y1="7" x2="14" y2="10"/><line x1="6" y1="17" x2="10" y2="14"/><line x1="18" y1="17" x2="14" y2="14"/>
+      </svg>
+    )},
+    { path: '/history', label: t('history'), icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    )},
+  ];
+
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        className={`bottom-nav-more-overlay ${moreOpen ? 'open' : ''}`}
+        onClick={() => setMoreOpen(false)}
+      />
+
+      {/* More Popup */}
+      <div className={`bottom-nav-more-popup ${moreOpen ? 'open' : ''}`}>
+        <div className="bottom-nav-more-popup-handle" />
+        <button onClick={() => handleMoreNav('/compare')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/><path d="M4 12h16"/>
+          </svg>
+          {t('compareMode')}
+        </button>
+        <button onClick={() => handleMoreNav('/bookmarks')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+          </svg>
+          {t('bookmarks')}
+        </button>
+        <button onClick={() => handleMoreNav('/settings')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          </svg>
+          {t('settings')}
+        </button>
+        {user?.role === 'admin' && (
+          <button onClick={() => handleMoreNav('/admin')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/><path d="M3 10h18"/><path d="M7 15h.01"/><path d="M11 15h2"/>
+            </svg>
+            {t('admin')}
+          </button>
+        )}
+      </div>
+
+      {/* Bottom Nav Bar */}
+      <nav className="bottom-nav">
+        {tabs.map(tab => (
+          <Link
+            key={tab.path}
+            to={tab.path}
+            className={`bottom-nav-item ${loc.pathname === tab.path ? 'active' : ''}`}
+          >
+            {tab.icon}
+            <span>{tab.label}</span>
+          </Link>
+        ))}
+        <button
+          className={`bottom-nav-item ${moreOpen || ['/compare', '/bookmarks', '/settings', '/admin'].includes(loc.pathname) ? 'active' : ''}`}
+          onClick={() => setMoreOpen(prev => !prev)}
+          ref={moreRef}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+          </svg>
+          <span>More</span>
+        </button>
+      </nav>
+    </>
+  );
+};
+
 const AppShell = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -240,6 +360,7 @@ const AppShell = ({ children }) => {
         </header>
         <main className="page-body" id="main-content">{children}</main>
       </div>
+      <BottomNav />
     </div>
   );
 };
