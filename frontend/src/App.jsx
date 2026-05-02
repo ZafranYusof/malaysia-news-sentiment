@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'react-hot-toast';
@@ -188,7 +189,7 @@ const TITLES = {
   '/entities': 'entities'
 };
 
-// ── Bottom Navigation Bar (Mobile Only) ──────────────────────
+// ── Bottom Navigation Bar (Mobile Only) — StatusMy Pattern ──────────────────────
 const BottomNav = () => {
   const loc = useLocation();
   const navigate = useNavigate();
@@ -196,7 +197,6 @@ const BottomNav = () => {
   const { t } = useLanguage();
   const [moreOpen, setMoreOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const moreRef = useRef(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
@@ -242,62 +242,102 @@ const BottomNav = () => {
     )},
   ];
 
+  const isActive = (path) => {
+    if (path === '/dashboard') return loc.pathname === '/dashboard';
+    return loc.pathname.startsWith(path);
+  };
+
+  const moreActive = moreOpen || ['/compare', '/bookmarks', '/settings', '/admin'].includes(loc.pathname);
+
   return (
     <>
       {/* Overlay */}
-      <div
-        className={`bottom-nav-more-overlay ${moreOpen ? 'open' : ''}`}
-        onClick={() => setMoreOpen(false)}
-      />
+      <AnimatePresence>
+        {moreOpen && (
+          <motion.div
+            className="bottom-nav-more-overlay open"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMoreOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* More Popup */}
-      <div className={`bottom-nav-more-popup ${moreOpen ? 'open' : ''}`}>
-        <div className="bottom-nav-more-popup-handle" />
-        <button onClick={() => handleMoreNav('/compare')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/><path d="M4 12h16"/>
-          </svg>
-          {t('compareMode')}
-        </button>
-        <button onClick={() => handleMoreNav('/bookmarks')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
-          </svg>
-          {t('bookmarks')}
-        </button>
-        <button onClick={() => handleMoreNav('/settings')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
-          </svg>
-          {t('settings')}
-        </button>
-        {user?.role === 'admin' && (
-          <button onClick={() => handleMoreNav('/admin')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/><path d="M3 10h18"/><path d="M7 15h.01"/><path d="M11 15h2"/>
-            </svg>
-            {t('admin')}
-          </button>
-        )}
-      </div>
-
-      {/* Bottom Nav Bar */}
-      <nav className="bottom-nav">
-        {tabs.map(tab => (
-          <Link
-            key={tab.path}
-            to={tab.path}
-            className={`bottom-nav-item ${loc.pathname === tab.path ? 'active' : ''}`}
+      <AnimatePresence>
+        {moreOpen && (
+          <motion.div
+            className="bottom-nav-more-popup open"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
           >
-            {tab.icon}
-            <span>{tab.label}</span>
-          </Link>
-        ))}
+            <div className="bottom-nav-more-popup-handle" />
+            <button onClick={() => handleMoreNav('/compare')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/><path d="M4 12h16"/>
+              </svg>
+              {t('compareMode')}
+            </button>
+            <button onClick={() => handleMoreNav('/bookmarks')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+              </svg>
+              {t('bookmarks')}
+            </button>
+            <button onClick={() => handleMoreNav('/settings')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+              </svg>
+              {t('settings')}
+            </button>
+            {user?.role === 'admin' && (
+              <button onClick={() => handleMoreNav('/admin')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/><path d="M3 10h18"/><path d="M7 15h.01"/><path d="M11 15h2"/>
+                </svg>
+                {t('admin')}
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom Nav Bar — 64px, StatusMy pattern */}
+      <nav className="bottom-nav">
+        {tabs.map(tab => {
+          const active = isActive(tab.path);
+          return (
+            <button
+              key={tab.path}
+              onClick={() => navigate(tab.path)}
+              className={`bottom-nav-item ${active ? 'active' : ''}`}
+            >
+              {active && (
+                <motion.div
+                  layoutId="bottom-nav-indicator"
+                  className="bottom-nav-indicator"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
         <button
-          className={`bottom-nav-item ${moreOpen || ['/compare', '/bookmarks', '/settings', '/admin'].includes(loc.pathname) ? 'active' : ''}`}
+          className={`bottom-nav-item ${moreActive ? 'active' : ''}`}
           onClick={() => setMoreOpen(prev => !prev)}
-          ref={moreRef}
         >
+          {moreActive && (
+            <motion.div
+              layoutId="bottom-nav-indicator"
+              className="bottom-nav-indicator"
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            />
+          )}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
           </svg>

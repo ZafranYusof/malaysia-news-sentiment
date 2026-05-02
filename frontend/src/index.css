@@ -4533,17 +4533,27 @@ body::before {
   .topbar-hamburger { display: none; }
   .scroll-to-top-btn { display: none !important; }
 
-  /* ── Topbar: 48px compact ── */
+  /* ── Topbar: 56px (h-14), StatusMy pattern ── */
   .topbar {
-    height: 48px;
+    height: 56px;
     padding: 0 16px;
+    background: rgba(15, 23, 42, 0.3);
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 30;
   }
   .topbar-title { font-size: 18px; font-weight: 700; }
   .topbar-actions { gap: 8px; }
 
-  /* ── Main area: padding-bottom = 64px (56 nav + 8 buffer) ── */
-  .main-area { padding-bottom: 64px !important; }
+  /* ── Main area: flex-1, overflow-y auto, pb-80px (64px nav + 16px buffer) ── */
+  .main-area {
+    padding-bottom: 80px !important;
+    flex: 1;
+    overflow-y: auto;
+  }
 
   /* ── Page Body: 16px margins ── */
   .page-body { padding: 16px; }
@@ -4807,8 +4817,8 @@ body::before {
 @media (max-width: 480px) {
   body { font-size: 14px; }
 
-  /* Topbar */
-  .topbar { height: 48px; padding: 0 16px; }
+  /* Topbar — keep 56px */
+  .topbar { height: 56px; padding: 0 16px; }
   .topbar-title { font-size: 16px; letter-spacing: -0.3px; }
   .topbar-actions { gap: 6px; }
 
@@ -4989,10 +4999,10 @@ body::before {
 /* FAB Container - hidden on desktop */
 .mobile-fab-container { display: none; }
 
-/* Mobile FAB - Primary (AI Forecast): 52px, bottom: 72px */
+/* Mobile FAB - Primary (AI Forecast): 52px, bottom: 80px (64px nav + 16px) */
 .mobile-fab {
   position: fixed;
-  bottom: 72px; /* 56px nav + 16px gap */
+  bottom: 80px; /* 64px nav + 16px gap */
   right: 16px;
   z-index: 100;
   width: 52px;
@@ -5016,10 +5026,10 @@ body::before {
     0 0 16px rgba(99, 102, 241, 0.3);
 }
 
-/* Mobile FAB - Secondary (Export): 40px, bottom: 132px */
+/* Mobile FAB - Secondary (Export): 40px, bottom: 140px (80 + 52 + 8) */
 .mobile-fab-secondary {
   position: fixed;
-  bottom: 132px; /* 72 + 52 + 8 */
+  bottom: 140px; /* 80 + 52 + 8 */
   right: 16px;
   z-index: 100;
   width: 40px;
@@ -5295,25 +5305,28 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   BOTTOM NAVIGATION BAR — Mobile Only
+   BOTTOM NAVIGATION BAR — Mobile Only (StatusMy Pattern)
+   64px height, backdrop-blur, framer-motion indicator
    ═══════════════════════════════════════════════════════════════ */
 
-/* Bottom Nav Bar — 56px height + safe-area */
+/* Bottom Nav Bar — 64px (h-16) + safe-area */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: calc(56px + env(safe-area-inset-bottom, 0px));
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(8, 10, 18, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  z-index: 1000;
+  padding-left: 4px;
+  padding-right: 4px;
+  z-index: 40;
 }
 
 /* Hide on desktop */
@@ -5328,83 +5341,69 @@ body::before {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 6px 12px;
+  gap: 2px;
+  flex: 1;
+  height: 100%;
+  padding: 8px 0;
   text-decoration: none;
   color: #64748b;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color 0.15s ease;
   position: relative;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   background: none;
   border: none;
   font-family: inherit;
-  min-width: 44px;
-  min-height: 44px;
 }
 
 .bottom-nav-item svg {
-  width: 22px;
-  height: 22px;
-  transition: transform 0.2s ease;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.15s ease;
 }
 
 .bottom-nav-item span {
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
+  font-weight: 500;
 }
 
 .bottom-nav-item.active {
   color: #6366f1;
 }
 
-.bottom-nav-item.active::after {
-  content: '';
+.bottom-nav-item.active svg {
+  stroke-width: 2.5;
+}
+
+/* Active indicator bar at top of tab — animated via framer-motion layoutId */
+.bottom-nav-indicator {
   position: absolute;
-  bottom: 4px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  width: 32px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
   background: #6366f1;
 }
 
-.bottom-nav-item.active svg {
-  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.5));
-  transform: scale(1.05);
-}
-
 .bottom-nav-item:active {
-  transform: scale(0.92);
+  transform: scale(0.95);
 }
 
-/* More Popup */
+/* More Popup — slides up from just above 64px nav */
 .bottom-nav-more-popup {
   position: fixed;
-  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
-  background: rgba(12, 14, 24, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px 20px 0 0;
-  padding: 12px 20px 8px;
-  z-index: 999;
-  transform: translateY(100%);
-  opacity: 0;
-  visibility: hidden;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.25s ease,
-              visibility 0.25s ease;
-}
-
-.bottom-nav-more-popup.open {
-  transform: translateY(0);
-  opacity: 1;
-  visibility: visible;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px 16px 0 0;
+  padding: 8px 16px 8px;
+  z-index: 39;
 }
 
 .bottom-nav-more-popup-handle {
@@ -5412,7 +5411,7 @@ body::before {
   height: 4px;
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.15);
-  margin: 0 auto 14px;
+  margin: 0 auto 10px;
 }
 
 .bottom-nav-more-popup a,
@@ -5421,14 +5420,15 @@ body::before {
   align-items: center;
   gap: 14px;
   width: 100%;
-  padding: 12px 12px;
+  height: 48px;
+  padding: 0 12px;
   border: none;
   background: transparent;
   color: #e2e8f0;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: 10px;
   transition: background 0.2s ease;
   text-decoration: none;
   font-family: inherit;
@@ -5459,10 +5459,7 @@ body::before {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 998;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
+  z-index: 38;
 }
 
 .bottom-nav-more-overlay.open {
@@ -5483,7 +5480,7 @@ body::before {
   border-radius: 12px;
   margin-bottom: 16px;
   position: sticky;
-  top: 48px;
+  top: 56px;
   z-index: 30;
   border: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
