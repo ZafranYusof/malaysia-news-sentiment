@@ -320,7 +320,6 @@ const LandingPage = () => {
           </div>
           <div className="sl-nav-links">
             <Link to="/features">Features</Link>
-            <a href="#how-it-works" onClick={(e) => smoothScroll(e, 'how-it-works')}>How It Works</a>
             <Link to="/pricing">Pricing</Link>
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
