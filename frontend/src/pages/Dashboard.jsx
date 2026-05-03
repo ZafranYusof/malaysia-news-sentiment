@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -6,17 +6,29 @@ import { useLanguage } from '../context/LanguageContext';
 import SearchBar from '../components/SearchBar';
 import ArticleCard from '../components/ArticleCard';
 import SentimentPieChart from '../components/SentimentPieChart';
-import SentimentBarChart from '../components/SentimentBarChart';
-import TrendLineChart from '../components/TrendLineChart';
-import TopSourcesChart from '../components/TopSourcesChart';
 import AiDigestCard from '../components/AiDigestCard';
 import WordCloud from '../components/WordCloud';
 import ForecastCard from '../components/ForecastCard';
-import SentimentMap from '../components/SentimentMap';
 import ScrollToTop from '../components/ScrollToTop';
 import AnalyzingOverlay from '../components/AnalyzingOverlay';
+import usePullToRefresh from '../hooks/usePullToRefresh';
+import useSwipeTabs from '../hooks/useSwipeTabs';
+import { hapticImpact } from '../utils/haptics';
+
+// #5 Lazy load chart components
+const SentimentBarChart = lazy(() => import('../components/SentimentBarChart'));
+const TrendLineChart = lazy(() => import('../components/TrendLineChart'));
+const TopSourcesChart = lazy(() => import('../components/TopSourcesChart'));
+const SentimentMap = lazy(() => import('../components/SentimentMap'));
+
+const ChartFallback = () => (
+  <div className="chart-lazy-fallback">
+    <div className="chart-lazy-spinner" />
+  </div>
+);
 
 import SourceCredibility from '../components/SourceCredibility';
+import { List as VirtualList } from 'react-window';
 import ExportPPT from '../components/ExportPPT';
 import { InlineErrorBoundary } from '../components/ErrorBoundary';
 import { Skeleton } from 'boneyard-js/react';
@@ -64,13 +76,49 @@ const Dashboard = () => {
 
   // Mobile tab state
   const [mobileTab, setMobileTab] = useState('overview');
+  const [tabSwitching, setTabSwitching] = useState(false); // #3 skeleton on tab switch
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [showFabTooltip, setShowFabTooltip] = useState(false);
+
+  // #3 Tab switch with brief skeleton
+  const handleTabSwitch = useCallback((tab) => {
+    if (tab === mobileTab) return;
+    setTabSwitching(true);
+    setMobileTab(tab);
+    setTimeout(() => setTabSwitching(false), 150);
+  }, [mobileTab]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // #1 Pull-to-refresh
+  const handlePullRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries(['dashboardInit']);
+    await queryClient.invalidateQueries(['topSources']);
+    await queryClient.invalidateQueries(['regionalData']);
+  }, [queryClient]);
+  const { pullDistance, isRefreshing, onTouchStart: pullTouchStart, onTouchMove: pullTouchMove, onTouchEnd: pullTouchEnd } = usePullToRefresh(handlePullRefresh);
+
+  // #8 Swipe between tabs
+  const MOBILE_TABS = ['overview', 'charts', 'ai'];
+  const { onTouchStart: swipeTouchStart, onTouchEnd: swipeTouchEnd } = useSwipeTabs(MOBILE_TABS, mobileTab, setMobileTab);
+
+  // #13 FAB label tooltip on first visit
+  useEffect(() => {
+    if (!isMobile) return;
+    const seen = localStorage.getItem('fab-tooltip-seen');
+    if (!seen) {
+      setShowFabTooltip(true);
+      const timer = setTimeout(() => {
+        setShowFabTooltip(false);
+        localStorage.setItem('fab-tooltip-seen', '1');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isMobile]);
 
   // 1. Dashboard Init Query (History Mode)
   const { 
@@ -109,6 +157,15 @@ const Dashboard = () => {
   const [forecastLoading, setForecastLoading] = useState(false);
   const [manualError, setManualError]     = useState('');
   const [showExportSheet, setShowExportSheet] = useState(false);
+
+  // #11 Back gesture handling for export sheet
+  useEffect(() => {
+    if (!showExportSheet) return;
+    window.history.pushState(null, '');
+    const handlePopState = () => setShowExportSheet(false);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showExportSheet]);
 
   // Reset page when timeframe changes
   useEffect(() => {
@@ -292,7 +349,22 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard-root">
+    <div
+      className="dashboard-root"
+      onTouchStart={(e) => { pullTouchStart(e); swipeTouchStart(e); }}
+      onTouchMove={pullTouchMove}
+      onTouchEnd={(e) => { pullTouchEnd(e); swipeTouchEnd(e); }}
+    >
+      {/* #1 Pull-to-refresh indicator */}
+      {isMobile && (pullDistance > 0 || isRefreshing) && (
+        <div className="pull-to-refresh-indicator" style={{ height: pullDistance, opacity: Math.min(pullDistance / 80, 1) }}>
+          <div className={`ptr-spinner ${isRefreshing ? 'spinning' : ''}`} style={{ transform: `rotate(${pullDistance * 3}deg)` }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+          </div>
+        </div>
+      )}
       <AnalyzingOverlay progress={analysisProgress} />
       <SearchBar onSearch={handleSearch} loading={searchLoading} />
 
@@ -362,25 +434,34 @@ const Dashboard = () => {
                 <div className="mobile-dash-tabs">
                   <button
                     className={`mobile-dash-tab ${mobileTab === 'overview' ? 'active' : ''}`}
-                    onClick={() => setMobileTab('overview')}
+                    onClick={() => handleTabSwitch('overview')}
                   >
                     Overview
                   </button>
                   <button
                     className={`mobile-dash-tab ${mobileTab === 'charts' ? 'active' : ''}`}
-                    onClick={() => setMobileTab('charts')}
+                    onClick={() => handleTabSwitch('charts')}
                   >
                     Charts
                   </button>
                   <button
                     className={`mobile-dash-tab ${mobileTab === 'ai' ? 'active' : ''}`}
-                    onClick={() => setMobileTab('ai')}
+                    onClick={() => handleTabSwitch('ai')}
                   >
                     AI Insights
                   </button>
                 </div>
 
-                {mobileTab === 'overview' && (
+                {/* #3 Skeleton on tab switch */}
+                {tabSwitching && (
+                  <div className="mobile-tab-skeleton">
+                    <div className="skeleton-bar" style={{ width: '80%', height: 16 }} />
+                    <div className="skeleton-bar" style={{ width: '60%', height: 12 }} />
+                    <div className="skeleton-bar" style={{ width: '90%', height: 100 }} />
+                  </div>
+                )}
+
+                {!tabSwitching && mobileTab === 'overview' && (
                   <div className="mobile-tab-content">
                     <Skeleton name="kpi-row" loading={isLoading}>
                       <motion.div 
@@ -423,18 +504,21 @@ const Dashboard = () => {
                         <h2 className="section-heading">
                           {t('analysisResults')} <Skeleton name="article-count" loading={isLoading} inline><span className="section-count">{filteredArticles.length}</span></Skeleton>
                         </h2>
-                        <div className="filter-rail">
-                          {FILTER_OPTIONS.map(opt => (
-                            <motion.button 
-                              key={opt.key} 
-                              className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
-                              onClick={() => setFilter(opt.key)}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              {opt.label}
-                            </motion.button>
-                          ))}
+                        <div className="filter-rail-wrapper">
+                          <div className="filter-rail">
+                            {FILTER_OPTIONS.map(opt => (
+                              <motion.button 
+                                key={opt.key} 
+                                className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
+                                onClick={() => setFilter(opt.key)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                {opt.label}
+                              </motion.button>
+                            ))}
+                          </div>
+                          <div className="filter-rail-fade-right" />
                         </div>
                       </div>
 
@@ -486,33 +570,52 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                {mobileTab === 'charts' && (
+                {!tabSwitching && mobileTab === 'charts' && (
                   <div className="mobile-tab-content">
-                    <Skeleton name="charts-grid" loading={isLoading}>
-                      <motion.div 
-                        className="charts-grid"
-                        variants={chartVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        <InlineErrorBoundary name="Bar Chart">
-                          <SentimentBarChart distribution={distribution} />
-                        </InlineErrorBoundary>
-                        <InlineErrorBoundary name="Trend Chart">
-                          <TrendLineChart trendsData={trends} />
-                        </InlineErrorBoundary>
-                        <InlineErrorBoundary name="Sentiment Map">
-                          <SentimentMap data={regionalData} loading={isLoading} />
-                        </InlineErrorBoundary>
-                        <InlineErrorBoundary name="Sources Chart">
-                          <TopSourcesChart sourcesData={sources} />
-                        </InlineErrorBoundary>
-                      </motion.div>
-                    </Skeleton>
+                    {articles.length === 0 && !isLoading ? (
+                      /* #14 Empty state for Charts tab */
+                      <div className="charts-empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+                        </svg>
+                        <p>No chart data available</p>
+                        <span>Search or analyze news to see charts</span>
+                      </div>
+                    ) : (
+                      <Skeleton name="charts-grid" loading={isLoading}>
+                        <motion.div 
+                          className="charts-grid"
+                          variants={chartVariants}
+                          initial="hidden"
+                          animate="visible"
+                        >
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Bar Chart">
+                              <SentimentBarChart distribution={distribution} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Trend Chart">
+                              <TrendLineChart trendsData={trends} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Sentiment Map">
+                              <SentimentMap data={regionalData} loading={isLoading} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Sources Chart">
+                              <TopSourcesChart sourcesData={sources} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                        </motion.div>
+                      </Skeleton>
+                    )}
                   </div>
                 )}
 
-                {mobileTab === 'ai' && (
+                {!tabSwitching && mobileTab === 'ai' && (
                   <div className="mobile-tab-content">
                     {(digest || digestLoading) && (
                       <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
@@ -579,18 +682,26 @@ const Dashboard = () => {
                         <InlineErrorBoundary name="Pie Chart">
                           <SentimentPieChart distribution={distribution} />
                         </InlineErrorBoundary>
-                        <InlineErrorBoundary name="Bar Chart">
-                          <SentimentBarChart distribution={distribution} />
-                        </InlineErrorBoundary>
-                        <InlineErrorBoundary name="Sentiment Map">
-                          <SentimentMap data={regionalData} loading={isLoading} />
-                        </InlineErrorBoundary>
-                        <InlineErrorBoundary name="Trend Chart">
-                          <TrendLineChart trendsData={trends} />
-                        </InlineErrorBoundary>
-                        <InlineErrorBoundary name="Sources Chart">
-                          <TopSourcesChart sourcesData={sources} />
-                        </InlineErrorBoundary>
+                        <Suspense fallback={<ChartFallback />}>
+                          <InlineErrorBoundary name="Bar Chart">
+                            <SentimentBarChart distribution={distribution} />
+                          </InlineErrorBoundary>
+                        </Suspense>
+                        <Suspense fallback={<ChartFallback />}>
+                          <InlineErrorBoundary name="Sentiment Map">
+                            <SentimentMap data={regionalData} loading={isLoading} />
+                          </InlineErrorBoundary>
+                        </Suspense>
+                        <Suspense fallback={<ChartFallback />}>
+                          <InlineErrorBoundary name="Trend Chart">
+                            <TrendLineChart trendsData={trends} />
+                          </InlineErrorBoundary>
+                        </Suspense>
+                        <Suspense fallback={<ChartFallback />}>
+                          <InlineErrorBoundary name="Sources Chart">
+                            <TopSourcesChart sourcesData={sources} />
+                          </InlineErrorBoundary>
+                        </Suspense>
                       </motion.div>
                     </Skeleton>
                     
@@ -640,18 +751,42 @@ const Dashboard = () => {
                     animate="visible"
                   >
                     <Skeleton name="article-card" loading={isLoading || historyLoading} count={3}>
-                      {filteredArticles.map((article, idx) => (
-                        <motion.div
-                          key={article._id || article.url}
-                          variants={articleVariants}
+                      {/* #7 Virtualized list when > 20 articles */}
+                      {filteredArticles.length > 20 ? (
+                        <VirtualList
+                          height={600}
+                          itemCount={filteredArticles.length}
+                          itemSize={140}
+                          width="100%"
+                          style={{ overflow: 'auto' }}
                         >
-                          <ArticleCard 
-                            article={article} 
-                            onBookmark={toggleBookmark}
-                            isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
-                          />
-                        </motion.div>
-                      ))}
+                          {({ index, style }) => {
+                            const article = filteredArticles[index];
+                            return (
+                              <div style={style} key={article._id || article.url}>
+                                <ArticleCard 
+                                  article={article} 
+                                  onBookmark={toggleBookmark}
+                                  isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
+                                />
+                              </div>
+                            );
+                          }}
+                        </VirtualList>
+                      ) : (
+                        filteredArticles.map((article, idx) => (
+                          <motion.div
+                            key={article._id || article.url}
+                            variants={articleVariants}
+                          >
+                            <ArticleCard 
+                              article={article} 
+                              onBookmark={toggleBookmark}
+                              isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
+                            />
+                          </motion.div>
+                        ))
+                      )}
                     </Skeleton>
                   </motion.div>
 
@@ -687,9 +822,20 @@ const Dashboard = () => {
 
       {/* Mobile FABs - AI Forecast + Export */}
       <div className="mobile-fab-container">
+        {/* #13 FAB tooltip */}
+        <AnimatePresence>
+          {showFabTooltip && (
+            <motion.div
+              className="fab-tooltip fab-tooltip-secondary"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+            >Export</motion.div>
+          )}
+        </AnimatePresence>
         <motion.button
           className="mobile-fab-secondary"
-          onClick={() => setShowExportSheet(true)}
+          onClick={() => { hapticImpact('Light'); setShowExportSheet(true); }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           aria-label="Export options"
@@ -700,9 +846,19 @@ const Dashboard = () => {
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
         </motion.button>
+        <AnimatePresence>
+          {showFabTooltip && (
+            <motion.div
+              className="fab-tooltip fab-tooltip-primary"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+            >AI Forecast</motion.div>
+          )}
+        </AnimatePresence>
         <motion.button
           className="mobile-fab"
-          onClick={handleManualForecast}
+          onClick={() => { hapticImpact('Medium'); handleManualForecast(); }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           aria-label="AI Forecast"

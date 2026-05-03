@@ -12,16 +12,29 @@ const QUICK_TOPICS = [
   'Malaysia flood',
 ];
 
+const RECENT_KEY = 'recent-searches';
+const getRecentSearches = () => {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; }
+};
+const saveRecentSearch = (q) => {
+  const recent = getRecentSearches().filter(s => s !== q);
+  recent.unshift(q);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 5)));
+};
+
 const SearchBar = ({ onSearch, loading }) => {
   const { t } = useLanguage();
   const [query, setQuery] = useState('Malaysia');
   const [pageSize, setPageSize] = useState(10);
   const [showOptions, setShowOptions] = useState(false);
+  const [recentSearches, setRecentSearches] = useState(getRecentSearches);
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
+    saveRecentSearch(query.trim());
+    setRecentSearches(getRecentSearches());
     onSearch(query.trim(), pageSize);
   };
 
@@ -87,6 +100,15 @@ const SearchBar = ({ onSearch, loading }) => {
               <div className="topic-strips" role="list">
                 {QUICK_TOPICS.slice(0, 4).map((topic) => (
                   <button key={topic} className="topic-chip" onClick={() => { handleQuickTopic(topic); setShowOptions(false); }} disabled={loading} role="listitem">{topic}</button>
+                ))}
+              </div>
+            )}
+            {/* #4 Recent search queries */}
+            {isMobile && recentSearches.length > 0 && !showOptions && (
+              <div className="recent-searches">
+                <span className="recent-label">Recent:</span>
+                {recentSearches.map((s) => (
+                  <button key={s} className="recent-chip" onClick={() => { setQuery(s); onSearch(s, pageSize); }} disabled={loading}>{s}</button>
                 ))}
               </div>
             )}

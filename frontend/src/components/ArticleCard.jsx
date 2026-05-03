@@ -3,6 +3,8 @@ import SentimentBadge from './SentimentBadge';
 import AlertBadge from './AlertBadge';
 import { useArticleAnalysis } from '../context/ArticleAnalysisContext';
 import { useSocket } from '../context/SocketContext';
+import { hapticImpact } from '../utils/haptics';
+import toast from 'react-hot-toast';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
@@ -91,7 +93,22 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
 
   const handleBookmark = (e) => {
     e.stopPropagation();
+    hapticImpact('Light'); // #10 haptic on bookmark
     if (onBookmark && articleId) onBookmark(articleId);
+  };
+
+  // #9 Share article via Web Share API
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    const shareData = { title: title, text: description?.slice(0, 100) || title, url: url };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success('Link copied!');
+      } catch {}
+    }
   };
 
   return (
@@ -102,13 +119,16 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
       aria-label={`${title} — ${sentiment} sentiment${isAlert ? ' — Alert' : ''}`}
       style={{ cursor: 'pointer' }}
     >
-      {/* Thumbnail */}
+      {/* Thumbnail - #6 lazy loading with blur placeholder */}
       <div className="art-thumb-container">
         {urlToImage ? (
           <img 
             src={urlToImage} 
             alt={title} 
             className="art-thumb" 
+            loading="lazy"
+            decoding="async"
+            style={{ background: 'rgba(99,102,241,0.08)' }}
             onError={(e) => { 
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'flex';
@@ -183,6 +203,23 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
                 </svg>
                 {localBookmarkCount}
              </div>
+
+             {/* #9 Share button */}
+             <button
+               className="art-share-btn"
+               onClick={handleShare}
+               title="Share article"
+               style={{
+                 background: 'none', border: 'none', padding: 4, cursor: 'pointer',
+                 color: 'var(--text-400)', transition: 'all 0.2s ease',
+                 display: 'flex', alignItems: 'center', justifyContent: 'center'
+               }}
+             >
+               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+               </svg>
+             </button>
 
              {onBookmark && (
                <button 

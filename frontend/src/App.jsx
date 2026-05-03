@@ -30,6 +30,7 @@ import LoadingScreen from './components/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTransition from './components/PageTransition';
 import { ArticleAnalysisProvider } from './context/ArticleAnalysisContext';
+import OfflineBanner from './components/OfflineBanner';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -210,6 +211,15 @@ const BottomNav = () => {
     setMoreOpen(false);
   }, [loc.pathname]);
 
+  // #11 Back gesture handling for More popup
+  useEffect(() => {
+    if (!moreOpen) return;
+    window.history.pushState(null, '');
+    const handlePop = () => setMoreOpen(false);
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, [moreOpen]);
+
   const handleMoreNav = useCallback((path) => {
     navigate(path);
     setMoreOpen(false);
@@ -376,6 +386,7 @@ const AppShell = ({ children }) => {
         onClose={() => setIsSidebarOpen(false)} 
       />
       <div className="main-area">
+        <OfflineBanner />
         <header className="topbar">
           <div className="topbar-left">
             <div className="topbar-hamburger-wrap">
@@ -452,10 +463,8 @@ const App = () => (
                 <Router>
                   <AppInner />
                   <Toaster 
-                    position="top-center"
-                    containerStyle={{
-                      top: 10,
-                    }}
+                    position={window.innerWidth <= 768 ? 'bottom-center' : 'top-center'}
+                    containerStyle={window.innerWidth <= 768 ? { bottom: 80 } : { top: 10 }}
                     toastOptions={{
                       duration: 4000,
                       style: {

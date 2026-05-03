@@ -5618,3 +5618,243 @@ body::before {
   .filter-bar .topic-strips { margin-top: 8px; padding: 0; }
   .filter-bar .topic-chip { font-size: 11px; padding: 4px 10px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE IMPROVEMENTS — 15 Enhancements
+   ═══════════════════════════════════════════════════════════════ */
+
+/* #1 Pull-to-refresh indicator */
+.pull-to-refresh-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: height 0.15s ease;
+}
+.ptr-spinner {
+  color: #6366f1;
+  transition: transform 0.1s linear;
+}
+.ptr-spinner.spinning {
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* #2 Offline banner */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+}
+
+/* #4 Recent search chips */
+.recent-searches {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.recent-searches::-webkit-scrollbar { display: none; }
+.recent-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-400);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.recent-chip {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.06);
+  color: #a5b4fc;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.recent-chip:active {
+  background: rgba(99, 102, 241, 0.15);
+  transform: scale(0.95);
+}
+[data-theme='light'] .recent-chip,
+:root:not([data-theme='dark']) .recent-chip {
+  border-color: rgba(99, 102, 241, 0.15);
+  background: rgba(99, 102, 241, 0.05);
+  color: #6366f1;
+}
+
+/* #5 Chart lazy loading fallback */
+.chart-lazy-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  border-radius: var(--r-sm);
+  background: rgba(99, 102, 241, 0.04);
+}
+.chart-lazy-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid rgba(99, 102, 241, 0.15);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+/* #6 Image lazy loading blur placeholder */
+.art-thumb {
+  transition: opacity 0.3s ease;
+}
+.art-thumb[loading="lazy"] {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* #9 Share button */
+.art-share-btn:hover,
+.art-share-btn:active {
+  color: #6366f1 !important;
+}
+
+/* #13 FAB label tooltip */
+.fab-tooltip {
+  position: absolute;
+  right: 64px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.fab-tooltip-primary {
+  bottom: 16px;
+}
+.fab-tooltip-secondary {
+  bottom: 72px;
+}
+[data-theme='light'] .fab-tooltip,
+:root:not([data-theme='dark']) .fab-tooltip {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-700);
+  border-color: var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+/* #14 Empty state for Charts tab */
+.charts-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-400);
+  gap: 12px;
+}
+.charts-empty-state svg {
+  opacity: 0.3;
+}
+.charts-empty-state p {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-500);
+}
+.charts-empty-state span {
+  font-size: 13px;
+  color: var(--text-400);
+}
+
+/* #15 Filter rail scroll indicator */
+.filter-rail-wrapper {
+  position: relative;
+  width: 100%;
+}
+.filter-rail-fade-right {
+  display: none;
+}
+@media (max-width: 768px) {
+  .filter-rail-fade-right {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 32px;
+    background: linear-gradient(to right, transparent, rgba(15, 23, 42, 0.95));
+    pointer-events: none;
+    border-radius: 0 8px 8px 0;
+    z-index: 2;
+  }
+  [data-theme='light'] .filter-rail-fade-right,
+  :root:not([data-theme='dark']) .filter-rail-fade-right {
+    background: linear-gradient(to right, transparent, var(--bg));
+  }
+
+  /* #3 Skeleton on tab switch - enhanced transition */
+  .mobile-tab-content {
+    animation: mobileTabSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes mobileTabSlideIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Mobile FAB container positioning for tooltips */
+  .mobile-fab-container {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+}
+
+/* #3 Tab switch skeleton */
+.mobile-tab-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
+  animation: skeletonPulse 0.8s ease-in-out infinite alternate;
+}
+.skeleton-bar {
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.08);
+}
+@keyframes skeletonPulse {
+  from { opacity: 0.4; }
+  to { opacity: 0.8; }
+}
+[data-theme='light'] .skeleton-bar,
+:root:not([data-theme='dark']) .skeleton-bar {
+  background: rgba(0, 0, 0, 0.06);
+}
