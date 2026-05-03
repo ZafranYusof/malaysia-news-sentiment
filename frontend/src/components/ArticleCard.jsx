@@ -128,7 +128,7 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
             className="art-thumb" 
             loading="lazy"
             decoding="async"
-            style={{ background: 'rgba(99,102,241,0.08)' }}
+            style={{ background: 'var(--brand-bg)' }}
             onError={(e) => { 
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'flex';
@@ -177,12 +177,11 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
             )}
           </div>
           
-          <div className="art-footer-right" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="art-footer-right" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
              <div className="art-view-pill" style={{ 
-               display: 'flex', alignItems: 'center', gap: 6, 
-               fontSize: 11, fontWeight: 700, color: 'var(--text-400)',
-               padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)',
-               border: '1px solid rgba(255,255,255,0.05)'
+               display: 'flex', alignItems: 'center', gap: 5, 
+               fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+               padding: '2px 8px', borderRadius: 6
              }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
@@ -192,10 +191,9 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
              </div>
 
              <div className="art-bookmark-pill" style={{ 
-               display: 'flex', alignItems: 'center', gap: 6, 
-               fontSize: 11, fontWeight: 700, color: localBookmarkCount > 0 ? '#f59e0b' : 'var(--text-400)',
-               padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)',
-               border: '1px solid rgba(255,255,255,0.05)',
+               display: 'flex', alignItems: 'center', gap: 5, 
+               fontSize: 11, fontWeight: 600, color: localBookmarkCount > 0 ? '#f59e0b' : 'var(--text-muted)',
+               padding: '2px 8px', borderRadius: 6,
                opacity: localBookmarkCount > 0 ? 1 : 0.6
              }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill={localBookmarkCount > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

@@ -307,44 +307,44 @@ const Dashboard = () => {
 
   const isLoading = initLoading || searchLoading;
 
-  // Animation variants
+  // Animation variants — purposeful, minimal motion
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.05 }
+      transition: { staggerChildren: 0.06, delayChildren: 0.02 }
     }
   };
 
   const kpiItemVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    hidden: { opacity: 0, y: 8 },
     visible: { 
-      opacity: 1, y: 0, scale: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 }
+      opacity: 1, y: 0,
+      transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
     }
   };
 
   const chartVariants = {
-    hidden: { opacity: 0, scale: 0.96 },
+    hidden: { opacity: 0 },
     visible: { 
-      opacity: 1, scale: 1,
-      transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] }
+      opacity: 1,
+      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
     }
   };
 
   const articleVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 12 },
     visible: { 
       opacity: 1, y: 0,
-      transition: { type: 'spring', stiffness: 260, damping: 20 }
+      transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
     }
   };
 
   const bannerVariants = {
-    hidden: { opacity: 0, y: -20 },
+    hidden: { opacity: 0, y: -8 },
     visible: { 
       opacity: 1, y: 0,
-      transition: { type: 'spring', stiffness: 300, damping: 25 }
+      transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
     }
   };
 
@@ -407,8 +407,7 @@ const Dashboard = () => {
                           key={opt.key}
                           className={`btn-text-only time-filter-btn ${timeframe === opt.key ? 'is-active' : ''}`}
                           onClick={() => { setTimeframe(opt.key); setPage(1); }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          
                         >
                           {opt.label}
                         </motion.button>
@@ -475,8 +474,8 @@ const Dashboard = () => {
                             key={c.label} 
                             className="kpi-card"
                             variants={kpiItemVariants}
-                            whileHover={{ scale: 1.03, y: -4 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                            whileHover={{ y: -2 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
                           >
                             <div className="kpi-label">{c.label}</div>
                             <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
@@ -511,8 +510,7 @@ const Dashboard = () => {
                                 key={opt.key} 
                                 className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
                                 onClick={() => setFilter(opt.key)}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                
                               >
                                 {opt.label}
                               </motion.button>
@@ -661,8 +659,8 @@ const Dashboard = () => {
                             key={c.label} 
                             className="kpi-card"
                             variants={kpiItemVariants}
-                            whileHover={{ scale: 1.03, y: -4 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                            whileHover={{ y: -2 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
                           >
                             <div className="kpi-label">{c.label}</div>
                             <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
@@ -735,8 +733,7 @@ const Dashboard = () => {
                           key={opt.key} 
                           className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
                           onClick={() => setFilter(opt.key)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          
                         >
                           {opt.label}
                         </motion.button>

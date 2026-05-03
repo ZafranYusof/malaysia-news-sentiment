@@ -468,13 +468,13 @@ const App = () => (
                     toastOptions={{
                       duration: 4000,
                       style: {
-                        background: 'var(--card-bg)',
-                        color: 'var(--text-900)',
+                        background: 'var(--card)',
+                        color: 'var(--text-primary)',
                         border: '1px solid var(--border)',
-                        fontFamily: 'Inter, sans-serif',
-                        fontSize: '14px',
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: '13px',
                         borderRadius: '8px',
-                        boxShadow: 'var(--shadow-lg)'
+                        boxShadow: 'var(--shadow-md)'
                       },
                     }}
                   />
