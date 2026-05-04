@@ -205,9 +205,9 @@ const LandingPage = () => {
           </Link>
           <div className="ph-nav__links">
             <a href="#features">Features</a>
-            <a href="#how-it-works">How it works</a>
             <Link to="/pricing">Pricing</Link>
             <Link to="/about">About</Link>
+            <Link to="/contact">Contact</Link>
           </div>
           <div className="ph-nav__actions">
             <button className="ph-nav__theme" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
