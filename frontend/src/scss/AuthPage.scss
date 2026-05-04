@@ -1,0 +1,300 @@
+// ═══════════════════════════════════════════════════
+// Auth Pages (Login + Register) — PostHog Style
+// ═══════════════════════════════════════════════════
+
+.ph-auth {
+  --ph-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ph-bg: #EEEFE9;
+  --ph-surface: #FFFFFF;
+  --ph-text: #151515;
+  --ph-text-secondary: #5A5A5A;
+  --ph-accent: #F54E00;
+  --ph-accent-hover: #D94400;
+  --ph-border: #D4D5CF;
+  --ph-radius: 8px;
+  --ph-radius-lg: 14px;
+  --ph-input-bg: #F5F5F0;
+
+  &[data-theme='dark'] {
+    --ph-bg: #1D1F27;
+    --ph-surface: #2A2C35;
+    --ph-text: #F1F1F1;
+    --ph-text-secondary: #A0A0A0;
+    --ph-accent: #F54E00;
+    --ph-accent-hover: #FF6A2A;
+    --ph-border: #3A3C45;
+    --ph-input-bg: #22242C;
+  }
+
+  font-family: var(--ph-font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--ph-bg);
+  position: relative;
+  overflow: hidden;
+  padding: 40px 20px;
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(245, 78, 0, 0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  &__card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 420px;
+    background: var(--ph-surface);
+    border: 1px solid var(--ph-border);
+    border-radius: var(--ph-radius-lg);
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+  }
+
+  &__logo {
+    span {
+      font-size: 36px;
+      display: block;
+    }
+  }
+
+  &__header {
+    text-align: center;
+  }
+
+  &__title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--ph-text);
+    margin: 0 0 6px;
+    letter-spacing: -0.5px;
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    color: var(--ph-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  // Tabs
+  &__tabs {
+    display: flex;
+    width: 100%;
+    background: var(--ph-input-bg);
+    padding: 4px;
+    border-radius: var(--ph-radius);
+    gap: 4px;
+  }
+
+  &__tab {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--ph-font);
+    color: var(--ph-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &--active {
+      background: var(--ph-surface);
+      color: var(--ph-text);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  // Fields
+  &__field {
+    width: 100%;
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ph-text);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-family: var(--ph-font);
+      border: 1.5px solid var(--ph-border);
+      border-radius: var(--ph-radius);
+      background: var(--ph-input-bg);
+      color: var(--ph-text);
+      outline: none;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: var(--ph-accent);
+      }
+
+      &::placeholder {
+        color: var(--ph-text-secondary);
+        opacity: 0.5;
+      }
+    }
+  }
+
+  &__field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+
+    label { margin-bottom: 0; }
+  }
+
+  &__forgot {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ph-accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--ph-font);
+
+    &:hover { text-decoration: underline; }
+  }
+
+  // Submit
+  &__submit {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  // Divider
+  &__divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &::before, &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--ph-border);
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ph-text-secondary);
+      white-space: nowrap;
+    }
+  }
+
+  // Social buttons
+  &__social {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  &__social-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: var(--ph-radius);
+    border: 1.5px solid var(--ph-border);
+    background: var(--ph-surface);
+    color: var(--ph-text);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--ph-font);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: var(--ph-text-secondary);
+    }
+
+    &--guest {
+      background: var(--ph-input-bg);
+    }
+  }
+
+  // Error / Success
+  &__error {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(245, 78, 78, 0.08);
+    border: 1px solid rgba(245, 78, 78, 0.25);
+    border-radius: var(--ph-radius);
+    font-size: 13px;
+    font-weight: 600;
+    color: #D32F2F;
+  }
+
+  &__success {
+    width: 100%;
+    padding: 24px;
+    text-align: center;
+
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 12px 0 8px;
+      color: var(--ph-text);
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--ph-text-secondary);
+      line-height: 1.5;
+    }
+  }
+
+  // Note / Link
+  &__note {
+    font-size: 13px;
+    color: var(--ph-text-secondary);
+    text-align: center;
+    margin: 0;
+  }
+
+  &__link {
+    color: var(--ph-accent);
+    font-weight: 700;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: inherit;
+    font-family: var(--ph-font);
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// Mobile
+@media (max-width: 480px) {
+  .ph-auth {
+    padding: 20px 16px;
+
+    &__card {
+      padding: 28px 24px;
+    }
+  }
+}
