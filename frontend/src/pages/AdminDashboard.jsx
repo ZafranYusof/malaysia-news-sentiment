@@ -322,58 +322,19 @@ const AdminDashboard = () => {
             {stats.activityTimeline?.length > 0 && (
               <div className="adm-card" style={{ marginBottom: 24 }}>
                 <h3 className="adm-card-title">Activity by Hour</h3>
-                <div style={{ position: 'relative', padding: '8px 0' }}>
-                  {/* Grid lines */}
-                  <div style={{ position: 'absolute', inset: '8px 0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none' }}>
-                    {[0,1,2,3].map(i => <div key={i} style={{ borderBottom: '1px dashed var(--border)', opacity: 0.5 }} />)}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 140, position: 'relative', zIndex: 1 }}>
-                    {Array.from({ length: 24 }, (_, h) => {
-                      const entry = stats.activityTimeline.find(a => a._id === h);
-                      const count = entry?.count || 0;
-                      const maxCount = Math.max(...stats.activityTimeline.map(a => a.count), 1);
-                      const pct = Math.max(3, (count / maxCount) * 100);
-                      const isActive = count > maxCount * 0.6;
-                      return (
-                        <div key={h} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, position: 'relative' }} className="adm-hour-bar-wrap">
-                          <motion.div
-                            initial={{ height: 0 }}
-                            animate={{ height: `${pct}%` }}
-                            transition={{ duration: 0.8, delay: h * 0.03, ease: [0.16, 1, 0.3, 1] }}
-                            style={{
-                              width: '100%',
-                              minHeight: 3,
-                              background: count > 0
-                                ? isActive
-                                  ? 'linear-gradient(to top, #F54E00, #FF6A2A)'
-                                  : 'linear-gradient(to top, rgba(245,78,0,0.4), rgba(245,78,0,0.7))'
-                                : 'var(--border)',
-                              borderRadius: '4px 4px 2px 2px',
-                              position: 'relative',
-                              cursor: 'pointer',
-                              transition: 'box-shadow 0.2s',
-                              boxShadow: isActive ? '0 0 8px rgba(245,78,0,0.3)' : 'none',
-                            }}
-                            whileHover={{ scaleY: 1.08, boxShadow: '0 0 12px rgba(245,78,0,0.4)' }}
-                            title={`${h}:00 — ${count} activities`}
-                          />
-                          {h % 3 === 0 && <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600, marginTop: 2 }}>{String(h).padStart(2,'0')}</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* Legend */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 500 }}>🕐 24-hour activity distribution</span>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-muted)' }}>
-                        <span style={{ width: 8, height: 8, borderRadius: 2, background: 'linear-gradient(to top, #F54E00, #FF6A2A)' }} /> Peak
-                      </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-muted)' }}>
-                        <span style={{ width: 8, height: 8, borderRadius: 2, background: 'rgba(245,78,0,0.4)' }} /> Normal
-                      </span>
-                    </div>
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 120, padding: '8px 0' }}>
+                  {Array.from({ length: 24 }, (_, h) => {
+                    const entry = stats.activityTimeline.find(a => a._id === h);
+                    const count = entry?.count || 0;
+                    const maxCount = Math.max(...stats.activityTimeline.map(a => a.count), 1);
+                    const heightPct = Math.max(4, (count / maxCount) * 100);
+                    return (
+                      <div key={h} title={`${String(h).padStart(2,'0')}:00 - ${count} activities`} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', gap: 4, cursor: 'default' }}>
+                        <div style={{ width: '100%', height: `${heightPct}%`, background: count > 0 ? '#F54E00' : 'var(--border)', borderRadius: 3, transition: 'height 0.5s ease', opacity: count > 0 ? 0.75 : 0.3 }} />
+                        {h % 6 === 0 && <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 500 }}>{String(h).padStart(2,'0')}</span>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
