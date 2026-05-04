@@ -1,0 +1,75 @@
+@import './LandingPage.scss';
+
+.ph-notfound {
+  font-family: var(--ph-font);
+  background: var(--ph-bg);
+  color: var(--ph-text);
+  min-height: 100vh;
+
+  &__content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 64px);
+    text-align: center;
+    padding: 40px 24px;
+    overflow: hidden;
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 2;
+  }
+
+  &__code {
+    display: block;
+    font-size: clamp(80px, 15vw, 160px);
+    font-weight: 900;
+    letter-spacing: -4px;
+    color: var(--ph-accent);
+    opacity: 0.15;
+    line-height: 1;
+    margin-bottom: -20px;
+  }
+
+  &__title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  &__sub {
+    font-size: 17px;
+    color: var(--ph-text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  &__particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &__particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ph-accent);
+    opacity: 0.15;
+  }
+}
+
+@media (max-width: 768px) {
+  .ph-notfound__code { font-size: 80px; }
+}

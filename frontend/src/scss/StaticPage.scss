@@ -1,0 +1,65 @@
+@import './LandingPage.scss';
+
+.ph-static {
+  font-family: var(--ph-font);
+  background: var(--ph-bg);
+  color: var(--ph-text);
+  min-height: 100vh;
+
+  &__hero {
+    padding: 100px 24px 40px;
+    text-align: center;
+    max-width: var(--ph-max-width);
+    margin: 0 auto;
+  }
+
+  &__emoji {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+
+  &__content {
+    padding: 40px 0 80px;
+  }
+
+  &__sections {
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  &__section {
+    background: var(--ph-surface);
+    border: 1px solid var(--ph-border);
+    border-radius: var(--ph-radius-lg);
+    padding: 32px;
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 15px;
+      color: var(--ph-text-secondary);
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .ph-static {
+    &__hero { padding: 80px 16px 32px; }
+    &__section { padding: 24px; }
+  }
+}

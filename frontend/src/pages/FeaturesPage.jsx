@@ -1,17 +1,42 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useRef } from 'react';
+import { useTheme } from '../context/ThemeContext';
+import ScrollToTop from '../components/ScrollToTop';
+import '../scss/LandingPage.scss';
+import '../scss/FeaturesPage.scss';
+
+// ── Variants ──
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+};
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+};
+const staggerItem = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// ── Animated Section ──
+const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+  return (
+    <motion.section ref={ref} className={className} initial="hidden" animate={isInView ? 'visible' : 'hidden'} variants={variants}>
+      {children}
+    </motion.section>
+  );
+};
 
 const FeaturesPage = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('fp-visible'); }),
-      { threshold: 0.1 }
-    );
-    document.querySelectorAll('.fp-reveal').forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   const features = [
     { icon: '📡', title: 'Multi-Source Aggregation', desc: 'Real-time RSS feeds from Astro Awani, FMT, Malaysiakini and other major Malaysian news outlets — all in one dashboard.', color: '#4D7AFF' },
@@ -26,90 +51,105 @@ const FeaturesPage = () => {
   ];
 
   return (
-    <div style={{ background: '#1D1F27', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", color: '#EEEFE9' }}>
-      <style>{`
-        .fp-reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
-        .fp-visible { opacity: 1; transform: translateY(0); }
-        .fp-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(29,31,39,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 16px 0; }
-        .fp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
-        .fp-logo { font-size: 18px; font-weight: 800; color: #EEEFE9; text-decoration: none; }
-        .fp-logo span { color: #4D7AFF; }
-        .fp-nav-links { display: flex; gap: 32px; align-items: center; }
-        .fp-nav-links a { color: #9BA1B0; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-        .fp-nav-links a:hover { color: #EEEFE9; }
-        .fp-btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; border: none; }
-        .fp-btn-solid { background: #3366FF; color: #fff; }
-        .fp-btn-solid:hover { background: #5588FF; transform: translateY(-1px); }
-        .fp-btn-ghost { background: transparent; color: #9BA1B0; border: 1px solid rgba(255,255,255,0.1); }
-        .fp-btn-ghost:hover { color: #EEEFE9; border-color: rgba(255,255,255,0.2); }
-        .fp-hero { padding: 140px 32px 80px; text-align: center; max-width: 800px; margin: 0 auto; }
-        .fp-badge { display: inline-block; padding: 6px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #4D7AFF; background: rgba(77,122,255,0.1); border: 1px solid rgba(77,122,255,0.2); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px; }
-        .fp-title { font-size: 48px; font-weight: 800; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
-        .fp-title span { color: #4D7AFF; }
-        .fp-subtitle { font-size: 18px; color: #9BA1B0; line-height: 1.6; max-width: 600px; margin: 0 auto; }
-        .fp-grid { max-width: 1200px; margin: 0 auto; padding: 0 32px 80px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .fp-card { background: #252730; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 32px; transition: all 0.3s ease; cursor: default; }
-        .fp-card:hover { transform: translateY(-4px); border-color: rgba(77,122,255,0.3); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
-        .fp-card-icon { font-size: 32px; margin-bottom: 16px; display: block; }
-        .fp-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #EEEFE9; }
-        .fp-card p { font-size: 14px; color: #9BA1B0; line-height: 1.6; }
-        .fp-cta { text-align: center; padding: 80px 32px; }
-        .fp-cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; }
-        .fp-cta p { color: #9BA1B0; font-size: 16px; margin-bottom: 32px; }
-        .fp-footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 32px; text-align: center; color: #5A5B55; font-size: 13px; }
-        @media (max-width: 768px) {
-          .fp-grid { grid-template-columns: 1fr; }
-          .fp-title { font-size: 32px; }
-          .fp-nav-links { display: none; }
-        }
-      `}</style>
+    <div className="ph-features-page" data-theme={isDark ? 'dark' : 'light'}>
+      <ScrollToTop />
 
-      {/* Navbar */}
-      <nav className="fp-nav">
-        <div className="fp-nav-inner">
-          <Link to="/" className="fp-logo">MY <span>News</span> Sentiment</Link>
-          <div className="fp-nav-links">
+      {/* ─── NAVBAR ─── */}
+      <motion.nav className="ph-nav" initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
+        <div className="ph-nav__inner">
+          <Link to="/" className="ph-nav__logo">
+            <motion.span className="ph-nav__logo-icon" animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>📰</motion.span>
+            <span>MY News <b>Sentiment</b></span>
+          </Link>
+          <div className="ph-nav__links">
             <Link to="/features">Features</Link>
             <Link to="/pricing">Pricing</Link>
             <Link to="/about">About</Link>
-            <Link to="/contact">Contact</Link>
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <Link to="/login" className="fp-btn fp-btn-ghost">Log In</Link>
-            <button className="fp-btn fp-btn-solid" onClick={() => navigate('/register')}>Get Started</button>
+          <div className="ph-nav__actions">
+            <button className="ph-nav__theme" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
+            <Link to="/login" className="ph-btn ph-btn--ghost">Log in</Link>
+            <motion.button className="ph-btn ph-btn--primary" onClick={() => navigate('/register')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+              Get started free
+            </motion.button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Hero */}
-      <div className="fp-hero fp-reveal">
-        <div className="fp-badge">Platform Capabilities</div>
-        <h1 className="fp-title">Everything you need to <span>decode the news</span></h1>
-        <p className="fp-subtitle">Built for researchers, analysts, and anyone who wants to understand Malaysian media sentiment at scale.</p>
-      </div>
+      {/* ─── HERO ─── */}
+      <motion.header className="ph-features-page__hero" initial="hidden" animate="visible" variants={staggerContainer}>
+        <motion.div className="ph-features-page__badge" variants={staggerItem}>
+          <span className="ph-features-page__badge-dot" />
+          Platform Capabilities
+        </motion.div>
+        <motion.h1 className="ph-features-page__title" variants={staggerItem}>
+          Everything you need to <span>decode the news</span>
+        </motion.h1>
+        <motion.p className="ph-features-page__subtitle" variants={staggerItem}>
+          Built for researchers, analysts, and anyone who wants to understand Malaysian media sentiment at scale.
+        </motion.p>
+      </motion.header>
 
-      {/* Features Grid */}
-      <div className="fp-grid">
+      {/* ─── FEATURES GRID ─── */}
+      <AnimatedSection className="ph-features-page__grid" variants={staggerContainer}>
         {features.map((f, i) => (
-          <div key={i} className="fp-card fp-reveal" style={{ transitionDelay: `${i * 80}ms` }}>
-            <span className="fp-card-icon">{f.icon}</span>
+          <motion.div
+            key={i}
+            className="ph-features-page__card"
+            variants={staggerItem}
+            style={{ '--card-accent': f.color }}
+            whileHover={{ y: -6, boxShadow: '0 12px 40px rgba(0,0,0,0.08)' }}
+          >
+            <span className="ph-features-page__card-icon">{f.icon}</span>
             <h3>{f.title}</h3>
             <p>{f.desc}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </AnimatedSection>
 
-      {/* CTA */}
-      <div className="fp-cta fp-reveal">
-        <h2>Ready to get started?</h2>
-        <p>Start analyzing Malaysian news sentiment for free. No credit card required.</p>
-        <button className="fp-btn fp-btn-solid" style={{ padding: '14px 40px', fontSize: '16px' }} onClick={() => navigate('/register')}>Start Free</button>
-      </div>
+      {/* ─── CTA ─── */}
+      <AnimatedSection className="ph-features-page__cta" variants={fadeInUp}>
+        <div className="ph-container">
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            Ready to get started?
+          </motion.h2>
+          <p>Start analyzing Malaysian news sentiment for free. No credit card required.</p>
+          <motion.button className="ph-btn ph-btn--primary ph-btn--lg" onClick={() => navigate('/register')} whileHover={{ scale: 1.06, boxShadow: '0 8px 30px rgba(245,78,0,0.35)' }} whileTap={{ scale: 0.97 }}>
+            Start free →
+          </motion.button>
+        </div>
+      </AnimatedSection>
 
-      {/* Footer */}
-      <div className="fp-footer">
-        2026 MY News Sentiment. Built at UMPSA.
-      </div>
+      {/* ─── FOOTER ─── */}
+      <footer className="ph-footer">
+        <div className="ph-footer__inner">
+          <div className="ph-footer__brand">
+            <span className="ph-footer__logo">📰 MY News <b>Sentiment</b></span>
+            <p>AI-powered sentiment analysis for Malaysian news.</p>
+          </div>
+          <div className="ph-footer__links">
+            <div className="ph-footer__col">
+              <h4>Product</h4>
+              <Link to="/features">Features</Link>
+              <Link to="/pricing">Pricing</Link>
+              <Link to="/api">API</Link>
+            </div>
+            <div className="ph-footer__col">
+              <h4>Company</h4>
+              <Link to="/about">About</Link>
+              <Link to="/contact">Contact</Link>
+              <Link to="/jobs">Careers</Link>
+            </div>
+            <div className="ph-footer__col">
+              <h4>Legal</h4>
+              <Link to="/privacy">Privacy</Link>
+            </div>
+          </div>
+        </div>
+        <div className="ph-footer__bottom">
+          <p>© 2026 MY News Sentiment. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 };
