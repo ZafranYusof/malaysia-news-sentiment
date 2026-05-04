@@ -184,6 +184,14 @@
   margin: 0 auto;
   overflow: hidden;
 
+  &__3d {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
   &__glow {
     position: absolute;
     width: 500px;

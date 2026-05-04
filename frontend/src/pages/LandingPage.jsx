@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, lazy, Suspense } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +6,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import ScrollToTop from '../components/ScrollToTop';
 import '../scss/LandingPage.scss';
+
+const HeroScene3D = lazy(() => import('../components/HeroScene3D'));
 
 // ── Variants ──
 const fadeInUp = {
@@ -222,6 +224,9 @@ const LandingPage = () => {
       {/* ─── HERO ─── */}
       <header className="ph-hero" onMouseMove={handleHeroMouse}>
         <div className="ph-hero__glow" style={{ left: mousePos.x, top: mousePos.y }} />
+        <Suspense fallback={null}>
+          <HeroScene3D />
+        </Suspense>
         <div className="ph-hero__particles">
           {[
             { delay: 0, size: 6, x: 10, duration: 4 },
