@@ -88,14 +88,14 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
     <>
       <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose} />
       <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-logo">
+        <Link to="/" className="sidebar-logo" style={{ textDecoration: 'none' }}>
           <div className="logo-mark">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
             </svg>
           </div>
           <div className="logo-text">MY News <span>Sentiment</span></div>
-        </div>
+        </Link>
 
         <div className="sidebar-section">
           <div className="sidebar-section-label">Analytics</div>
