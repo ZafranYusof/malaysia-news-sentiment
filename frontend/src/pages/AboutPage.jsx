@@ -71,12 +71,12 @@ const AboutPage = () => {
   }, [statsVisible]);
 
   const techStack = [
-    { name: 'React', icon: '⚛️', desc: 'Frontend UI framework' },
-    { name: 'Node.js', icon: '🟢', desc: 'Backend runtime' },
-    { name: 'MongoDB', icon: '🍃', desc: 'NoSQL database' },
-    { name: 'Python', icon: '🐍', desc: 'ML pipeline' },
-    { name: 'Malaya NLP', icon: '🇲🇾', desc: 'BM language processing' },
-    { name: 'GPT-4o', icon: '🤖', desc: 'AI sentiment engine' },
+    { name: 'React', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#61DAFB"><circle cx="12" cy="12" r="2.2"/><ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#61DAFB" strokeWidth="1"/><ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#61DAFB" strokeWidth="1" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#61DAFB" strokeWidth="1" transform="rotate(120 12 12)"/></svg>), desc: 'Frontend UI framework' },
+    { name: 'Node.js', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#339933"><path d="M12 1.85l9.5 5.5v11l-9.5 5.5-9.5-5.5v-11l9.5-5.5zm0 2.3L4.5 8.5v7l7.5 4.35L19.5 15.5v-7L12 4.15z"/></svg>), desc: 'Backend runtime' },
+    { name: 'MongoDB', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#47A248"><path d="M12 2C12 2 8 6 8 12c0 4 2 8 4 10 2-2 4-6 4-10 0-6-4-10-4-10zm0 4c1.1 0 2 2.5 2 6s-.9 6-2 6-2-2.5-2-6 .9-6 2-6z"/></svg>), desc: 'NoSQL database' },
+    { name: 'Express', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 12h18M3 12l4-4m-4 4l4 4m14-4l-4-4m4 4l-4 4"/><rect x="7" y="8" width="10" height="8" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg>), desc: 'Backend framework' },
+    { name: 'Ollama', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#F54E00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/><path d="M9 7h6M10 9.5h4"/></svg>), desc: 'AI inference engine' },
+    { name: 'Framer Motion', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#0055FF"><path d="M4 0h16v8H12L4 0zm0 8h8l8 8H4V8zm0 8h8v8L4 16z"/></svg>), desc: 'Animation library' },
   ];
 
   const team = [
