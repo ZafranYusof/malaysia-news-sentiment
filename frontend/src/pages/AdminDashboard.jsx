@@ -207,8 +207,8 @@ const AdminDashboard = () => {
             {/* Stats Cards */}
             <div className="adm-grid">
               <div className="adm-stat-card">
-                <div className="adm-stat-icon" style={{ background: 'rgba(99,102,241,0.12)' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                <div className="adm-stat-icon" style={{ background: 'rgba(245,78,0,0.12)' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F54E00" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
                 </div>
                 <div className="adm-stat-label">Total Articles</div>
                 <div className="adm-stat-value">{stats.overview.totalUnique.toLocaleString()}</div>
@@ -249,7 +249,7 @@ const AdminDashboard = () => {
                 </h3>
                 {[
                   { label: 'Positive', color: '#10b981', count: sentimentData.Positive },
-                  { label: 'Neutral', color: '#6366f1', count: sentimentData.Neutral },
+                  { label: 'Neutral', color: '#F54E00', count: sentimentData.Neutral },
                   { label: 'Negative', color: '#ef4444', count: sentimentData.Negative },
                 ].map(s => (
                   <div key={s.label} className="adm-bar-row">
@@ -263,12 +263,12 @@ const AdminDashboard = () => {
                 <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                   {[
                     { label: 'Positive', count: sentimentData.Positive, color: '#10b981' },
-                    { label: 'Neutral', count: sentimentData.Neutral, color: '#6366f1' },
+                    { label: 'Neutral', count: sentimentData.Neutral, color: '#F54E00' },
                     { label: 'Negative', count: sentimentData.Negative, color: '#ef4444' },
                   ].map(s => (
                     <div key={s.label} style={{ flex: 1, padding: '10px 12px', background: `${s.color}08`, border: `1px solid ${s.color}20`, borderRadius: 8, textAlign: 'center' }}>
                       <div style={{ fontSize: 18, fontWeight: 800, color: s.color }}>{s.count}</div>
-                      <div style={{ fontSize: 9, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>{s.label}</div>
+                      <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
@@ -279,12 +279,12 @@ const AdminDashboard = () => {
                 {stats.topSources?.length > 0 ? stats.topSources.map((s, i) => (
                   <div key={i} className="adm-source-item">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: '#475569', width: 18 }}>#{i + 1}</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#e2e8f0' }}>{s.source || 'Unknown'}</span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', width: 18 }}>#{i + 1}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{s.source || 'Unknown'}</span>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', background: 'rgba(99,102,241,0.1)', padding: '3px 10px', borderRadius: 12 }}>{s.count} articles</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#F54E00', background: 'rgba(245,78,0,0.1)', padding: '3px 10px', borderRadius: 12 }}>{s.count} articles</span>
                   </div>
-                )) : <p style={{ color: '#475569', fontSize: 12 }}>No source data available</p>}
+                )) : <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>No source data available</p>}
               </div>
             </div>
 
@@ -296,9 +296,9 @@ const AdminDashboard = () => {
                   {stats.popularTopics?.length > 0 ? stats.popularTopics.map((t, i) => (
                     <span key={i} className="adm-topic-chip">
                       {t.topic || 'General'}
-                      <span style={{ color: '#6366f1', fontWeight: 800 }}>{t.count}</span>
+                      <span style={{ color: '#F54E00', fontWeight: 800 }}>{t.count}</span>
                     </span>
-                  )) : <p style={{ color: '#475569', fontSize: 12 }}>No topic data</p>}
+                  )) : <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>No topic data</p>}
                 </div>
               </div>
 
@@ -306,12 +306,12 @@ const AdminDashboard = () => {
                 <h3 className="adm-card-title">Recent Articles</h3>
                 {stats.recentArticles?.slice(0, 5).map((a, i) => (
                   <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#e2e8f0', lineHeight: 1.4, marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.4, marginBottom: 4 }}>
                       {a.title?.slice(0, 70)}{a.title?.length > 70 ? '...' : ''}
                     </div>
                     <div style={{ display: 'flex', gap: 8, fontSize: 10 }}>
                       <span style={{ color: a.sentiment === 'Positive' ? '#10b981' : a.sentiment === 'Negative' ? '#ef4444' : '#6366f1', fontWeight: 700 }}>{a.sentiment}</span>
-                      <span style={{ color: '#475569' }}>{a.source}</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{a.source}</span>
                     </div>
                   </div>
                 ))}
@@ -330,7 +330,7 @@ const AdminDashboard = () => {
                     return (
                       <div key={h} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                         <div style={{ width: '100%', height: `${Math.max(4, (count / maxCount) * 80)}px`, background: count > 0 ? 'linear-gradient(to top, #6366f1, #a78bfa)' : 'rgba(255,255,255,0.03)', borderRadius: 3, transition: 'height 0.5s ease' }} />
-                        {h % 4 === 0 && <span style={{ fontSize: 8, color: '#475569' }}>{h}h</span>}
+                        {h % 4 === 0 && <span style={{ fontSize: 8, color: 'var(--text-muted)' }}>{h}h</span>}
                       </div>
                     );
                   })}
@@ -361,7 +361,7 @@ const AdminDashboard = () => {
                     <tr key={i}>
                       <td>
                         <div style={{ fontWeight: 700, color: '#f1f5f9', fontSize: 12 }}>{u.name}</div>
-                        <div style={{ fontSize: 10, color: '#64748b' }}>{u.email}</div>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{u.email}</div>
                       </td>
                       <td>
                         <span className="adm-role-badge" style={{
@@ -371,7 +371,7 @@ const AdminDashboard = () => {
                         }}>{u.role}</span>
                       </td>
                       <td style={{ fontWeight: 700, color: '#10b981' }}>{u.analysisCount || 0}</td>
-                      <td style={{ color: '#64748b', fontSize: 11 }}>{new Date(u.createdAt).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: 11 }}>{new Date(u.createdAt).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -387,16 +387,16 @@ const AdminDashboard = () => {
                 <h3 className="adm-card-title">High Impact Articles</h3>
                 {stats.topImpactArticles?.length > 0 ? stats.topImpactArticles.map((a, i) => (
                   <div key={i} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#e2e8f0', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
                       {a.title?.slice(0, 80)}{a.title?.length > 80 ? '...' : ''}
                     </div>
                     <div style={{ display: 'flex', gap: 10, fontSize: 10 }}>
                       <span style={{ color: a.sentiment === 'Positive' ? '#10b981' : a.sentiment === 'Negative' ? '#ef4444' : '#6366f1', fontWeight: 700 }}>{a.sentiment}</span>
-                      <span style={{ color: '#64748b' }}>{a.source}</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{a.source}</span>
                       {a.impactScore && <span style={{ color: '#f59e0b', fontWeight: 700 }}>Impact: {a.impactScore}</span>}
                     </div>
                   </div>
-                )) : <p style={{ color: '#475569', fontSize: 12 }}>No impact data available</p>}
+                )) : <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>No impact data available</p>}
               </div>
 
               <div className="adm-card">
@@ -421,8 +421,8 @@ const AdminDashboard = () => {
         {activeTab === 'api' && (
           <motion.div key="api" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             {metricsLoading || !metrics ? (
-              <div className="adm-card" style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-                <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.2)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+              <div className="adm-card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.2)', borderTopcolor: '#F54E00', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
                 Loading API metrics...
               </div>
             ) : (
@@ -430,8 +430,8 @@ const AdminDashboard = () => {
                 {/* API Stats Cards */}
                 <div className="adm-grid">
                   <div className="adm-stat-card">
-                    <div className="adm-stat-icon" style={{ background: 'rgba(99,102,241,0.12)' }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <div className="adm-stat-icon" style={{ background: 'rgba(245,78,0,0.12)' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F54E00" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     </div>
                     <div className="adm-stat-label">Total API Calls</div>
                     <div className="adm-stat-value">{metrics.totalCalls.toLocaleString()}</div>
@@ -487,7 +487,7 @@ const AdminDashboard = () => {
                       return (
                         <div key={code} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                           <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color }}>{code}</span>
-                          <span style={{ fontSize: 11, color: '#e2e8f0', fontWeight: 600 }}>{count} requests</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 600 }}>{count} requests</span>
                         </div>
                       );
                     })}
@@ -497,15 +497,15 @@ const AdminDashboard = () => {
                   <div className="adm-card">
                     <h3 className="adm-card-title">
                       Top Endpoints
-                      <span className="adm-card-badge" style={{ background: 'rgba(99,102,241,0.1)', color: '#a5b4fc' }}>{metrics.topEndpoints.length} tracked</span>
+                      <span className="adm-card-badge" style={{ background: 'rgba(245,78,0,0.1)', color: '#F54E00' }}>{metrics.topEndpoints.length} tracked</span>
                     </h3>
                     {metrics.topEndpoints.map((ep, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: '#475569', width: 20 }}>#{i + 1}</span>
-                          <code style={{ fontSize: 11, color: '#e2e8f0', fontWeight: 500, background: 'rgba(255,255,255,0.03)', padding: '2px 8px', borderRadius: 4 }}>{ep.endpoint}</code>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)', width: 20 }}>#{i + 1}</span>
+                          <code style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 500, background: 'rgba(255,255,255,0.03)', padding: '2px 8px', borderRadius: 4 }}>{ep.endpoint}</code>
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6366f1' }}>{ep.count}x</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#F54E00' }}>{ep.count}x</span>
                       </div>
                     ))}
                   </div>
@@ -527,25 +527,25 @@ const AdminDashboard = () => {
                 <span className="adm-card-badge" style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa' }}>GPT-4o</span>
               </h3>
               {insightsLoading ? (
-                <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-                  <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.2)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+                <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.2)', borderTopcolor: '#F54E00', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
                   Generating insights...
                 </div>
               ) : insights ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div className="adm-insight-card">
                     <div className="adm-insight-label" style={{ color: '#ef4444' }}>Risk Assessment</div>
-                    <p style={{ color: '#e2e8f0', fontSize: 13, margin: 0, lineHeight: 1.5 }}>{insights.risk}</p>
+                    <p style={{ color: 'var(--text-primary)', fontSize: 13, margin: 0, lineHeight: 1.5 }}>{insights.risk}</p>
                   </div>
                   <div className="adm-insight-card" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(99,102,241,0.05))', borderColor: 'rgba(16,185,129,0.15)' }}>
                     <div className="adm-insight-label" style={{ color: '#10b981' }}>Opportunity</div>
-                    <p style={{ color: '#e2e8f0', fontSize: 13, margin: 0, lineHeight: 1.5 }}>{insights.opportunity}</p>
+                    <p style={{ color: 'var(--text-primary)', fontSize: 13, margin: 0, lineHeight: 1.5 }}>{insights.opportunity}</p>
                   </div>
                   <button className="adm-refresh-btn" onClick={loadInsights} style={{ alignSelf: 'flex-start', marginTop: 8 }}>Regenerate Insights</button>
                 </div>
               ) : (
                 <div style={{ padding: 30, textAlign: 'center' }}>
-                  <p style={{ color: '#64748b', fontSize: 13 }}>Click to generate AI-powered strategic insights from recent news data</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Click to generate AI-powered strategic insights from recent news data</p>
                   <button className="adm-refresh-btn" onClick={loadInsights}>Generate Insights</button>
                 </div>
               )}
@@ -560,3 +560,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
