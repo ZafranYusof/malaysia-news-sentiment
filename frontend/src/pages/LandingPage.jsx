@@ -370,9 +370,7 @@ const LandingPage = () => {
                 <polyline points="12 5 19 12 12 19" />
               </svg>
             </button>
-            <button className="sl-btn-outline sl-btn-lg" onClick={(e) => smoothScroll(e, 'how-it-works')}>
-              See How It Works
-            </button>
+
           </motion.div>
 
           {/* Stats Counter */}
@@ -774,6 +772,7 @@ const LandingPage = () => {
                 <polyline points="12 5 19 12 12 19" />
               </svg>
             </button>
+
           </motion.div>
         </div>
       </AnimatedSection>
