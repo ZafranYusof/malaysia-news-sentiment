@@ -79,7 +79,7 @@ const AdminDashboard = () => {
   if (!stats) return (
     <div style={{ padding: 40, textAlign: 'center' }}>
       <h2 style={{ color: 'var(--text-400)' }}>Dashboard Unavailable</h2>
-      <button onClick={() => window.location.reload()} style={{ marginTop: 16, padding: '10px 24px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Retry</button>
+      <button onClick={() => window.location.reload()} style={{ marginTop: 16, padding: '10px 24px', background: '#F54E00', color: 'var(--text-primary)', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Retry</button>
     </div>
   );
 
@@ -360,7 +360,7 @@ const AdminDashboard = () => {
                   {stats.recentUsers?.map((u, i) => (
                     <tr key={i}>
                       <td>
-                        <div style={{ fontWeight: 700, color: '#f1f5f9', fontSize: 12 }}>{u.name}</div>
+                        <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: 12 }}>{u.name}</div>
                         <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{u.email}</div>
                       </td>
                       <td>
@@ -422,7 +422,7 @@ const AdminDashboard = () => {
           <motion.div key="api" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             {metricsLoading || !metrics ? (
               <div className="adm-card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
-                <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.2)', borderTopcolor: '#F54E00', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+                <div style={{ width: 32, height: 32, border: '3px solid rgba(245,78,0,0.2)', borderTopcolor: '#F54E00', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
                 Loading API metrics...
               </div>
             ) : (
@@ -528,7 +528,7 @@ const AdminDashboard = () => {
               </h3>
               {insightsLoading ? (
                 <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
-                  <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.2)', borderTopcolor: '#F54E00', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+                  <div style={{ width: 32, height: 32, border: '3px solid rgba(245,78,0,0.2)', borderTopcolor: '#F54E00', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
                   Generating insights...
                 </div>
               ) : insights ? (
@@ -560,4 +560,5 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
 
