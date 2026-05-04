@@ -282,6 +282,17 @@
     transition: all 0.2s;
     &:hover { transform: translateY(-2px); background: var(--ph-border); }
   }
+
+  &__vector {
+    margin-bottom: 32px;
+  }
+
+  &__wave-svg {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.06));
+  }
 }
 
 .ph-particle {
@@ -500,6 +511,14 @@
     color: var(--ph-text-secondary);
     line-height: 1.7;
     max-width: 560px;
+  }
+
+  &__panel-vector {
+    position: absolute;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
   }
 }
 

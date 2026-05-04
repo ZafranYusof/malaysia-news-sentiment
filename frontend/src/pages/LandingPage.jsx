@@ -256,6 +256,56 @@ const LandingPage = () => {
             </motion.div>
           </motion.div>
 
+          {/* Animated Vector — Sentiment Wave */}
+          <motion.div className="ph-hero__vector" variants={staggerItem}>
+            <svg viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="ph-hero__wave-svg">
+              {/* Positive line */}
+              <motion.path
+                d="M0 80 C50 80, 70 30, 100 40 C130 50, 150 20, 180 35 C210 50, 240 15, 270 30 C300 45, 330 25, 360 20 L400 25"
+                stroke="#30CF79" strokeWidth="2.5" strokeLinecap="round" fill="none"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 2, delay: 0.5, ease: 'easeInOut' }}
+              />
+              {/* Neutral line */}
+              <motion.path
+                d="M0 60 C40 60, 60 55, 100 58 C140 61, 170 50, 200 55 C230 60, 260 48, 300 52 C340 56, 370 45, 400 50"
+                stroke="#F7A501" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 0.7 }}
+                transition={{ duration: 2, delay: 0.8, ease: 'easeInOut' }}
+              />
+              {/* Negative line */}
+              <motion.path
+                d="M0 40 C50 40, 80 70, 120 65 C160 60, 190 85, 220 80 C250 75, 280 95, 320 90 C360 85, 380 100, 400 95"
+                stroke="#F54E4E" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.6"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 0.6 }}
+                transition={{ duration: 2, delay: 1.1, ease: 'easeInOut' }}
+              />
+              {/* Animated dot on positive line */}
+              <motion.circle
+                cx="270" cy="30" r="5" fill="#30CF79"
+                animate={{ cy: [30, 25, 35, 30], opacity: [1, 0.7, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <motion.circle
+                cx="200" cy="55" r="4" fill="#F7A501"
+                animate={{ cy: [55, 50, 60, 55], opacity: [0.8, 0.5, 0.8] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+              />
+              <motion.circle
+                cx="320" cy="90" r="4" fill="#F54E4E"
+                animate={{ cy: [90, 85, 95, 90], opacity: [0.7, 0.4, 0.7] }}
+                transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+              />
+              {/* Labels */}
+              <text x="370" y="22" fill="#30CF79" fontSize="10" fontWeight="700">+42%</text>
+              <text x="370" y="52" fill="#F7A501" fontSize="10" fontWeight="700">35%</text>
+              <text x="370" y="98" fill="#F54E4E" fontSize="10" fontWeight="700">-23%</text>
+            </svg>
+          </motion.div>
+
           <motion.div className="ph-hero__sources" variants={staggerItem}>
             <span className="ph-hero__sources-label">Powered by</span>
             {['Malaysiakini', 'Astro Awani', 'FMT', 'Bernama', 'The Star'].map((s, i) => (
@@ -325,6 +375,25 @@ const LandingPage = () => {
                 <span className="ph-features__panel-emoji">{featureTabs[activeTab].emoji}</span>
                 <h3>{featureTabs[activeTab].title}</h3>
                 <p>{featureTabs[activeTab].desc}</p>
+              </div>
+              {/* Animated vector illustration */}
+              <div className="ph-features__panel-vector">
+                <svg viewBox="0 0 120 120" fill="none" width="100" height="100">
+                  {/* Neural network nodes */}
+                  <motion.circle cx="20" cy="30" r="6" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity }} />
+                  <motion.circle cx="20" cy="60" r="6" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity, delay: 0.3 }} />
+                  <motion.circle cx="20" cy="90" r="6" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }} />
+                  <motion.circle cx="60" cy="40" r="8" fill={featureTabs[activeTab].color} opacity="0.8" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }} />
+                  <motion.circle cx="60" cy="80" r="8" fill={featureTabs[activeTab].color} opacity="0.8" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }} />
+                  <motion.circle cx="100" cy="60" r="10" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.8, repeat: Infinity }} />
+                  {/* Connections */}
+                  <motion.line x1="26" y1="30" x2="52" y2="40" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                  <motion.line x1="26" y1="60" x2="52" y2="40" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }} />
+                  <motion.line x1="26" y1="60" x2="52" y2="80" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }} />
+                  <motion.line x1="26" y1="90" x2="52" y2="80" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }} />
+                  <motion.line x1="68" y1="40" x2="90" y2="60" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ duration: 1.8, repeat: Infinity }} />
+                  <motion.line x1="68" y1="80" x2="90" y2="60" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ duration: 1.8, repeat: Infinity, delay: 0.3 }} />
+                </svg>
               </div>
             </motion.div>
           </AnimatePresence>
