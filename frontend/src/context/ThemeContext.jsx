@@ -7,11 +7,14 @@ const applyTheme = (theme) => {
   const root = document.documentElement;
   if (theme === 'dark') {
     root.setAttribute('data-theme', 'dark');
+    root.classList.add('dark');
   } else if (theme === 'system') {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    root.classList.toggle('dark', prefersDark);
   } else {
     root.setAttribute('data-theme', 'light');
+    root.classList.remove('dark');
   }
 };
 

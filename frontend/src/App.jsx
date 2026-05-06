@@ -31,6 +31,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import PageTransition from './components/PageTransition';
 import { ArticleAnalysisProvider } from './context/ArticleAnalysisContext';
 import OfflineBanner from './components/OfflineBanner';
+import Layout from './components/Layout';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -427,14 +428,14 @@ const AppInner = () => (
     <Route path="/reset-password" element={<ResetPasswordPage />} />
     <Route path="/verify-email"   element={<VerifyEmailPage />} />
 
-    <Route path="/dashboard" element={<ProtectedRoute><AppShell><Dashboard /></AppShell></ProtectedRoute>} />
-    <Route path="/trending" element={<ProtectedRoute><AppShell><Trending /></AppShell></ProtectedRoute>} />
-    <Route path="/compare" element={<ProtectedRoute><AppShell><ComparePage /></AppShell></ProtectedRoute>} />
-    <Route path="/history" element={<ProtectedRoute><AppShell><History /></AppShell></ProtectedRoute>} />
-    <Route path="/bookmarks" element={<ProtectedRoute><AppShell><Bookmarks /></AppShell></ProtectedRoute>} />
-    <Route path="/admin" element={<AdminRoute><AppShell><AdminDashboard /></AppShell></AdminRoute>} />
-    <Route path="/settings" element={<ProtectedRoute><AppShell><SettingsPage /></AppShell></ProtectedRoute>} />
-    <Route path="/entities" element={<ProtectedRoute><AppShell><EntityGraphPage /></AppShell></ProtectedRoute>} />
+    <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+    <Route path="/trending" element={<ProtectedRoute><Layout><Trending /></Layout></ProtectedRoute>} />
+    <Route path="/compare" element={<ProtectedRoute><Layout><ComparePage /></Layout></ProtectedRoute>} />
+    <Route path="/history" element={<ProtectedRoute><Layout><History /></Layout></ProtectedRoute>} />
+    <Route path="/bookmarks" element={<ProtectedRoute><Layout><Bookmarks /></Layout></ProtectedRoute>} />
+    <Route path="/admin" element={<AdminRoute><Layout><AdminDashboard /></Layout></AdminRoute>} />
+    <Route path="/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
+    <Route path="/entities" element={<ProtectedRoute><Layout><EntityGraphPage /></Layout></ProtectedRoute>} />
     
     {/* Static Informational Pages */}
     <Route path="/api" element={<StaticPage />} />
