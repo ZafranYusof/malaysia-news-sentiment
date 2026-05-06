@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import ScrollToTop from '../components/ScrollToTop';
-import '../scss/LandingPage.scss';
-import '../scss/PricingPage.scss';
+import {
+  Newspaper, Sun, Moon, Check, ChevronDown, ArrowRight, Sparkles
+} from 'lucide-react';
 
-// ── Variants ──
+// ── Animation Variants ──
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
@@ -20,12 +19,7 @@ const staggerItem = {
   hidden: { opacity: 0, y: 28 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 };
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
-};
 
-// ── Animated Section ──
 const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
@@ -36,231 +30,256 @@ const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
   );
 };
 
+// ── Navbar ──
+const Navbar = ({ isDark, toggleTheme, navigate }) => (
+  <motion.nav
+    className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
+    initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+  >
+    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+        <Newspaper className="w-5 h-5 text-accent" />
+        <span>MY News <span className="text-accent">Sentiment</span></span>
+      </Link>
+      <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+        <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+        <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+        <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+        <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+      </div>
+      <div className="flex items-center gap-3">
+        <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
+          {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+        </button>
+        <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
+          Log in
+        </Link>
+        <motion.button
+          onClick={() => navigate('/register')}
+          className="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
+          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+        >
+          Get Started
+        </motion.button>
+      </div>
+    </div>
+  </motion.nav>
+);
+
+// ── Footer ──
+const Footer = () => (
+  <footer className="border-t border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f]">
+    <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white mb-3">
+            <Newspaper className="w-5 h-5 text-accent" />
+            <span>MY News Sentiment</span>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">AI-powered sentiment analysis for Malaysian news.</p>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+            <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+            <Link to="/api" className="hover:text-accent transition-colors">API</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+            <Link to="/jobs" className="hover:text-accent transition-colors">Careers</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Legal</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+          </div>
+        </div>
+      </div>
+      <div className="mt-12 pt-8 border-t border-[#eee] dark:border-[#2a2a2a] text-center text-sm text-gray-400">
+        © 2026 MY News Sentiment. All rights reserved.
+      </div>
+    </div>
+  </footer>
+);
+
 const PricingPage = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
-  const [isYearly, setIsYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
 
   const plans = [
     {
       name: 'Free',
       price: '$0',
-      yearlyPrice: '$0',
       period: '/mo',
       desc: 'For students and researchers exploring Malaysian news sentiment.',
       features: [
-        '100 articles / day',
-        'Basic sentiment analysis',
-        '1 user seat',
-        '7-day data retention',
-        'Community support',
+        'Unlimited articles',
+        'AI sentiment analysis',
+        'Entity recognition',
+        'Trending topics',
+        'Source credibility scores',
+        'Interactive dashboard',
+        '7-day AI forecast',
+        'CSV & PowerPoint export',
+        'Regional heatmaps',
+        'Crisis alerts',
       ],
-      cta: 'Start Free',
-      highlighted: false,
+      cta: 'Get Started Free',
+      highlighted: true,
     },
     {
       name: 'Pro',
-      price: '$29',
-      yearlyPrice: '$24',
-      period: '/mo',
-      desc: 'For analysts and teams who need deeper intelligence and forecasting.',
-      features: [
-        'Unlimited articles',
-        'AI-powered daily digest',
-        '7-day sentiment forecast',
-        'Priority support',
-        'CSV & PDF export',
-        'Regional heatmaps',
-      ],
-      cta: 'Start Free',
-      highlighted: true,
-      badge: 'Recommended',
-    },
-    {
-      name: 'Enterprise',
-      price: 'Custom',
-      yearlyPrice: 'Custom',
+      price: 'Coming Soon',
       period: '',
-      desc: 'For organizations requiring custom integrations and dedicated infrastructure.',
+      desc: 'Advanced features for teams and organizations. Currently in development.',
       features: [
-        'Custom API access',
-        'Dedicated account manager',
-        'SLA guarantee (99.9%)',
-        'On-premise deployment',
-        'Custom LLM fine-tuning',
-        'SSO & audit logs',
+        'Everything in Free',
+        'API access',
+        'Custom alerts',
+        'Priority support',
+        'Team collaboration',
+        'Advanced analytics',
       ],
-      cta: 'Contact Sales',
+      cta: 'Join Waitlist',
       highlighted: false,
+      badge: 'Coming Soon',
     },
   ];
 
   const faqs = [
-    { q: 'Can I switch plans later?', a: 'Absolutely. You can upgrade or downgrade at any time. Changes take effect immediately and billing is prorated.' },
+    { q: 'Is it really free?', a: 'Yes! This is a Final Year Project (FYP) at UMPSA. All features are free to use during the research period.' },
     { q: 'What news sources are covered?', a: 'We aggregate from Malaysiakini, Astro Awani, Free Malaysia Today, Bernama, The Star, and other major Malaysian outlets via RSS and API feeds.' },
     { q: 'How accurate is the sentiment analysis?', a: 'Our multi-tier AI pipeline (GPT-4o + Malaya NLP + rule-based fallback) achieves ~95% accuracy on Malaysian news content in both BM and English.' },
-    { q: 'Is there a free trial for Pro?', a: 'Yes — every new account starts with a 14-day Pro trial. No credit card required. You will automatically move to the Free plan if you do not upgrade.' },
+    { q: 'Will there be a paid plan?', a: 'We are exploring a Pro tier with API access and team features. Join the waitlist to be notified when it launches.' },
   ];
 
   return (
-    <div className="ph-pricing" data-theme={isDark ? 'dark' : 'light'}>
-      <ScrollToTop />
-
-      {/* ─── NAVBAR ─── */}
-      <motion.nav className="ph-nav" initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
-        <div className="ph-nav__inner">
-          <Link to="/" className="ph-nav__logo">
-            <motion.span className="ph-nav__logo-icon" animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>📰</motion.span>
-            <span>MY News <b>Sentiment</b></span>
-          </Link>
-          <div className="ph-nav__links">
-            <Link to="/features">Features</Link>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/about">About</Link>
-          </div>
-          <div className="ph-nav__actions">
-            <button className="ph-nav__theme" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
-            <Link to="/login" className="ph-btn ph-btn--ghost">Log in</Link>
-            <motion.button className="ph-btn ph-btn--primary" onClick={() => navigate('/register')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              Get started free
-            </motion.button>
-          </div>
-        </div>
-      </motion.nav>
+    <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors">
+      <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
       {/* ─── HERO ─── */}
-      <motion.header className="ph-pricing__hero" initial="hidden" animate="visible" variants={staggerContainer}>
-        <motion.div className="ph-pricing__badge" variants={staggerItem}>
-          <span className="ph-pricing__badge-dot" />
-          Transparent Pricing
-        </motion.div>
-        <motion.h1 className="ph-pricing__title" variants={staggerItem}>
-          Intelligence that <span>scales with you</span>
-        </motion.h1>
-        <motion.p className="ph-pricing__subtitle" variants={staggerItem}>
-          Start free, upgrade when you need more. No hidden fees, no surprises — just powerful Malaysian news sentiment analysis.
-        </motion.p>
-
-        {/* Toggle */}
-        <motion.div className="ph-pricing__toggle" variants={staggerItem}>
-          <span className={`ph-pricing__toggle-label ${!isYearly ? 'ph-pricing__toggle-label--active' : ''}`}>Monthly</span>
-          <button className={`ph-pricing__toggle-switch ${isYearly ? 'ph-pricing__toggle-switch--active' : ''}`} onClick={() => setIsYearly(!isYearly)}>
-            <span className="ph-pricing__toggle-knob" />
-          </button>
-          <span className={`ph-pricing__toggle-label ${isYearly ? 'ph-pricing__toggle-label--active' : ''}`}>Yearly</span>
-          {isYearly && <span className="ph-pricing__save-badge">Save 17%</span>}
-        </motion.div>
+      <motion.header className="relative pt-32 pb-16 px-6 text-center" initial="hidden" animate="visible" variants={staggerContainer}>
+        <div className="absolute inset-0 bg-gradient-to-b from-green-50/50 to-transparent dark:from-green-950/20 dark:to-transparent" />
+        <div className="relative max-w-4xl mx-auto">
+          <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-sm font-medium mb-6">
+            <Sparkles className="w-4 h-4" />
+            Free for Everyone
+          </motion.div>
+          <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+            Powerful analysis,{' '}
+            <span className="text-accent">zero cost</span>
+          </motion.h1>
+          <motion.p variants={staggerItem} className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            All features are free during our research period. No credit card required, no hidden fees.
+          </motion.p>
+        </div>
       </motion.header>
 
       {/* ─── PRICING CARDS ─── */}
-      <AnimatedSection className="ph-pricing__grid" variants={staggerContainer}>
-        {plans.map((plan, i) => (
-          <motion.div
-            key={plan.name}
-            className={`ph-pricing__card ${plan.highlighted ? 'ph-pricing__card--highlighted' : ''}`}
-            variants={staggerItem}
-            whileHover={{ y: -6 }}
-          >
-            {plan.badge && <div className="ph-pricing__recommend-badge">{plan.badge}</div>}
-            <div className="ph-pricing__plan-name">{plan.name}</div>
-            <div className="ph-pricing__price-row">
-              <span className="ph-pricing__price">{isYearly ? plan.yearlyPrice : plan.price}</span>
-              {plan.period && <span className="ph-pricing__period">{plan.period}</span>}
-            </div>
-            <p className="ph-pricing__card-desc">{plan.desc}</p>
-            <div className="ph-pricing__divider" />
-            <ul className="ph-pricing__feature-list">
-              {plan.features.map((f) => (
-                <li key={f}>
-                  <svg className="ph-pricing__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <motion.button
-              className={`ph-pricing__card-cta ${plan.highlighted ? 'ph-pricing__card-cta--filled' : 'ph-pricing__card-cta--outline'}`}
-              onClick={() => navigate(plan.name === 'Enterprise' ? '/contact' : '/register')}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+      <AnimatedSection className="py-12 px-6" variants={staggerContainer}>
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {plans.map((plan) => (
+            <motion.div
+              key={plan.name}
+              className={`relative p-8 rounded-2xl border transition-all ${
+                plan.highlighted
+                  ? 'bg-white dark:bg-[#1a1a1a] border-accent shadow-xl shadow-accent/10'
+                  : 'bg-white dark:bg-[#1a1a1a] border-[#eee] dark:border-[#2a2a2a]'
+              }`}
+              variants={staggerItem}
+              whileHover={{ y: -6 }}
             >
-              {plan.cta} →
-            </motion.button>
-          </motion.div>
-        ))}
+              {plan.badge && (
+                <span className="absolute -top-3 left-6 px-3 py-1 text-xs font-semibold text-white bg-secondary rounded-full">
+                  {plan.badge}
+                </span>
+              )}
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">{plan.name}</h3>
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-4xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
+                {plan.period && <span className="text-gray-500 dark:text-gray-400">{plan.period}</span>}
+              </div>
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">{plan.desc}</p>
+
+              <div className="mt-6 h-px bg-[#eee] dark:bg-[#2a2a2a]" />
+
+              <ul className="mt-6 space-y-3">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
+                    <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <motion.button
+                onClick={() => navigate('/register')}
+                className={`mt-8 w-full py-3 rounded-xl font-semibold text-sm transition-all ${
+                  plan.highlighted
+                    ? 'bg-accent text-white shadow-lg shadow-accent/25 hover:shadow-accent/40'
+                    : 'border border-[#eee] dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:border-accent hover:text-accent'
+                }`}
+                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+              >
+                {plan.cta} <ArrowRight className="inline w-4 h-4 ml-1" />
+              </motion.button>
+            </motion.div>
+          ))}
+        </div>
       </AnimatedSection>
 
       {/* ─── FAQ ─── */}
-      <AnimatedSection className="ph-pricing__faq" variants={fadeInUp}>
-        <div className="ph-pricing__faq-header">
-          <h2>Frequently Asked Questions</h2>
-          <p>Everything you need to know about our plans.</p>
-        </div>
-        {faqs.map((faq, i) => (
-          <motion.div
-            key={i}
-            className={`ph-pricing__faq-item ${openFaq === i ? 'ph-pricing__faq-item--open' : ''}`}
-            initial={false}
-            animate={{ borderColor: openFaq === i ? 'var(--ph-accent)' : 'var(--ph-border)' }}
-          >
-            <button className="ph-pricing__faq-btn" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-              <span>{faq.q}</span>
-              <svg className={`ph-pricing__faq-chevron ${openFaq === i ? 'ph-pricing__faq-chevron--open' : ''}`} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-            <AnimatePresence>
-              {openFaq === i && (
-                <motion.div
-                  className="ph-pricing__faq-answer"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      <AnimatedSection className="py-20 px-6" variants={fadeInUp}>
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-2">Frequently Asked Questions</h2>
+          <p className="text-center text-gray-500 dark:text-gray-400 mb-10">Everything you need to know.</p>
+
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className={`border rounded-xl overflow-hidden transition-colors ${
+                  openFaq === i ? 'border-accent/50' : 'border-[#eee] dark:border-[#2a2a2a]'
+                }`}
+              >
+                <button
+                  className="w-full flex items-center justify-between p-5 text-left"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 >
-                  {faq.a}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        ))}
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{faq.q}</span>
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <div className="px-5 pb-5 text-sm text-gray-500 dark:text-gray-400">
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
       </AnimatedSection>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="ph-footer">
-        <div className="ph-footer__inner">
-          <div className="ph-footer__brand">
-            <span className="ph-footer__logo">📰 MY News <b>Sentiment</b></span>
-            <p>AI-powered sentiment analysis for Malaysian news.</p>
-          </div>
-          <div className="ph-footer__links">
-            <div className="ph-footer__col">
-              <h4>Product</h4>
-              <Link to="/features">Features</Link>
-              <Link to="/pricing">Pricing</Link>
-              <Link to="/api">API</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Company</h4>
-              <Link to="/about">About</Link>
-              <Link to="/contact">Contact</Link>
-              <Link to="/jobs">Careers</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Legal</h4>
-              <Link to="/privacy">Privacy</Link>
-            </div>
-          </div>
-        </div>
-        <div className="ph-footer__bottom">
-          <p>© 2026 MY News Sentiment. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

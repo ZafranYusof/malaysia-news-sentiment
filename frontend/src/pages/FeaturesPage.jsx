@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import ScrollToTop from '../components/ScrollToTop';
-import '../scss/LandingPage.scss';
-import '../scss/FeaturesPage.scss';
+import {
+  Newspaper, Sun, Moon, BarChart3, Network, TrendingUp, ShieldCheck,
+  Brain, FileDown, Globe, AlertTriangle, Lock, ArrowRight
+} from 'lucide-react';
 
-// ── Variants ──
+// ── Animation Variants ──
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
@@ -21,7 +21,6 @@ const staggerItem = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 };
 
-// ── Animated Section ──
 const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
@@ -32,6 +31,84 @@ const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
   );
 };
 
+// ── Navbar ──
+const Navbar = ({ isDark, toggleTheme, navigate }) => (
+  <motion.nav
+    className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
+    initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+  >
+    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+        <Newspaper className="w-5 h-5 text-accent" />
+        <span>MY News <span className="text-accent">Sentiment</span></span>
+      </Link>
+      <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+        <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+        <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+        <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+        <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+      </div>
+      <div className="flex items-center gap-3">
+        <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
+          {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+        </button>
+        <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
+          Log in
+        </Link>
+        <motion.button
+          onClick={() => navigate('/register')}
+          className="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
+          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+        >
+          Get Started
+        </motion.button>
+      </div>
+    </div>
+  </motion.nav>
+);
+
+// ── Footer ──
+const Footer = () => (
+  <footer className="border-t border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f]">
+    <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white mb-3">
+            <Newspaper className="w-5 h-5 text-accent" />
+            <span>MY News Sentiment</span>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">AI-powered sentiment analysis for Malaysian news.</p>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+            <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+            <Link to="/api" className="hover:text-accent transition-colors">API</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+            <Link to="/jobs" className="hover:text-accent transition-colors">Careers</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Legal</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+          </div>
+        </div>
+      </div>
+      <div className="mt-12 pt-8 border-t border-[#eee] dark:border-[#2a2a2a] text-center text-sm text-gray-400">
+        © 2026 MY News Sentiment. All rights reserved.
+      </div>
+    </div>
+  </footer>
+);
+
 const FeaturesPage = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
@@ -39,117 +116,80 @@ const FeaturesPage = () => {
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   const features = [
-    { icon: '📡', title: 'Multi-Source Aggregation', desc: 'Real-time RSS feeds from Astro Awani, FMT, Malaysiakini and other major Malaysian news outlets — all in one dashboard.', color: '#4D7AFF' },
-    { icon: '🧠', title: 'AI Sentiment Analysis', desc: 'Triple-layer AI: GPT-4o-mini for accuracy, Malaya NLP for Bahasa Malaysia, and rule-based fallback for 100% uptime.', color: '#30CF79' },
-    { icon: '📊', title: 'Interactive Dashboard', desc: 'Pie charts, bar charts, trend lines, word clouds, and regional heatmaps — all updating in real-time.', color: '#F7A501' },
-    { icon: '🌐', title: 'Bilingual Support', desc: 'Full BM/EN interface with one-click language toggle. AI understands both languages natively.', color: '#4D7AFF' },
-    { icon: '📈', title: '7-Day AI Forecast', desc: 'Predict sentiment trends for the next week based on current news patterns and historical data.', color: '#F54E4E' },
-    { icon: '📄', title: 'Export and Reports', desc: 'One-click CSV export, printable reports, and bookmarking for articles that matter most.', color: '#30CF79' },
-    { icon: '🗺️', title: 'Regional Heatmap', desc: 'Visualize sentiment distribution across all 13 Malaysian states and federal territories.', color: '#F7A501' },
-    { icon: '🚨', title: 'Crisis Alerts', desc: 'Automatic detection of crisis keywords (banjir, rasuah, kemalangan) with real-time alert badges.', color: '#F54E4E' },
-    { icon: '🔒', title: 'Secure Authentication', desc: 'Firebase Auth + Google OAuth + JWT tokens. Email verification and password reset included.', color: '#4D7AFF' },
+    { icon: Globe, title: 'Multi-Source Aggregation', desc: 'Real-time RSS feeds from Astro Awani, FMT, Malaysiakini and other major Malaysian news outlets — all in one dashboard.', color: 'text-blue-500' },
+    { icon: Brain, title: 'AI Sentiment Analysis', desc: 'Triple-layer AI: GPT-4o-mini for accuracy, Malaya NLP for Bahasa Malaysia, and rule-based fallback for 100% uptime.', color: 'text-green-500' },
+    { icon: BarChart3, title: 'Interactive Dashboard', desc: 'Pie charts, bar charts, trend lines, word clouds, and regional heatmaps — all updating in real-time.', color: 'text-orange-500' },
+    { icon: Network, title: 'Entity Recognition', desc: 'Automatically extract and track public figures, organizations, and locations mentioned across all articles.', color: 'text-purple-500' },
+    { icon: TrendingUp, title: '7-Day AI Forecast', desc: 'Predict sentiment trends for the next week based on current news patterns and historical data.', color: 'text-red-500' },
+    { icon: FileDown, title: 'Export & Reports', desc: 'One-click CSV export, PowerPoint presentations, printable reports, and bookmarking for articles that matter most.', color: 'text-teal-500' },
+    { icon: ShieldCheck, title: 'Source Credibility', desc: 'Evaluate source reliability and detect bias patterns across multiple outlets with credibility scoring.', color: 'text-indigo-500' },
+    { icon: AlertTriangle, title: 'Crisis Alerts', desc: 'Automatic detection of crisis keywords (banjir, rasuah, kemalangan) with real-time alert badges.', color: 'text-amber-500' },
+    { icon: Lock, title: 'Secure Authentication', desc: 'Firebase Auth + Google OAuth + JWT tokens. Email verification and password reset included.', color: 'text-cyan-500' },
   ];
 
   return (
-    <div className="ph-features-page" data-theme={isDark ? 'dark' : 'light'}>
-      <ScrollToTop />
-
-      {/* ─── NAVBAR ─── */}
-      <motion.nav className="ph-nav" initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
-        <div className="ph-nav__inner">
-          <Link to="/" className="ph-nav__logo">
-            <motion.span className="ph-nav__logo-icon" animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>📰</motion.span>
-            <span>MY News <b>Sentiment</b></span>
-          </Link>
-          <div className="ph-nav__links">
-            <Link to="/features">Features</Link>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/about">About</Link>
-          </div>
-          <div className="ph-nav__actions">
-            <button className="ph-nav__theme" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
-            <Link to="/login" className="ph-btn ph-btn--ghost">Log in</Link>
-            <motion.button className="ph-btn ph-btn--primary" onClick={() => navigate('/register')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              Get started free
-            </motion.button>
-          </div>
-        </div>
-      </motion.nav>
+    <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors">
+      <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
       {/* ─── HERO ─── */}
-      <motion.header className="ph-features-page__hero" initial="hidden" animate="visible" variants={staggerContainer}>
-        <motion.div className="ph-features-page__badge" variants={staggerItem}>
-          <span className="ph-features-page__badge-dot" />
-          Platform Capabilities
-        </motion.div>
-        <motion.h1 className="ph-features-page__title" variants={staggerItem}>
-          Everything you need to <span>decode the news</span>
-        </motion.h1>
-        <motion.p className="ph-features-page__subtitle" variants={staggerItem}>
-          Built for researchers, analysts, and anyone who wants to understand Malaysian media sentiment at scale.
-        </motion.p>
+      <motion.header className="relative pt-32 pb-16 px-6 text-center" initial="hidden" animate="visible" variants={staggerContainer}>
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-transparent" />
+        <div className="relative max-w-4xl mx-auto">
+          <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            Platform Capabilities
+          </motion.div>
+          <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+            Everything you need to{' '}
+            <span className="text-accent">decode the news</span>
+          </motion.h1>
+          <motion.p variants={staggerItem} className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Built for researchers, analysts, and anyone who wants to understand Malaysian media sentiment at scale.
+          </motion.p>
+        </div>
       </motion.header>
 
       {/* ─── FEATURES GRID ─── */}
-      <AnimatedSection className="ph-features-page__grid" variants={staggerContainer}>
-        {features.map((f, i) => (
-          <motion.div
-            key={i}
-            className="ph-features-page__card"
-            variants={staggerItem}
-            style={{ '--card-accent': f.color }}
-            whileHover={{ y: -6, boxShadow: '0 12px 40px rgba(0,0,0,0.08)' }}
-          >
-            <span className="ph-features-page__card-icon">{f.icon}</span>
-            <h3>{f.title}</h3>
-            <p>{f.desc}</p>
-          </motion.div>
-        ))}
+      <AnimatedSection className="py-16 px-6" variants={staggerContainer}>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((f, i) => (
+            <motion.div
+              key={i}
+              className="p-6 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl hover:border-accent/50 transition-all group"
+              variants={staggerItem}
+              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+            >
+              <f.icon className={`w-10 h-10 ${f.color} mb-4 group-hover:scale-110 transition-transform`} />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{f.title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </AnimatedSection>
 
       {/* ─── CTA ─── */}
-      <AnimatedSection className="ph-features-page__cta" variants={fadeInUp}>
-        <div className="ph-container">
-          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            Ready to get started?
-          </motion.h2>
-          <p>Start analyzing Malaysian news sentiment for free. No credit card required.</p>
-          <motion.button className="ph-btn ph-btn--primary ph-btn--lg" onClick={() => navigate('/register')} whileHover={{ scale: 1.06, boxShadow: '0 8px 30px rgba(245,78,0,0.35)' }} whileTap={{ scale: 0.97 }}>
-            Start free →
-          </motion.button>
+      <AnimatedSection className="py-20 px-6" variants={fadeInUp}>
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            className="p-12 bg-gradient-to-br from-accent/5 to-secondary/5 border border-accent/20 rounded-3xl"
+            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Ready to get started?</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">Start analyzing Malaysian news sentiment for free. No credit card required.</p>
+            <motion.button
+              onClick={() => navigate('/register')}
+              className="px-8 py-3.5 text-base font-semibold text-white bg-accent rounded-xl shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-all"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+            >
+              Start Free <ArrowRight className="inline w-4 h-4 ml-1" />
+            </motion.button>
+          </motion.div>
         </div>
       </AnimatedSection>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="ph-footer">
-        <div className="ph-footer__inner">
-          <div className="ph-footer__brand">
-            <span className="ph-footer__logo">📰 MY News <b>Sentiment</b></span>
-            <p>AI-powered sentiment analysis for Malaysian news.</p>
-          </div>
-          <div className="ph-footer__links">
-            <div className="ph-footer__col">
-              <h4>Product</h4>
-              <Link to="/features">Features</Link>
-              <Link to="/pricing">Pricing</Link>
-              <Link to="/api">API</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Company</h4>
-              <Link to="/about">About</Link>
-              <Link to="/contact">Contact</Link>
-              <Link to="/jobs">Careers</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Legal</h4>
-              <Link to="/privacy">Privacy</Link>
-            </div>
-          </div>
-        </div>
-        <div className="ph-footer__bottom">
-          <p>© 2026 MY News Sentiment. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

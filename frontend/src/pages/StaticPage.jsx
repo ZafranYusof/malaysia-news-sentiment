@@ -2,12 +2,8 @@ import React, { useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import '../scss/StaticPage.scss';
+import { Newspaper, Sun, Moon } from 'lucide-react';
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
-};
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -23,7 +19,7 @@ const PAGES = {
     emoji: '⚡',
     sections: [
       { heading: 'Getting Started', content: 'Our REST API allows you to integrate sentiment analysis into your own applications. All endpoints return JSON and require authentication via API key.' },
-      { heading: 'Authentication', content: 'Include your API key in the Authorization header: `Authorization: Bearer YOUR_API_KEY`. Get your key from the Settings page after signing up.' },
+      { heading: 'Authentication', content: 'Include your API key in the Authorization header: Authorization: Bearer YOUR_API_KEY. Get your key from the Settings page after signing up.' },
       { heading: 'Endpoints', content: 'POST /api/analyze — Analyze text sentiment\nGET /api/articles — Fetch analyzed articles\nGET /api/entities — Get entity data\nGET /api/trends — Get sentiment trends' },
       { heading: 'Rate Limits', content: 'Free tier: 100 requests/day. Pro tier: 10,000 requests/day. Enterprise: Unlimited.' },
     ]
@@ -49,6 +45,84 @@ const PAGES = {
   },
 };
 
+// ── Navbar ──
+const Navbar = ({ isDark, toggleTheme, navigate }) => (
+  <motion.nav
+    className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
+    initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+  >
+    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+        <Newspaper className="w-5 h-5 text-accent" />
+        <span>MY News <span className="text-accent">Sentiment</span></span>
+      </Link>
+      <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+        <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+        <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+        <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+        <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+      </div>
+      <div className="flex items-center gap-3">
+        <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
+          {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+        </button>
+        <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
+          Log in
+        </Link>
+        <motion.button
+          onClick={() => navigate('/register')}
+          className="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
+          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+        >
+          Get Started
+        </motion.button>
+      </div>
+    </div>
+  </motion.nav>
+);
+
+// ── Footer ──
+const Footer = () => (
+  <footer className="border-t border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f]">
+    <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white mb-3">
+            <Newspaper className="w-5 h-5 text-accent" />
+            <span>MY News Sentiment</span>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">AI-powered sentiment analysis for Malaysian news.</p>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+            <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+            <Link to="/api" className="hover:text-accent transition-colors">API</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+            <Link to="/jobs" className="hover:text-accent transition-colors">Careers</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Legal</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+          </div>
+        </div>
+      </div>
+      <div className="mt-12 pt-8 border-t border-[#eee] dark:border-[#2a2a2a] text-center text-sm text-gray-400">
+        © 2026 MY News Sentiment. All rights reserved.
+      </div>
+    </div>
+  </footer>
+);
+
 const StaticPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,59 +135,36 @@ const StaticPage = () => {
   const page = PAGES[location.pathname] || PAGES['/api'];
 
   return (
-    <div className="ph-static" data-theme={isDark ? 'dark' : 'light'}>
-      {/* Navbar */}
-      <nav className="ph-nav">
-        <div className="ph-nav__inner">
-          <Link to="/" className="ph-nav__logo"><span className="ph-nav__logo-icon">📰</span><span>MY News <b>Sentiment</b></span></Link>
-          <div className="ph-nav__links">
-            <Link to="/features">Features</Link>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/about">About</Link>
-            <Link to="/contact">Contact</Link>
-          </div>
-          <div className="ph-nav__actions">
-            <button className="ph-nav__theme" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
-            <Link to="/login" className="ph-btn ph-btn--ghost">Log in</Link>
-            <motion.button className="ph-btn ph-btn--primary" onClick={() => navigate('/register')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>Get started free</motion.button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors">
+      <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
       {/* Hero */}
-      <header className="ph-static__hero">
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer}>
-          <motion.span className="ph-static__emoji" variants={staggerItem}>{page.emoji}</motion.span>
-          <motion.h1 className="ph-static__title" variants={staggerItem}>{page.title}</motion.h1>
-        </motion.div>
-      </header>
+      <motion.header className="pt-32 pb-12 px-6 text-center" initial="hidden" animate="visible" variants={staggerContainer}>
+        <motion.span variants={staggerItem} className="text-5xl mb-4 block">{page.emoji}</motion.span>
+        <motion.h1 variants={staggerItem} className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+          {page.title}
+        </motion.h1>
+      </motion.header>
 
       {/* Content */}
-      <section className="ph-static__content">
-        <div className="ph-container">
-          <motion.div className="ph-static__sections" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
+      <section className="pb-20 px-6">
+        <div className="max-w-3xl mx-auto">
+          <motion.div className="space-y-8" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
             {page.sections.map((sec, i) => (
-              <motion.div key={i} className="ph-static__section" variants={staggerItem}>
-                <h2>{sec.heading}</h2>
-                <p>{sec.content}</p>
+              <motion.div
+                key={i}
+                className="p-6 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+                variants={staggerItem}
+              >
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{sec.heading}</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">{sec.content}</p>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="ph-footer">
-        <div className="ph-footer__inner">
-          <div className="ph-footer__brand"><span className="ph-footer__logo">📰 MY News <b>Sentiment</b></span><p>AI-powered sentiment analysis for Malaysian news.</p></div>
-          <div className="ph-footer__links">
-            <div className="ph-footer__col"><h4>Product</h4><Link to="/features">Features</Link><Link to="/pricing">Pricing</Link><Link to="/api">API</Link></div>
-            <div className="ph-footer__col"><h4>Company</h4><Link to="/about">About</Link><Link to="/contact">Contact</Link><Link to="/jobs">Careers</Link></div>
-            <div className="ph-footer__col"><h4>Legal</h4><Link to="/privacy">Privacy</Link></div>
-          </div>
-        </div>
-        <div className="ph-footer__bottom"><p>© 2026 MY News Sentiment. All rights reserved.</p></div>
-      </footer>
+      <Footer />
     </div>
   );
 };

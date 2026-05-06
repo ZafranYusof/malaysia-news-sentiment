@@ -2,11 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import ScrollToTop from '../components/ScrollToTop';
-import '../scss/LandingPage.scss';
-import '../scss/AboutPage.scss';
+import {
+  Newspaper, Sun, Moon, Code2, Database, Server, Brain, Palette, Globe,
+  Users, GraduationCap, Building2, Calendar, ArrowRight
+} from 'lucide-react';
 
-// ── Variants ──
+// ── Animation Variants ──
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
@@ -20,7 +21,6 @@ const staggerItem = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 };
 
-// ── Animated Section ──
 const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
@@ -30,6 +30,84 @@ const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
     </motion.section>
   );
 };
+
+// ── Navbar ──
+const Navbar = ({ isDark, toggleTheme, navigate }) => (
+  <motion.nav
+    className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
+    initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+  >
+    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+        <Newspaper className="w-5 h-5 text-accent" />
+        <span>MY News <span className="text-accent">Sentiment</span></span>
+      </Link>
+      <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+        <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+        <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+        <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+        <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+      </div>
+      <div className="flex items-center gap-3">
+        <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
+          {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+        </button>
+        <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
+          Log in
+        </Link>
+        <motion.button
+          onClick={() => navigate('/register')}
+          className="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
+          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+        >
+          Get Started
+        </motion.button>
+      </div>
+    </div>
+  </motion.nav>
+);
+
+// ── Footer ──
+const Footer = () => (
+  <footer className="border-t border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f]">
+    <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white mb-3">
+            <Newspaper className="w-5 h-5 text-accent" />
+            <span>MY News Sentiment</span>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">AI-powered sentiment analysis for Malaysian news.</p>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+            <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+            <Link to="/api" className="hover:text-accent transition-colors">API</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+            <Link to="/jobs" className="hover:text-accent transition-colors">Careers</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Legal</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+          </div>
+        </div>
+      </div>
+      <div className="mt-12 pt-8 border-t border-[#eee] dark:border-[#2a2a2a] text-center text-sm text-gray-400">
+        © 2026 MY News Sentiment. All rights reserved.
+      </div>
+    </div>
+  </footer>
+);
 
 const AboutPage = () => {
   const navigate = useNavigate();
@@ -71,18 +149,18 @@ const AboutPage = () => {
   }, [statsVisible]);
 
   const techStack = [
-    { name: 'React', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#61DAFB"><circle cx="12" cy="12" r="2.2"/><ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#61DAFB" strokeWidth="1"/><ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#61DAFB" strokeWidth="1" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#61DAFB" strokeWidth="1" transform="rotate(120 12 12)"/></svg>), desc: 'Frontend UI framework' },
-    { name: 'Node.js', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#339933"><path d="M12 1.85l9.5 5.5v11l-9.5 5.5-9.5-5.5v-11l9.5-5.5zm0 2.3L4.5 8.5v7l7.5 4.35L19.5 15.5v-7L12 4.15z"/></svg>), desc: 'Backend runtime' },
-    { name: 'MongoDB', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#47A248"><path d="M12 2C12 2 8 6 8 12c0 4 2 8 4 10 2-2 4-6 4-10 0-6-4-10-4-10zm0 4c1.1 0 2 2.5 2 6s-.9 6-2 6-2-2.5-2-6 .9-6 2-6z"/></svg>), desc: 'NoSQL database' },
-    { name: 'Express', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 12h18M3 12l4-4m-4 4l4 4m14-4l-4-4m4 4l-4 4"/><rect x="7" y="8" width="10" height="8" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg>), desc: 'Backend framework' },
-    { name: 'Ollama', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#F54E00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/><path d="M9 7h6M10 9.5h4"/></svg>), desc: 'AI inference engine' },
-    { name: 'Framer Motion', icon: (<svg viewBox="0 0 24 24" width="32" height="32" fill="#0055FF"><path d="M4 0h16v8H12L4 0zm0 8h8l8 8H4V8zm0 8h8v8L4 16z"/></svg>), desc: 'Animation library' },
+    { name: 'React', icon: Code2, desc: 'Frontend UI framework', color: 'text-cyan-500' },
+    { name: 'Node.js', icon: Server, desc: 'Backend runtime', color: 'text-green-500' },
+    { name: 'MongoDB', icon: Database, desc: 'NoSQL database', color: 'text-emerald-500' },
+    { name: 'Express', icon: Globe, desc: 'Backend framework', color: 'text-gray-500' },
+    { name: 'Ollama', icon: Brain, desc: 'AI inference engine', color: 'text-orange-500' },
+    { name: 'Framer Motion', icon: Palette, desc: 'Animation library', color: 'text-purple-500' },
   ];
 
   const team = [
-    { name: 'Muhammad Zafran', role: 'Lead Developer', avatar: 'MZ' },
-    { name: 'Dr. Supervisor', role: 'Project Advisor', avatar: 'DS' },
-    { name: 'UMPSA FSKKP', role: 'Faculty Support', avatar: 'UF' },
+    { name: 'Muhammad Zafran', role: 'Lead Developer', initials: 'MZ' },
+    { name: 'Dr. Supervisor', role: 'Project Advisor', initials: 'DS' },
+    { name: 'UMPSA FSKKP', role: 'Faculty Support', initials: 'UF' },
   ];
 
   const milestones = [
@@ -93,158 +171,150 @@ const AboutPage = () => {
     { date: 'May 2026', title: 'FYP Presentation', desc: 'Final demonstration and thesis submission.' },
   ];
 
-  return (
-    <div className="ph-about" data-theme={isDark ? 'dark' : 'light'}>
-      <ScrollToTop />
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
-      {/* ─── NAVBAR ─── */}
-      <motion.nav className="ph-nav" initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
-        <div className="ph-nav__inner">
-          <Link to="/" className="ph-nav__logo">
-            <motion.span className="ph-nav__logo-icon" animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>📰</motion.span>
-            <span>MY News <b>Sentiment</b></span>
-          </Link>
-          <div className="ph-nav__links">
-            <Link to="/features">Features</Link>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/about">About</Link>
-          </div>
-          <div className="ph-nav__actions">
-            <button className="ph-nav__theme" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
-            <Link to="/login" className="ph-btn ph-btn--ghost">Log in</Link>
-            <motion.button className="ph-btn ph-btn--primary" onClick={() => navigate('/register')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              Get started free
-            </motion.button>
-          </div>
-        </div>
-      </motion.nav>
+  return (
+    <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors">
+      <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
       {/* ─── HERO ─── */}
-      <motion.header className="ph-about__hero" initial="hidden" animate="visible" variants={staggerContainer}>
-        <div className="ph-about__hero-glow" />
-        <motion.div className="ph-about__badge" variants={staggerItem}>
-          ℹ️ About Us
-        </motion.div>
-        <motion.h1 className="ph-about__title" variants={staggerItem}>
-          Making Malaysian news intelligence <span>accessible to everyone</span>
-        </motion.h1>
-        <motion.p className="ph-about__subtitle" variants={staggerItem}>
-          We're building the infrastructure to monitor, analyze, and predict news sentiment across Malaysia's multilingual media landscape — powered by cutting-edge AI.
-        </motion.p>
+      <motion.header className="relative pt-32 pb-16 px-6 text-center" initial="hidden" animate="visible" variants={staggerContainer}>
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-50/50 to-transparent dark:from-purple-950/20 dark:to-transparent" />
+        <div className="relative max-w-4xl mx-auto">
+          <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-medium mb-6">
+            About Us
+          </motion.div>
+          <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+            Making Malaysian news intelligence{' '}
+            <span className="text-accent">accessible to everyone</span>
+          </motion.h1>
+          <motion.p variants={staggerItem} className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            We're building the infrastructure to monitor, analyze, and predict news sentiment across Malaysia's multilingual media landscape.
+          </motion.p>
+        </div>
       </motion.header>
 
       {/* ─── STATS ─── */}
-      <AnimatedSection className="ph-about__stats" variants={staggerContainer}>
-        <div className="ph-about__stats-inner" ref={statsRef}>
+      <AnimatedSection className="py-12 px-6" variants={staggerContainer}>
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6" ref={statsRef}>
           {[
-            { num: `${counters.articles.toLocaleString()}+`, label: 'Articles Analyzed', icon: '📄' },
-            { num: `${counters.accuracy}%`, label: 'AI Accuracy', icon: '🎯' },
-            { num: counters.sources, label: 'News Sources', icon: '🗞️' },
+            { num: `${counters.articles.toLocaleString()}+`, label: 'Articles Analyzed', icon: Newspaper },
+            { num: `${counters.accuracy}%`, label: 'AI Accuracy', icon: Brain },
+            { num: counters.sources, label: 'News Sources', icon: Globe },
           ].map((s, i) => (
-            <motion.div key={i} className="ph-about__stat" variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <span className="ph-about__stat-icon">{s.icon}</span>
-              <span className="ph-about__stat-num">{s.num}</span>
-              <span className="ph-about__stat-label">{s.label}</span>
+            <motion.div
+              key={i}
+              className="text-center p-6 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+              variants={staggerItem}
+              whileHover={{ y: -4 }}
+            >
+              <s.icon className="w-8 h-8 text-accent mx-auto mb-3" />
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">{s.num}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{s.label}</div>
             </motion.div>
           ))}
         </div>
       </AnimatedSection>
 
-      {/* ─── TECH STACK ─── */}
-      <section className="ph-about__section ph-about__section--alt">
-        <div className="ph-about__section-header">
-          <p className="ph-about__section-tag">Technology</p>
-          <h2 className="ph-about__section-title">Built with modern tools</h2>
-          <p className="ph-about__section-desc">A full-stack architecture designed for real-time sentiment analysis at scale.</p>
+      {/* ─── MISSION ─── */}
+      <AnimatedSection className="py-16 px-6" variants={fadeInUp}>
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Our Mission</h2>
+          <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
+            To provide transparent, unbiased, and accessible news sentiment analysis for Malaysia. We believe that understanding media narratives is essential for informed decision-making in a democratic society.
+          </p>
         </div>
-        <AnimatedSection className="ph-about__tech-grid" variants={staggerContainer}>
-          {techStack.map((tech, i) => (
-            <motion.div key={tech.name} className="ph-about__tech-card" variants={staggerItem} whileHover={{ y: -4, borderColor: 'var(--ph-accent)' }}>
-              <span className="ph-about__tech-icon">{tech.icon}</span>
-              <h3>{tech.name}</h3>
-              <p>{tech.desc}</p>
-            </motion.div>
-          ))}
-        </AnimatedSection>
+      </AnimatedSection>
+
+      {/* ─── TECH STACK ─── */}
+      <section className="py-16 px-6 bg-white dark:bg-[#1a1a1a]">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Technology</p>
+          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-4">Built with modern tools</h2>
+          <p className="text-center text-gray-500 dark:text-gray-400 max-w-xl mx-auto mb-10">A full-stack architecture designed for real-time sentiment analysis at scale.</p>
+
+          <AnimatedSection className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" variants={staggerContainer}>
+            {techStack.map((tech) => (
+              <motion.div
+                key={tech.name}
+                className="p-6 bg-[#fafaf9] dark:bg-[#0f0f0f] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl hover:border-accent/50 transition-all"
+                variants={staggerItem}
+                whileHover={{ y: -4 }}
+              >
+                <tech.icon className={`w-8 h-8 ${tech.color} mb-3`} />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{tech.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{tech.desc}</p>
+              </motion.div>
+            ))}
+          </AnimatedSection>
+        </div>
       </section>
 
       {/* ─── TEAM ─── */}
-      <section className="ph-about__section">
-        <div className="ph-about__section-header">
-          <p className="ph-about__section-tag">Team</p>
-          <h2 className="ph-about__section-title">The people behind the platform</h2>
-          <p className="ph-about__section-desc">A dedicated team building the future of Malaysian media intelligence.</p>
+      <section className="py-16 px-6">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Team</p>
+          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-4">The people behind the platform</h2>
+          <p className="text-center text-gray-500 dark:text-gray-400 max-w-xl mx-auto mb-10">A dedicated team building the future of Malaysian media intelligence.</p>
+
+          <AnimatedSection className="grid grid-cols-1 sm:grid-cols-3 gap-6" variants={staggerContainer}>
+            {team.map((member) => (
+              <motion.div
+                key={member.name}
+                className="text-center p-8 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+                variants={staggerItem}
+                whileHover={{ y: -4 }}
+              >
+                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-accent/10 text-accent font-bold text-xl rounded-full">
+                  {member.initials}
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{member.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{member.role}</p>
+              </motion.div>
+            ))}
+          </AnimatedSection>
         </div>
-        <AnimatedSection className="ph-about__team-grid" variants={staggerContainer}>
-          {team.map((member, i) => (
-            <motion.div key={member.name} className="ph-about__team-card" variants={staggerItem} whileHover={{ y: -4 }}>
-              <div className="ph-about__team-avatar">{member.avatar}</div>
-              <h3>{member.name}</h3>
-              <p>{member.role}</p>
-            </motion.div>
-          ))}
-        </AnimatedSection>
       </section>
 
       {/* ─── TIMELINE ─── */}
-      <section className="ph-about__section ph-about__section--alt">
-        <div className="ph-about__section-header">
-          <p className="ph-about__section-tag">Milestones</p>
-          <h2 className="ph-about__section-title">Our journey so far</h2>
-          <p className="ph-about__section-desc">From concept to a fully functional sentiment analysis platform.</p>
-        </div>
-        <AnimatedSection className="ph-about__timeline" variants={staggerContainer}>
-          <div className="ph-about__timeline-line" />
-          {milestones.map((ms, i) => (
-            <motion.div key={i} className="ph-about__tl-item" variants={staggerItem}>
-              <div className="ph-about__tl-dot" />
-              <div className="ph-about__tl-date">{ms.date}</div>
-              <h3>{ms.title}</h3>
-              <p>{ms.desc}</p>
-            </motion.div>
-          ))}
-        </AnimatedSection>
+      <section className="py-16 px-6 bg-white dark:bg-[#1a1a1a]">
+        <div className="max-w-3xl mx-auto">
+          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Milestones</p>
+          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-10">Our journey so far</h2>
 
-        {/* Built at UMPSA */}
-        <AnimatedSection className="ph-about__built-banner" variants={fadeInUp}>
-          <h3>🎓 Built at UMPSA</h3>
-          <p>This platform is developed as a Final Year Project (FYP) at Universiti Malaysia Pahang Al-Sultan Abdullah (UMPSA), Faculty of Computing (FSKKP).</p>
-          <div className="ph-about__umpsa-badge">
-            🏫 UMPSA · Gambang, Pahang
-          </div>
-        </AnimatedSection>
+          <AnimatedSection className="relative" variants={staggerContainer}>
+            {/* Vertical line */}
+            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-[#eee] dark:bg-[#2a2a2a]" />
+
+            <div className="space-y-8">
+              {milestones.map((ms, i) => (
+                <motion.div key={i} className="relative pl-16" variants={staggerItem}>
+                  <div className="absolute left-4 top-1 w-4 h-4 rounded-full bg-accent border-4 border-white dark:border-[#1a1a1a]" />
+                  <span className="text-xs font-bold text-accent uppercase tracking-wider">{ms.date}</span>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mt-1">{ms.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{ms.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </AnimatedSection>
+        </div>
       </section>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="ph-footer">
-        <div className="ph-footer__inner">
-          <div className="ph-footer__brand">
-            <span className="ph-footer__logo">📰 MY News <b>Sentiment</b></span>
-            <p>AI-powered sentiment analysis for Malaysian news.</p>
-          </div>
-          <div className="ph-footer__links">
-            <div className="ph-footer__col">
-              <h4>Product</h4>
-              <Link to="/features">Features</Link>
-              <Link to="/pricing">Pricing</Link>
-              <Link to="/api">API</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Company</h4>
-              <Link to="/about">About</Link>
-              <Link to="/contact">Contact</Link>
-              <Link to="/jobs">Careers</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Legal</h4>
-              <Link to="/privacy">Privacy</Link>
-            </div>
-          </div>
+      {/* ─── UMPSA Banner ─── */}
+      <AnimatedSection className="py-16 px-6" variants={fadeInUp}>
+        <div className="max-w-3xl mx-auto text-center p-10 bg-gradient-to-br from-accent/5 to-secondary/5 border border-accent/20 rounded-3xl">
+          <GraduationCap className="w-12 h-12 text-accent mx-auto mb-4" />
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Built at UMPSA</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            This platform is developed as a Final Year Project (FYP) at Universiti Malaysia Pahang Al-Sultan Abdullah (UMPSA), Faculty of Computing (FSKKP).
+          </p>
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-full text-sm text-gray-600 dark:text-gray-400">
+            <Building2 className="w-4 h-4" /> UMPSA · Gambang, Pahang
+          </span>
         </div>
-        <div className="ph-footer__bottom">
-          <p>© 2026 MY News Sentiment. All rights reserved.</p>
-        </div>
-      </footer>
+      </AnimatedSection>
+
+      <Footer />
     </div>
   );
 };

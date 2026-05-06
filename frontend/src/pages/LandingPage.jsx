@@ -1,49 +1,31 @@
-import React, { useEffect, useState, useRef, useCallback, lazy, Suspense } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import ScrollToTop from '../components/ScrollToTop';
-import '../scss/LandingPage.scss';
+import {
+  BarChart3, Network, TrendingUp, ShieldCheck, Brain, FileDown,
+  Search, Zap, LineChart, Sun, Moon, ArrowRight, Play, Newspaper,
+  ChevronRight, Star, Globe, Clock
+} from 'lucide-react';
 
-const HeroScene3D = lazy(() => import('../components/HeroScene3D'));
-
-// ── Variants ──
+// ── Animation Variants ──
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
 };
 const staggerContainer = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } },
+  visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
 };
 const staggerItem = {
   hidden: { opacity: 0, y: 28 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 };
 const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
+  hidden: { opacity: 0, scale: 0.92 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
 };
-const slideInLeft = {
-  hidden: { opacity: 0, x: -60 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
-};
-const slideInRight = {
-  hidden: { opacity: 0, x: 60 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
-};
-
-// ── Floating Particle ──
-const FloatingParticle = ({ delay, size, x, duration }) => (
-  <motion.div
-    className="ph-particle"
-    style={{ width: size, height: size, left: `${x}%` }}
-    animate={{ y: [0, -30, 0], opacity: [0.3, 0.7, 0.3], scale: [1, 1.2, 1] }}
-    transition={{ duration, delay, repeat: Infinity, ease: 'easeInOut' }}
-  />
-);
 
 // ── Animated Section ──
 const AnimatedSection = ({ children, className, id, variants = fadeInUp }) => {
@@ -56,16 +38,94 @@ const AnimatedSection = ({ children, className, id, variants = fadeInUp }) => {
   );
 };
 
-// ── Live Sentiment Bar ──
+// ── Navbar ──
+const Navbar = ({ isDark, toggleTheme, navigate }) => (
+  <motion.nav
+    className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
+    initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+  >
+    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+        <Newspaper className="w-5 h-5 text-accent" />
+        <span>MY News <span className="text-accent">Sentiment</span></span>
+      </Link>
+      <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+        <a href="#features" className="hover:text-accent transition-colors">Features</a>
+        <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+        <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+        <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+      </div>
+      <div className="flex items-center gap-3">
+        <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
+          {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+        </button>
+        <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
+          Log in
+        </Link>
+        <motion.button
+          onClick={() => navigate('/register')}
+          className="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
+          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+        >
+          Get Started
+        </motion.button>
+      </div>
+    </div>
+  </motion.nav>
+);
+
+// ── Footer ──
+const Footer = () => (
+  <footer className="border-t border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#0f0f0f]">
+    <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white mb-3">
+            <Newspaper className="w-5 h-5 text-accent" />
+            <span>MY News Sentiment</span>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">AI-powered sentiment analysis for Malaysian news.</p>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
+            <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+            <Link to="/api" className="hover:text-accent transition-colors">API</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+            <Link to="/jobs" className="hover:text-accent transition-colors">Careers</Link>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Legal</h4>
+          <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+          </div>
+        </div>
+      </div>
+      <div className="mt-12 pt-8 border-t border-[#eee] dark:border-[#2a2a2a] text-center text-sm text-gray-400">
+        © 2026 MY News Sentiment. All rights reserved.
+      </div>
+    </div>
+  </footer>
+);
+
+// ── Sentiment Bar ──
 const SentimentBar = ({ label, value, color, delay }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   return (
-    <div className="ph-demo__bar-row" ref={ref}>
-      <span className="ph-demo__bar-label">{label}</span>
-      <div className="ph-demo__bar-track">
+    <div className="flex items-center gap-3" ref={ref}>
+      <span className="text-sm font-medium text-gray-600 dark:text-gray-400 w-20">{label}</span>
+      <div className="flex-1 h-3 bg-gray-100 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
         <motion.div
-          className="ph-demo__bar-fill"
+          className="h-full rounded-full"
           style={{ background: color }}
           initial={{ width: 0 }}
           animate={isInView ? { width: `${value}%` } : { width: 0 }}
@@ -73,7 +133,7 @@ const SentimentBar = ({ label, value, color, delay }) => {
         />
       </div>
       <motion.span
-        className="ph-demo__bar-val"
+        className="text-sm font-semibold text-gray-700 dark:text-gray-300 w-10 text-right"
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.5, delay: delay + 0.8 }}
@@ -86,7 +146,6 @@ const SentimentBar = ({ label, value, color, delay }) => {
 
 const LandingPage = () => {
   const { user } = useAuth();
-  useLanguage();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -94,12 +153,11 @@ const LandingPage = () => {
 
   // Parallax
   const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0.3]);
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -60]);
 
   // Stats counter
   const [statsVisible, setStatsVisible] = useState(false);
-  const [counters, setCounters] = useState({ articles: 0, accuracy: 0, models: 0 });
+  const [counters, setCounters] = useState({ articles: 0, sources: 0, accuracy: 0 });
   const statsRef = useRef(null);
 
   useEffect(() => {
@@ -114,7 +172,7 @@ const LandingPage = () => {
 
   useEffect(() => {
     if (!statsVisible) return;
-    const targets = { articles: 10000, accuracy: 98, models: 3 };
+    const targets = { articles: 1000, sources: 50, accuracy: 95 };
     const duration = 2000, steps = 60, interval = duration / steps;
     let step = 0;
     const timer = setInterval(() => {
@@ -122,8 +180,8 @@ const LandingPage = () => {
       const eased = 1 - Math.pow(1 - Math.min(step / steps, 1), 3);
       setCounters({
         articles: Math.round(targets.articles * eased),
+        sources: Math.round(targets.sources * eased),
         accuracy: Math.round(targets.accuracy * eased),
-        models: Math.round(targets.models * eased),
       });
       if (step >= steps) clearInterval(timer);
     }, interval);
@@ -131,7 +189,7 @@ const LandingPage = () => {
   }, [statsVisible]);
 
   // Typing animation
-  const typingWords = ['Politics', 'Economy', 'Markets', 'Rakyat'];
+  const typingWords = ['Politics', 'Economy', 'Markets', 'Rakyat', 'Tech'];
   const [typingIndex, setTypingIndex] = useState(0);
   const [typingText, setTypingText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -152,350 +210,235 @@ const LandingPage = () => {
     return () => clearTimeout(timeout);
   }, [typingText, isDeleting, typingIndex]);
 
-  // Testimonials
-  const testimonials = [
-    { name: 'Dr. Aisha Rahman', role: 'Political Analyst, UKM', quote: 'This platform transformed how we track public sentiment during elections. The real-time insights are unmatched.', avatar: '👩‍🔬' },
-    { name: 'Marcus Tan', role: 'Head of Strategy, Bursa Analytics', quote: 'We reduced our media monitoring costs by 70% while getting 10x more actionable intelligence.', avatar: '👨‍💼' },
-    { name: 'Priya Nair', role: 'Journalist, The Edge Malaysia', quote: 'The AI accuracy is remarkable. It catches narrative shifts hours before they hit mainstream coverage.', avatar: '👩‍💻' },
+  const features = [
+    { icon: BarChart3, title: 'Sentiment Analysis', desc: 'Classify news articles into positive, negative, and neutral sentiment using fine-tuned transformer models.', color: 'text-green-500' },
+    { icon: Network, title: 'Entity Graph', desc: 'Extract and visualize relationships between public figures, organizations, and locations.', color: 'text-blue-500' },
+    { icon: TrendingUp, title: 'Trending Topics', desc: 'Track emerging narratives and trending topics across Malaysian news in real-time.', color: 'text-orange-500' },
+    { icon: ShieldCheck, title: 'Source Credibility', desc: 'Evaluate source reliability and detect bias patterns across multiple outlets.', color: 'text-purple-500' },
+    { icon: Brain, title: 'AI Insights', desc: 'Get AI-powered summaries, predictions, and actionable intelligence from news data.', color: 'text-pink-500' },
+    { icon: FileDown, title: 'Export Reports', desc: 'Generate PowerPoint presentations and CSV exports with one click.', color: 'text-teal-500' },
   ];
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => setActiveTestimonial((p) => (p + 1) % testimonials.length), 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Feature tabs
-  const [activeTab, setActiveTab] = useState(0);
-  const featureTabs = [
-    { title: 'Sentiment Analysis', desc: 'Instant classification of news articles into positive, negative, and neutral sentiment using fine-tuned transformer models. Watch sentiment shift in real-time across thousands of articles.', emoji: '📊', color: '#F54E00' },
-    { title: 'Entity Recognition', desc: 'Automatically extract and track public figures, organizations, and locations mentioned across all articles. Build knowledge graphs that reveal hidden connections.', emoji: '🔍', color: '#3B82F6' },
-    { title: 'Trend Forecasting', desc: 'Track how narratives evolve over time and predict upcoming sentiment shifts before they happen. Stay ahead of the news cycle with AI-powered predictions.', emoji: '📈', color: '#30CF79' },
-    { title: 'Source Intelligence', desc: 'Aggregate and cross-reference from Malaysiakini, Astro Awani, FMT, Bernama, and more. Evaluate source credibility and detect bias patterns.', emoji: '🗞️', color: '#F7A501' },
-  ];
-
-  // Card hover tilt
-  const handleCardHover = useCallback((e) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) scale(1.02)`;
-  }, []);
-  const handleCardLeave = useCallback((e) => {
-    e.currentTarget.style.transform = '';
-  }, []);
-
-  // Mouse glow on hero
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const handleHeroMouse = useCallback((e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  }, []);
 
   if (user) return <Navigate to="/dashboard" replace />;
 
   return (
-    <div className="ph-landing" data-theme={isDark ? 'dark' : 'light'}>
-      <ScrollToTop />
-
-      {/* ─── NAVBAR ─── */}
-      <motion.nav className="ph-nav" initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
-        <div className="ph-nav__inner">
-          <Link to="/" className="ph-nav__logo">
-            <motion.span className="ph-nav__logo-icon" animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>📰</motion.span>
-            <span>MY News <b>Sentiment</b></span>
-          </Link>
-          <div className="ph-nav__links">
-            <a href="#features">Features</a>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/about">About</Link>
-            <Link to="/contact">Contact</Link>
-          </div>
-          <div className="ph-nav__actions">
-            <button className="ph-nav__theme" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
-            <Link to="/login" className="ph-btn ph-btn--ghost">Log in</Link>
-            <motion.button className="ph-btn ph-btn--primary" onClick={() => navigate('/register')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-              Get started free
-            </motion.button>
-          </div>
-        </div>
-      </motion.nav>
+    <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors">
+      <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
       {/* ─── HERO ─── */}
-      <header className="ph-hero" onMouseMove={handleHeroMouse}>
-        <div className="ph-hero__glow" style={{ left: mousePos.x, top: mousePos.y }} />
-        <Suspense fallback={null}>
-          <HeroScene3D />
-        </Suspense>
-        <div className="ph-hero__particles">
-          {[
-            { delay: 0, size: 6, x: 10, duration: 4 },
-            { delay: 1, size: 8, x: 25, duration: 5 },
-            { delay: 0.5, size: 5, x: 40, duration: 3.5 },
-            { delay: 1.5, size: 7, x: 60, duration: 4.5 },
-            { delay: 0.8, size: 6, x: 75, duration: 3.8 },
-            { delay: 2, size: 9, x: 90, duration: 5.2 },
-          ].map((p, i) => <FloatingParticle key={i} {...p} />)}
-        </div>
+      <motion.header className="relative pt-32 pb-20 px-6 overflow-hidden" style={{ y: heroY }}>
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-transparent" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-accent/5 rounded-full blur-3xl" />
 
-        <motion.div className="ph-hero__content" style={{ y: heroY, opacity: heroOpacity }} initial="hidden" animate="visible" variants={staggerContainer}>
-          <motion.div className="ph-hero__badge" variants={staggerItem}>
-            <span className="ph-hero__badge-dot" />
+        <motion.div className="relative max-w-5xl mx-auto text-center" initial="hidden" animate="visible" variants={staggerContainer}>
+          {/* Badge */}
+          <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
             AI-Powered News Intelligence
           </motion.div>
 
-          <motion.h1 className="ph-hero__title" variants={staggerItem}>
-            Decode the Pulse of<br />Malaysian <span className="ph-hero__typing">{typingText}<span className="ph-hero__cursor">|</span></span>
+          {/* Title */}
+          <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+            Malaysia News Sentiment{' '}
+            <span className="text-accent">Dashboard</span>
+            <br />
+            <span className="text-3xl sm:text-4xl md:text-5xl text-gray-500 dark:text-gray-400">
+              Tracking{' '}
+              <span className="text-accent">{typingText}</span>
+              <span className="animate-pulse text-accent">|</span>
+            </span>
           </motion.h1>
 
-          <motion.p className="ph-hero__sub" variants={staggerItem}>
-            Real-time AI that monitors, classifies, and visualizes sentiment across Malaysia's top news sources — so you never miss a narrative shift.
+          {/* Subtitle */}
+          <motion.p variants={staggerItem} className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
+            Real-time AI that monitors, classifies, and visualizes sentiment across Malaysia's top news sources. Never miss a narrative shift.
           </motion.p>
 
-          <motion.div className="ph-hero__cta" variants={staggerItem}>
-            <motion.button className="ph-btn ph-btn--primary ph-btn--lg" onClick={() => navigate('/register')} whileHover={{ scale: 1.06, boxShadow: '0 8px 30px rgba(245,78,0,0.35)' }} whileTap={{ scale: 0.97 }}>
-              Get started free →
+          {/* CTA */}
+          <motion.div variants={staggerItem} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <motion.button
+              onClick={() => navigate('/register')}
+              className="px-8 py-3.5 text-base font-semibold text-white bg-accent rounded-xl shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-all"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+            >
+              Get Started Free <ArrowRight className="inline w-4 h-4 ml-1" />
             </motion.button>
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-              <Link to="/login" className="ph-btn ph-btn--outline ph-btn--lg">Watch demo ▶</Link>
-            </motion.div>
+            <motion.button
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-8 py-3.5 text-base font-semibold text-gray-700 dark:text-gray-300 border border-[#eee] dark:border-[#2a2a2a] rounded-xl hover:border-accent hover:text-accent transition-all"
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            >
+              <Play className="inline w-4 h-4 mr-2" /> Learn More
+            </motion.button>
           </motion.div>
 
-          {/* Animated Vector — Sentiment Wave */}
-          <motion.div className="ph-hero__vector" variants={staggerItem}>
-            <svg viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="ph-hero__wave-svg">
-              {/* Positive line */}
-              <motion.path
-                d="M0 80 C50 80, 70 30, 100 40 C130 50, 150 20, 180 35 C210 50, 240 15, 270 30 C300 45, 330 25, 360 20 L400 25"
-                stroke="#30CF79" strokeWidth="2.5" strokeLinecap="round" fill="none"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 2, delay: 0.5, ease: 'easeInOut' }}
-              />
-              {/* Neutral line */}
-              <motion.path
-                d="M0 60 C40 60, 60 55, 100 58 C140 61, 170 50, 200 55 C230 60, 260 48, 300 52 C340 56, 370 45, 400 50"
-                stroke="#F7A501" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 0.7 }}
-                transition={{ duration: 2, delay: 0.8, ease: 'easeInOut' }}
-              />
-              {/* Negative line */}
-              <motion.path
-                d="M0 40 C50 40, 80 70, 120 65 C160 60, 190 85, 220 80 C250 75, 280 95, 320 90 C360 85, 380 100, 400 95"
-                stroke="#F54E4E" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.6"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 0.6 }}
-                transition={{ duration: 2, delay: 1.1, ease: 'easeInOut' }}
-              />
-              {/* Animated dot on positive line */}
-              <motion.circle
-                cx="270" cy="30" r="5" fill="#30CF79"
-                animate={{ cy: [30, 25, 35, 30], opacity: [1, 0.7, 1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <motion.circle
-                cx="200" cy="55" r="4" fill="#F7A501"
-                animate={{ cy: [55, 50, 60, 55], opacity: [0.8, 0.5, 0.8] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-              />
-              <motion.circle
-                cx="320" cy="90" r="4" fill="#F54E4E"
-                animate={{ cy: [90, 85, 95, 90], opacity: [0.7, 0.4, 0.7] }}
-                transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-              />
-              {/* Labels */}
-              <text x="370" y="22" fill="#30CF79" fontSize="10" fontWeight="700">+42%</text>
-              <text x="370" y="52" fill="#F7A501" fontSize="10" fontWeight="700">35%</text>
-              <text x="370" y="98" fill="#F54E4E" fontSize="10" fontWeight="700">-23%</text>
-            </svg>
-          </motion.div>
-
-          <motion.div className="ph-hero__sources" variants={staggerItem}>
-            <span className="ph-hero__sources-label">Powered by</span>
+          {/* Source tags */}
+          <motion.div variants={staggerItem} className="mt-12 flex flex-wrap items-center justify-center gap-3">
+            <span className="text-xs text-gray-400 uppercase tracking-wider">Powered by</span>
             {['Malaysiakini', 'Astro Awani', 'FMT', 'Bernama', 'The Star'].map((s, i) => (
-              <motion.span key={s} className="ph-hero__source-tag" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1 + i * 0.1, duration: 0.4 }}>
+              <motion.span
+                key={s}
+                className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-full"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1 + i * 0.1, duration: 0.4 }}
+              >
                 {s}
               </motion.span>
             ))}
           </motion.div>
         </motion.div>
-      </header>
+      </motion.header>
 
       {/* ─── STATS ─── */}
-      <AnimatedSection className="ph-stats" variants={staggerContainer}>
-        <div className="ph-stats__inner" ref={statsRef}>
+      <AnimatedSection className="py-16 px-6" variants={staggerContainer}>
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8" ref={statsRef}>
           {[
-            { num: `${counters.articles.toLocaleString()}+`, label: 'Articles Analyzed', icon: '📄' },
-            { num: `${counters.accuracy}%`, label: 'AI Accuracy', icon: '🎯' },
-            { num: counters.models, label: 'AI Models', icon: '🤖' },
+            { num: `${counters.articles.toLocaleString()}+`, label: 'Articles Analyzed', icon: Newspaper },
+            { num: `${counters.sources}+`, label: 'News Sources', icon: Globe },
+            { num: `${counters.accuracy}%`, label: 'AI Accuracy', icon: Star },
           ].map((s, i) => (
-            <motion.div key={i} className="ph-stats__item" variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <span className="ph-stats__icon">{s.icon}</span>
-              <span className="ph-stats__num">{s.num}</span>
-              <span className="ph-stats__label">{s.label}</span>
+            <motion.div
+              key={i}
+              className="text-center p-6 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+              variants={staggerItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            >
+              <s.icon className="w-8 h-8 text-accent mx-auto mb-3" />
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">{s.num}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{s.label}</div>
             </motion.div>
           ))}
         </div>
       </AnimatedSection>
 
       {/* ─── LIVE DEMO ─── */}
-      <AnimatedSection className="ph-demo" variants={fadeInUp}>
-        <div className="ph-container">
-          <p className="ph-section-tag">Live Preview</p>
-          <h2 className="ph-section-title">See sentiment analysis in action</h2>
-          <motion.div className="ph-demo__card" variants={scaleIn} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <div className="ph-demo__header">
-              <span className="ph-demo__dot ph-demo__dot--red" />
-              <span className="ph-demo__dot ph-demo__dot--yellow" />
-              <span className="ph-demo__dot ph-demo__dot--green" />
-              <span className="ph-demo__title">Sentiment Distribution — May 2026</span>
+      <AnimatedSection className="py-16 px-6" variants={scaleIn}>
+        <div className="max-w-3xl mx-auto">
+          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Live Preview</p>
+          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-10">See sentiment analysis in action</h2>
+          <motion.div
+            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl overflow-hidden shadow-xl shadow-black/5"
+            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            viewport={{ once: true }}
+          >
+            {/* Window chrome */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#eee] dark:border-[#2a2a2a]">
+              <span className="w-3 h-3 rounded-full bg-red-400" />
+              <span className="w-3 h-3 rounded-full bg-yellow-400" />
+              <span className="w-3 h-3 rounded-full bg-green-400" />
+              <span className="ml-4 text-xs text-gray-400">Sentiment Distribution - May 2026</span>
             </div>
-            <div className="ph-demo__body">
-              <SentimentBar label="Positive" value={42} color="#30CF79" delay={0.2} />
-              <SentimentBar label="Neutral" value={35} color="#F7A501" delay={0.4} />
-              <SentimentBar label="Negative" value={23} color="#F54E4E" delay={0.6} />
+            <div className="p-6 space-y-4">
+              <SentimentBar label="Positive" value={42} color="#22c55e" delay={0.2} />
+              <SentimentBar label="Neutral" value={35} color="#f59e0b" delay={0.4} />
+              <SentimentBar label="Negative" value={23} color="#ef4444" delay={0.6} />
             </div>
           </motion.div>
         </div>
       </AnimatedSection>
 
-      {/* ─── FEATURES TABS ─── */}
-      <AnimatedSection className="ph-features" id="features" variants={fadeInUp}>
-        <div className="ph-container">
-          <p className="ph-section-tag">Features</p>
-          <h2 className="ph-section-title">Everything you need to understand Malaysian news</h2>
-          <div className="ph-features__tabs">
-            {featureTabs.map((tab, i) => (
-              <motion.button key={i} className={`ph-features__tab ${activeTab === i ? 'ph-features__tab--active' : ''}`} onClick={() => setActiveTab(i)} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
-                <span className="ph-features__tab-emoji">{tab.emoji}</span>
-                {tab.title}
-              </motion.button>
+      {/* ─── FEATURES ─── */}
+      <AnimatedSection className="py-20 px-6" id="features" variants={staggerContainer}>
+        <div className="max-w-6xl mx-auto">
+          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Features</p>
+          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-4">Everything you need to understand Malaysian news</h2>
+          <p className="text-center text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-12">Powerful AI tools designed for researchers, analysts, and anyone tracking Malaysian media sentiment.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((f, i) => (
+              <motion.div
+                key={i}
+                className="p-6 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl hover:border-accent/50 transition-all group"
+                variants={staggerItem}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              >
+                <f.icon className={`w-10 h-10 ${f.color} mb-4 group-hover:scale-110 transition-transform`} />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{f.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
+              </motion.div>
             ))}
           </div>
-          <AnimatePresence mode="wait">
-            <motion.div className="ph-features__panel" key={activeTab} initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-              <div className="ph-features__panel-accent" style={{ background: featureTabs[activeTab].color }} />
-              <div className="ph-features__panel-content">
-                <span className="ph-features__panel-emoji">{featureTabs[activeTab].emoji}</span>
-                <h3>{featureTabs[activeTab].title}</h3>
-                <p>{featureTabs[activeTab].desc}</p>
-              </div>
-              {/* Animated vector illustration */}
-              <div className="ph-features__panel-vector">
-                <svg viewBox="0 0 120 120" fill="none" width="100" height="100">
-                  {/* Neural network nodes */}
-                  <motion.circle cx="20" cy="30" r="6" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity }} />
-                  <motion.circle cx="20" cy="60" r="6" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity, delay: 0.3 }} />
-                  <motion.circle cx="20" cy="90" r="6" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }} />
-                  <motion.circle cx="60" cy="40" r="8" fill={featureTabs[activeTab].color} opacity="0.8" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }} />
-                  <motion.circle cx="60" cy="80" r="8" fill={featureTabs[activeTab].color} opacity="0.8" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }} />
-                  <motion.circle cx="100" cy="60" r="10" fill={featureTabs[activeTab].color} animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.8, repeat: Infinity }} />
-                  {/* Connections */}
-                  <motion.line x1="26" y1="30" x2="52" y2="40" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                  <motion.line x1="26" y1="60" x2="52" y2="40" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }} />
-                  <motion.line x1="26" y1="60" x2="52" y2="80" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }} />
-                  <motion.line x1="26" y1="90" x2="52" y2="80" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }} />
-                  <motion.line x1="68" y1="40" x2="90" y2="60" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ duration: 1.8, repeat: Infinity }} />
-                  <motion.line x1="68" y1="80" x2="90" y2="60" stroke={featureTabs[activeTab].color} strokeWidth="1.5" opacity="0.4" animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ duration: 1.8, repeat: Infinity, delay: 0.3 }} />
-                </svg>
-              </div>
-            </motion.div>
-          </AnimatePresence>
         </div>
       </AnimatedSection>
 
       {/* ─── HOW IT WORKS ─── */}
-      <AnimatedSection className="ph-how" id="how-it-works" variants={fadeInUp}>
-        <div className="ph-container">
-          <p className="ph-section-tag">How it works</p>
-          <h2 className="ph-section-title">From search to insight in seconds</h2>
-          <motion.div className="ph-how__steps" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
+      <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#1a1a1a]" variants={staggerContainer}>
+        <div className="max-w-5xl mx-auto">
+          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">How it works</p>
+          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-12">From search to insight in seconds</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {/* Connecting line */}
+            <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-accent/20 via-accent to-accent/20" />
+
             {[
-              { num: '01', title: 'Search', desc: 'Enter any topic, keyword, or entity. Our crawler fetches the latest articles from major Malaysian news outlets.', icon: '🔎' },
-              { num: '02', title: 'Analyze', desc: 'AI models process each article — classifying sentiment, extracting entities, and scoring relevance in real time.', icon: '⚡' },
-              { num: '03', title: 'Visualize', desc: 'Explore interactive dashboards with sentiment trends, entity networks, and temporal heatmaps.', icon: '📊' },
+              { num: '01', title: 'Search', desc: 'Enter any topic or keyword. Our crawler fetches the latest articles from major Malaysian news outlets.', icon: Search },
+              { num: '02', title: 'Analyze', desc: 'AI models classify sentiment, extract entities, and score relevance in real time.', icon: Zap },
+              { num: '03', title: 'Insights', desc: 'Explore interactive dashboards with sentiment trends, entity networks, and heatmaps.', icon: LineChart },
             ].map((step, i) => (
-              <motion.div key={step.num} className="ph-how__step" variants={staggerItem} whileHover={{ y: -8, boxShadow: '0 12px 40px rgba(0,0,0,0.1)' }} onMouseMove={handleCardHover} onMouseLeave={handleCardLeave}>
-                <span className="ph-how__icon">{step.icon}</span>
-                <span className="ph-how__num">{step.num}</span>
-                <h3>{step.title}</h3>
-                <p>{step.desc}</p>
-                {i < 2 && <div className="ph-how__connector">→</div>}
+              <motion.div
+                key={step.num}
+                className="relative text-center p-8 bg-[#fafaf9] dark:bg-[#0f0f0f] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+                variants={staggerItem}
+                whileHover={{ y: -6 }}
+              >
+                <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center bg-accent/10 rounded-xl">
+                  <step.icon className="w-6 h-6 text-accent" />
+                </div>
+                <span className="text-xs font-bold text-accent uppercase tracking-wider">{step.num}</span>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-2 mb-2">{step.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{step.desc}</p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </AnimatedSection>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <AnimatedSection className="ph-testimonials" variants={fadeInUp}>
-        <div className="ph-container">
-          <p className="ph-section-tag">Testimonials</p>
-          <h2 className="ph-section-title">Trusted by analysts & journalists</h2>
-          <div className="ph-testimonials__carousel">
-            <AnimatePresence mode="wait">
-              <motion.div key={activeTestimonial} className="ph-testimonials__card" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-                <span className="ph-testimonials__avatar">{testimonials[activeTestimonial].avatar}</span>
-                <p className="ph-testimonials__quote">"{testimonials[activeTestimonial].quote}"</p>
-                <div className="ph-testimonials__author">
-                  <strong>{testimonials[activeTestimonial].name}</strong>
-                  <span>{testimonials[activeTestimonial].role}</span>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-          <div className="ph-testimonials__dots">
-            {testimonials.map((_, i) => (
-              <motion.button key={i} className={`ph-testimonials__dot ${i === activeTestimonial ? 'ph-testimonials__dot--active' : ''}`} onClick={() => setActiveTestimonial(i)} whileHover={{ scale: 1.3 }} />
+      {/* ─── TECH STACK ─── */}
+      <AnimatedSection className="py-16 px-6" variants={fadeInUp}>
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Tech Stack</p>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Built with modern tools</h2>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {['React', 'Express', 'MongoDB', 'Ollama', 'NLP', 'Tailwind', 'Framer Motion'].map((tech) => (
+              <motion.span
+                key={tech}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl"
+                whileHover={{ scale: 1.05, borderColor: '#2563eb' }}
+              >
+                {tech}
+              </motion.span>
             ))}
           </div>
         </div>
       </AnimatedSection>
 
       {/* ─── CTA ─── */}
-      <AnimatedSection className="ph-cta" variants={scaleIn}>
-        <div className="ph-container">
-          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            Start analyzing Malaysian news today
-          </motion.h2>
-          <p>Free to get started. No credit card required.</p>
-          <motion.button className="ph-btn ph-btn--primary ph-btn--lg" onClick={() => navigate('/register')} whileHover={{ scale: 1.06, boxShadow: '0 8px 30px rgba(245,78,0,0.35)' }} whileTap={{ scale: 0.97 }}>
-            Get started free →
-          </motion.button>
+      <AnimatedSection className="py-20 px-6" variants={scaleIn}>
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            className="p-12 bg-gradient-to-br from-accent/5 to-secondary/5 border border-accent/20 rounded-3xl"
+            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Start analyzing Malaysian news today</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">Free to get started. No credit card required.</p>
+            <motion.button
+              onClick={() => navigate('/register')}
+              className="px-8 py-3.5 text-base font-semibold text-white bg-accent rounded-xl shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-all"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+            >
+              Get Started Free <ArrowRight className="inline w-4 h-4 ml-1" />
+            </motion.button>
+          </motion.div>
         </div>
       </AnimatedSection>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="ph-footer">
-        <div className="ph-footer__inner">
-          <div className="ph-footer__brand">
-            <span className="ph-footer__logo">📰 MY News <b>Sentiment</b></span>
-            <p>AI-powered sentiment analysis for Malaysian news.</p>
-          </div>
-          <div className="ph-footer__links">
-            <div className="ph-footer__col">
-              <h4>Product</h4>
-              <Link to="/features">Features</Link>
-              <Link to="/pricing">Pricing</Link>
-              <Link to="/api">API</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Company</h4>
-              <Link to="/about">About</Link>
-              <Link to="/contact">Contact</Link>
-              <Link to="/jobs">Careers</Link>
-            </div>
-            <div className="ph-footer__col">
-              <h4>Legal</h4>
-              <Link to="/privacy">Privacy</Link>
-            </div>
-          </div>
-        </div>
-        <div className="ph-footer__bottom">
-          <p>© 2026 MY News Sentiment. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
