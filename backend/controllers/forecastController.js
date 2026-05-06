@@ -52,10 +52,11 @@ const getForecast = async (req, res) => {
       $or: [
         { topic: { $regex: topic, $options: 'i' } },
         { title: { $regex: topic, $options: 'i' } },
+        { description: { $regex: topic, $options: 'i' } },
         { categories: { $regex: topic, $options: 'i' } },
       ],
-      createdAt: { $gte: startDate },
-    }).select('sentiment confidence createdAt').sort({ createdAt: 1 });
+      publishedAt: { $gte: startDate },
+    }).select('sentiment confidence publishedAt createdAt').sort({ publishedAt: 1 });
 
     if (articles.length < 3) {
       return res.status(200).json({
@@ -70,7 +71,9 @@ const getForecast = async (req, res) => {
     // Group by date and calculate daily average sentiment score
     const dailyMap = {};
     articles.forEach(article => {
-      const dateKey = article.createdAt.toISOString().split('T')[0];
+      const articleDate = article.publishedAt || article.createdAt;
+      if (!articleDate) return;
+      const dateKey = articleDate.toISOString().split('T')[0];
       if (!dailyMap[dateKey]) dailyMap[dateKey] = { scores: [], count: 0 };
       dailyMap[dateKey].scores.push(sentimentToScore(article.sentiment));
       dailyMap[dateKey].count++;
