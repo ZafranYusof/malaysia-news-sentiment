@@ -33,6 +33,9 @@ import SourceCredibility from './pages/SourceCredibility';
 import Digest from './pages/Digest';
 import AdvancedSearch from './pages/AdvancedSearch';
 import ApiDocs from './pages/ApiDocs';
+import Reports from './pages/Reports';
+import Heatmap from './pages/Heatmap';
+import Categories from './pages/Categories';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTransition from './components/PageTransition';
@@ -467,6 +470,9 @@ const AppInner = () => (
     <Route path="/digest" element={<ProtectedRoute><Layout><Digest /></Layout></ProtectedRoute>} />
     <Route path="/search" element={<ProtectedRoute><Layout><AdvancedSearch /></Layout></ProtectedRoute>} />
     <Route path="/api-docs" element={<ProtectedRoute><Layout><ApiDocs /></Layout></ProtectedRoute>} />
+    <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
+    <Route path="/heatmap" element={<ProtectedRoute><Layout><Heatmap /></Layout></ProtectedRoute>} />
+    <Route path="/categories" element={<ProtectedRoute><Layout><Categories /></Layout></ProtectedRoute>} />
     
     {/* Static Informational Pages */}
     <Route path="/api" element={<StaticPage />} />

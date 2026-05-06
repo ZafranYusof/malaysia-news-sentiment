@@ -20,6 +20,7 @@ const articleSchema = new mongoose.Schema(
     isAlert:     { type: Boolean, default: false },
     stateLocation: { type: String, default: 'General' }, 
     language:      { type: String, default: 'en' },
+    categories:    [{ type: String }],
     analysis_source: { type: String, default: 'local' }, 
     embedding:     { type: [Number], index: false }, // 384 dimensions
 

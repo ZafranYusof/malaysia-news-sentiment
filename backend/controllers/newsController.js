@@ -592,6 +592,158 @@ const compareTopics = async (req, res) => {
   }
 };
 
+// ── Heatmap: Map articles to Malaysian states ──────────────────
+const STATE_KEYWORDS = {
+  'Johor': ['johor', 'jb', 'johor bahru', 'iskandar', 'pasir gudang', 'muar', 'batu pahat', 'kluang', 'pontian', 'kulai', 'senai'],
+  'Kedah': ['kedah', 'alor setar', 'langkawi', 'sungai petani', 'kulim', 'jitra'],
+  'Kelantan': ['kelantan', 'kota bharu', 'bachok', 'pasir mas', 'tumpat', 'tanah merah'],
+  'Melaka': ['melaka', 'malacca', 'ayer keroh', 'alor gajah', 'jasin'],
+  'Negeri Sembilan': ['negeri sembilan', 'seremban', 'port dickson', 'nilai', 'jelebu', 'rembau'],
+  'Pahang': ['pahang', 'kuantan', 'temerloh', 'bentong', 'cameron highlands', 'raub', 'pekan', 'genting'],
+  'Perak': ['perak', 'ipoh', 'taiping', 'teluk intan', 'sitiawan', 'lumut', 'kampar', 'batu gajah'],
+  'Perlis': ['perlis', 'kangar', 'arau', 'padang besar'],
+  'Pulau Pinang': ['pulau pinang', 'penang', 'george town', 'georgetown', 'butterworth', 'bayan lepas', 'seberang perai'],
+  'Sabah': ['sabah', 'kota kinabalu', 'sandakan', 'tawau', 'lahad datu', 'keningau', 'semporna'],
+  'Sarawak': ['sarawak', 'kuching', 'miri', 'sibu', 'bintulu', 'limbang', 'sri aman'],
+  'Selangor': ['selangor', 'shah alam', 'petaling jaya', 'subang', 'klang', 'ampang', 'kajang', 'bangi', 'cyberjaya', 'puchong', 'rawang', 'sepang'],
+  'Terengganu': ['terengganu', 'kuala terengganu', 'kemaman', 'dungun', 'marang', 'besut'],
+  'Kuala Lumpur': ['kuala lumpur', 'kl', 'bukit bintang', 'cheras', 'bangsar', 'mont kiara', 'setapak', 'wangsa maju', 'kepong', 'sentul'],
+  'Putrajaya': ['putrajaya'],
+  'Labuan': ['labuan'],
+};
+
+const getHeatmapData = async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 7;
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+
+    const articles = await Article.find({
+      publishedAt: { $gte: since }
+    }).select('title content sentiment topic source').lean();
+
+    const stateData = {};
+    for (const state of Object.keys(STATE_KEYWORDS)) {
+      stateData[state] = { articles: [], sentiments: [] };
+    }
+
+    // Map articles to states
+    for (const article of articles) {
+      const text = `${article.title || ''} ${article.content || ''}`.toLowerCase();
+      for (const [state, keywords] of Object.entries(STATE_KEYWORDS)) {
+        if (keywords.some(kw => text.includes(kw))) {
+          stateData[state].articles.push(article);
+          const sentVal = article.sentiment === 'Positive' ? 1 : article.sentiment === 'Negative' ? -1 : 0;
+          stateData[state].sentiments.push(sentVal);
+        }
+      }
+    }
+
+    // Calculate results
+    const results = Object.entries(stateData).map(([state, data]) => {
+      const count = data.articles.length;
+      const avgSentiment = count > 0
+        ? data.sentiments.reduce((a, b) => a + b, 0) / count
+        : 0;
+
+      // Find top topic
+      const topicCounts = {};
+      data.articles.forEach(a => {
+        const t = a.topic || 'general';
+        topicCounts[t] = (topicCounts[t] || 0) + 1;
+      });
+      const topTopic = Object.entries(topicCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+
+      return { state, avgSentiment: Math.round(avgSentiment * 100) / 100, articleCount: count, topTopic };
+    });
+
+    res.json(results);
+  } catch (err) {
+    console.error('[Heatmap] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ── Categories ──────────────────────────────────────────────────
+const { categorizeArticle, getAllCategories } = require('../services/categoryService');
+
+const getCategoriesOverview = async (req, res) => {
+  try {
+    const articles = await Article.find()
+      .sort({ publishedAt: -1 })
+      .limit(500)
+      .select('title content sentiment categories topic')
+      .lean();
+
+    const categoryMap = {};
+    const allCats = getAllCategories();
+    allCats.forEach(c => { categoryMap[c] = { articles: [], sentiments: [] }; });
+
+    for (const article of articles) {
+      // Use stored categories or compute on the fly
+      const cats = (article.categories && article.categories.length > 0)
+        ? article.categories
+        : categorizeArticle(article.title, article.content);
+
+      for (const cat of cats) {
+        if (!categoryMap[cat]) categoryMap[cat] = { articles: [], sentiments: [] };
+        categoryMap[cat].articles.push(article);
+        const sv = article.sentiment === 'Positive' ? 1 : article.sentiment === 'Negative' ? -1 : 0;
+        categoryMap[cat].sentiments.push(sv);
+      }
+    }
+
+    const results = Object.entries(categoryMap)
+      .map(([name, data]) => ({
+        name,
+        articleCount: data.articles.length,
+        avgSentiment: data.articles.length > 0
+          ? Math.round((data.sentiments.reduce((a, b) => a + b, 0) / data.articles.length) * 100) / 100
+          : 0,
+      }))
+      .filter(c => c.articleCount > 0)
+      .sort((a, b) => b.articleCount - a.articleCount);
+
+    res.json(results);
+  } catch (err) {
+    console.error('[Categories] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getCategoryArticles = async (req, res) => {
+  try {
+    const { name } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    // Find articles that have this category stored, or match by keyword
+    let articles = await Article.find({ categories: name })
+      .sort({ publishedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+
+    // If no stored categories, do keyword-based search
+    if (articles.length === 0) {
+      const allArticles = await Article.find()
+        .sort({ publishedAt: -1 })
+        .limit(200)
+        .lean();
+
+      articles = allArticles.filter(a => {
+        const cats = categorizeArticle(a.title, a.content);
+        return cats.includes(name);
+      }).slice(0, limit);
+    }
+
+    res.json({ articles, page, limit });
+  } catch (err) {
+    console.error('[Category Articles] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getAndAnalyzeNews,
   getTopSources,
@@ -602,4 +754,7 @@ module.exports = {
   getArticleAnalysis,
   getSentimentTimeline,
   compareTopics,
+  getHeatmapData,
+  getCategoriesOverview,
+  getCategoryArticles,
 };
