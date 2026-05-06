@@ -142,6 +142,9 @@ app.use('/api/v1/credibility', require('./routes/credibilityRoutes'));
 app.use('/api/v1/digest', require('./routes/digestRoutes'));
 app.use('/api/v1/public', require('./routes/publicApiRoutes'));
 app.use('/api/v1/reports', require('./routes/reportRoutes'));
+app.use('/api/v1/forecast', require('./routes/forecastRoutes'));
+app.use('/api/v1', require('./routes/shareRoutes'));
+app.use('/api/v1/user', require('./routes/userRoutes'));
 
 // ── Backward compatibility — old routes redirect to v1 ───────
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -155,6 +158,9 @@ app.use('/api/credibility', require('./routes/credibilityRoutes'));
 app.use('/api/digest', require('./routes/digestRoutes'));
 app.use('/api/public', require('./routes/publicApiRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/forecast', require('./routes/forecastRoutes'));
+app.use('/api', require('./routes/shareRoutes'));
+app.use('/api/user', require('./routes/userRoutes'));
 // Metrics backward compat
 app.get('/api/admin/metrics', (req, res) => res.redirect('/api/v1/admin/metrics'));
 // ── Global error handler ──────────────────────────────────────

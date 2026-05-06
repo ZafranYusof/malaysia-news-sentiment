@@ -36,6 +36,8 @@ import ApiDocs from './pages/ApiDocs';
 import Reports from './pages/Reports';
 import Heatmap from './pages/Heatmap';
 import Categories from './pages/Categories';
+import Forecast from './pages/Forecast';
+import SharedArticle from './pages/SharedArticle';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTransition from './components/PageTransition';
@@ -473,6 +475,10 @@ const AppInner = () => (
     <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
     <Route path="/heatmap" element={<ProtectedRoute><Layout><Heatmap /></Layout></ProtectedRoute>} />
     <Route path="/categories" element={<ProtectedRoute><Layout><Categories /></Layout></ProtectedRoute>} />
+    <Route path="/forecast" element={<ProtectedRoute><Layout><Forecast /></Layout></ProtectedRoute>} />
+    
+    {/* Public shared article page (no auth, no layout) */}
+    <Route path="/shared/:id" element={<SharedArticle />} />
     
     {/* Static Informational Pages */}
     <Route path="/api" element={<StaticPage />} />

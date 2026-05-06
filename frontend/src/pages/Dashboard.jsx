@@ -14,7 +14,8 @@ import AnalyzingOverlay from '../components/AnalyzingOverlay';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import useSwipeTabs from '../hooks/useSwipeTabs';
 import { hapticImpact } from '../utils/haptics';
-import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download } from 'lucide-react';
+import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download, Settings2 } from 'lucide-react';
+import DashboardCustomizer from '../components/DashboardCustomizer';
 
 // Lazy load chart components
 const SentimentBarChart = lazy(() => import('../components/SentimentBarChart'));
@@ -78,6 +79,8 @@ const Dashboard = () => {
   // Mobile tab state
   const [mobileTab, setMobileTab] = useState('overview');
   const [tabSwitching, setTabSwitching] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [dashboardLayout, setDashboardLayout] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showFabTooltip, setShowFabTooltip] = useState(false);
 
@@ -433,6 +436,9 @@ const Dashboard = () => {
                       ))}
                     </div>
                   )}
+                  <button onClick={() => setShowCustomizer(true)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+                    <Settings2 size={12} /> Customize
+                  </button>
                   <button onClick={handleManualForecast} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors">
                     <Sparkles size={12} /> AI Forecast
                   </button>
@@ -956,6 +962,13 @@ const Dashboard = () => {
       </AnimatePresence>
 
       <ScrollToTop />
+
+      {/* Dashboard Customizer Modal */}
+      <DashboardCustomizer
+        isOpen={showCustomizer}
+        onClose={() => setShowCustomizer(false)}
+        onSave={(layout) => setDashboardLayout(layout)}
+      />
     </div>
   );
 };

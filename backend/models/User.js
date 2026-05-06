@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema({
     defaultTopic: { type: String, default: 'Malaysia' },
   },
 
+  // ── Dashboard Customization ───────────────────────────────
+  dashboardLayout: [{
+    widgetId: { type: String },
+    position: { type: Number },
+    size: { type: String, enum: ['sm', 'md', 'lg'], default: 'md' },
+    visible: { type: Boolean, default: true },
+  }],
+
   // ── User Activity (#3 Dashboard) ─────────────────────────
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
