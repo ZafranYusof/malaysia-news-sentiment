@@ -1,5 +1,4 @@
 const Alert = require('../models/Alert');
-const { sendEmailAlert, sendTelegramAlert } = require('./alertService');
 
 /**
  * Check all enabled alerts against a newly analyzed article.
