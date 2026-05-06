@@ -609,13 +609,20 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors overflow-x-hidden relative">
-      {/* Global gradient mesh background */}
+      {/* Animated grid background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[120px]" style={{ background: 'rgba(37, 99, 235, 0.06)', animation: 'float 20s ease-in-out infinite' }} />
-        <div className="absolute top-[30%] right-[-15%] w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: 'rgba(124, 58, 237, 0.06)', animation: 'float 25s ease-in-out infinite reverse' }} />
-        <div className="absolute bottom-[-10%] left-[20%] w-[700px] h-[700px] rounded-full blur-[140px]" style={{ background: 'rgba(5, 150, 105, 0.05)', animation: 'float 30s ease-in-out infinite 2s' }} />
-        <div className="absolute top-[60%] right-[30%] w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: 'rgba(217, 119, 6, 0.05)', animation: 'float 22s ease-in-out infinite 4s' }} />
-        <div className="absolute top-[10%] left-[50%] w-[350px] h-[350px] rounded-full blur-[100px]" style={{ background: 'rgba(236, 72, 153, 0.05)', animation: 'float 18s ease-in-out infinite 1s' }} />
+        {/* Grid lines */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px',
+          animation: 'gridMove 20s linear infinite',
+        }} />
+        {/* Gradient overlay to fade grid at edges */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#fafaf9] via-transparent to-[#fafaf9] dark:from-[#0f0f0f] dark:via-transparent dark:to-[#0f0f0f]" />
+        {/* Accent glow spots on grid */}
+        <div className="absolute top-[20%] left-[30%] w-[300px] h-[300px] rounded-full blur-[100px]" style={{ background: 'rgba(37, 99, 235, 0.06)', animation: 'float 20s ease-in-out infinite' }} />
+        <div className="absolute top-[50%] right-[20%] w-[250px] h-[250px] rounded-full blur-[80px]" style={{ background: 'rgba(124, 58, 237, 0.05)', animation: 'float 25s ease-in-out infinite reverse' }} />
+        <div className="absolute bottom-[20%] left-[50%] w-[200px] h-[200px] rounded-full blur-[80px]" style={{ background: 'rgba(5, 150, 105, 0.04)', animation: 'float 18s ease-in-out infinite 3s' }} />
       </div>
 
       <div className="relative z-10">
