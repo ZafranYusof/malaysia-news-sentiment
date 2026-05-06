@@ -46,15 +46,27 @@ const Bookmarks = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading bookmarks...</p>
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <div className="h-8 w-40 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded animate-pulse mb-2" />
+          <div className="h-4 w-56 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded animate-pulse" />
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-28 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto"
+    >
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -77,7 +89,9 @@ const Bookmarks = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
         >
-          <BookmarkX size={48} className="text-gray-300 dark:text-gray-600" />
+          <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+            <BookmarkX size={48} className="text-gray-300 dark:text-gray-600" />
+          </motion.div>
           <h3 className="mt-4 text-base font-semibold text-gray-700 dark:text-gray-300">No bookmarks yet</h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Start saving articles to see them here.</p>
         </motion.div>
@@ -107,7 +121,7 @@ const Bookmarks = () => {
         isOpen={!!selectedArticle} 
         onClose={() => setSelectedArticle(null)}
       />
-    </div>
+    </motion.div>
   );
 };
 

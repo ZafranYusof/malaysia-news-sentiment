@@ -95,11 +95,13 @@ const Heatmap = () => {
         className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 relative"
       >
         {loading ? (
-          <div className="flex items-center justify-center h-80">
-            <svg className="animate-spin h-8 w-8 text-blue-500" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
+          <div className="space-y-4 p-6">
+            <div className="h-64 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded-xl animate-pulse" />
+            <div className="flex justify-center gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-4 w-16 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded animate-pulse" />
+              ))}
+            </div>
           </div>
         ) : (
           <div className="relative" onMouseMove={handleMouseMove}>
@@ -280,10 +282,11 @@ const Heatmap = () => {
                 .map((d, i) => (
                   <motion.tr
                     key={d.state}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="border-b border-[#eee] dark:border-[#2a2a2a] last:border-0 hover:bg-gray-50 dark:hover:bg-[#111] cursor-pointer"
+                    whileHover={{ x: 3 }}
+                    className="border-b border-[#eee] dark:border-[#2a2a2a] last:border-0 hover:bg-gray-50 dark:hover:bg-[#111] cursor-pointer transition-colors"
                     onClick={() => setSelectedState(d.state)}
                   >
                     <td className="py-2.5 text-gray-900 dark:text-white font-medium">{d.state}</td>

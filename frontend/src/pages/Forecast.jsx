@@ -49,7 +49,12 @@ const Forecast = () => {
   const trendIcon = data?.trend === 'Improving' ? '↗' : data?.trend === 'Declining' ? '↘' : '→';
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -139,25 +144,43 @@ const Forecast = () => {
           >
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-lg transition-shadow"
+              >
                 <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Expected Trend</div>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{trendIcon}</span>
                   <span className="text-lg font-bold" style={{ color: trendColor }}>{data.trend}</span>
                 </div>
-              </div>
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-lg transition-shadow"
+              >
                 <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Articles Analyzed</div>
                 <div className="text-lg font-bold text-gray-900 dark:text-white">{data.totalArticles}</div>
                 <div className="text-xs text-gray-400">over {data.daysAnalyzed} days</div>
-              </div>
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-lg transition-shadow"
+              >
                 <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Confidence</div>
                 <div className="text-lg font-bold text-gray-900 dark:text-white">
                   {data.predicted.length > 0 ? `${Math.round(data.predicted[0].confidence * 100)}%` : 'N/A'}
                 </div>
                 <div className="text-xs text-gray-400">first day prediction</div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Chart */}
@@ -256,22 +279,26 @@ const Forecast = () => {
       {/* Empty state */}
       {!data && !loading && !error && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           className="text-center py-16"
         >
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-accent/10 flex items-center justify-center">
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-accent/10 flex items-center justify-center"
+          >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
-          </div>
+          </motion.div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Enter a topic to forecast</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
             Analyze historical sentiment data and predict future trends for any news topic in Malaysia.
           </p>
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

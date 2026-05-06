@@ -117,7 +117,12 @@ const Alerts = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto space-y-6"
+    >
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -128,7 +133,9 @@ const Alerts = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Alerts</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Get notified when news matches your criteria</p>
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setShowModal(true)}
           className="px-4 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:bg-accent/90 transition-colors flex items-center gap-2"
         >
@@ -136,21 +143,25 @@ const Alerts = () => {
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Create Alert
-        </button>
+        </motion.button>
       </motion.div>
 
       {/* Alerts List */}
       {alerts.length === 0 ? (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-12 text-center"
         >
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center"
+          >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
-          </div>
+          </motion.div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No alerts yet</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">Create your first alert to get notified about news sentiment changes</p>
         </motion.div>
@@ -164,7 +175,8 @@ const Alerts = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5"
+                whileHover={{ y: -2, scale: 1.005 }}
+                className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-lg transition-shadow"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -384,7 +396,7 @@ const Alerts = () => {
           </>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 

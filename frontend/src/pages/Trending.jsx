@@ -40,7 +40,12 @@ const Trending = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto"
+    >
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -78,9 +83,15 @@ const Trending = () => {
 
       {/* Content */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading trending news...</p>
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex gap-4 items-start">
+              <div className="shrink-0 w-10 pt-4">
+                <div className="h-8 w-8 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded animate-pulse mx-auto" />
+              </div>
+              <div className="flex-1 h-24 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl animate-pulse" />
+            </div>
+          ))}
         </div>
       ) : articles.length === 0 ? (
         <motion.div
@@ -88,7 +99,9 @@ const Trending = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
         >
-          <Flame size={48} className="text-gray-300 dark:text-gray-600" />
+          <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+            <Flame size={48} className="text-gray-300 dark:text-gray-600" />
+          </motion.div>
           <h3 className="mt-4 text-base font-semibold text-gray-700 dark:text-gray-300">No trending articles yet</h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Check back later once more users have viewed the news.</p>
         </motion.div>
@@ -129,7 +142,7 @@ const Trending = () => {
         isOpen={!!selectedArticle} 
         onClose={() => setSelectedArticle(null)}
       />
-    </div>
+    </motion.div>
   );
 };
 

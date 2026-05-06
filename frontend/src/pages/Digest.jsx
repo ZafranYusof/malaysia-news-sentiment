@@ -123,9 +123,19 @@ const Digest = () => {
   const currentData = activeTab === 'daily' ? dailyData : activeTab === 'weekly' ? weeklyData : null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto space-y-6"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex items-center justify-between"
+      >
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -136,13 +146,20 @@ const Digest = () => {
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">AI-powered news summaries and insights</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit"
+      >
         {['daily', 'weekly', 'topic'].map(tab => (
-          <button
+          <motion.button
             key={tab}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               activeTab === tab
@@ -151,9 +168,9 @@ const Digest = () => {
             }`}
           >
             {tab === 'daily' ? '📅 Daily' : tab === 'weekly' ? '📊 Weekly' : '🔍 Topic'}
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
 
       {/* Daily/Weekly Content */}
       {(activeTab === 'daily' || activeTab === 'weekly') && (
@@ -215,21 +232,32 @@ const Digest = () => {
 
                 {/* Highlights */}
                 {currentData.highlights && currentData.highlights.length > 0 && (
-                  <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6"
+                  >
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">🔑 Key Highlights</h3>
                     <ul className="space-y-2">
                       {currentData.highlights.map((h, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
+                        <motion.li
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 + i * 0.05 }}
+                          className="flex items-start gap-2 text-sm"
+                        >
                           <span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${
                             h.sentiment === 'Positive' ? 'bg-green-500' :
                             h.sentiment === 'Negative' ? 'bg-red-500' : 'bg-gray-400'
                           }`} />
                           <span className="text-gray-700 dark:text-gray-300">{h.title}</span>
                           <span className="text-xs text-gray-400 ml-auto flex-shrink-0">{h.source}</span>
-                        </li>
+                        </motion.li>
                       ))}
                     </ul>
-                  </div>
+                  </motion.div>
                 )}
 
                 {/* Top Sources (weekly) */}
@@ -313,7 +341,7 @@ const Digest = () => {
           )}
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

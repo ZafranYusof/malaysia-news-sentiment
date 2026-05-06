@@ -41,7 +41,8 @@ const ArticleCard = ({ article, isNew }) => (
     initial={isNew ? { opacity: 0, y: -20, scale: 0.95 } : false}
     animate={{ opacity: 1, y: 0, scale: 1 }}
     transition={{ duration: 0.3 }}
-    className={`block p-4 rounded-2xl border transition-all hover:shadow-md cursor-pointer no-underline
+    whileHover={{ y: -3, scale: 1.01 }}
+    className={`block p-4 rounded-2xl border transition-all hover:shadow-lg cursor-pointer no-underline
       bg-white dark:bg-[#1a1a1a] border-[#eee] dark:border-[#2a2a2a]
       ${isNew ? 'ring-2 ring-blue-400/50 dark:ring-blue-500/30' : ''}
     `}
@@ -193,9 +194,19 @@ const LiveFeed = () => {
   });
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto space-y-4"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex items-center justify-between flex-wrap gap-3"
+      >
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Live Feed</h1>
           <span className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] font-medium ${
@@ -211,8 +222,10 @@ const LiveFeed = () => {
         {/* Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           {['all', 'Positive', 'Negative', 'Neutral'].map(s => (
-            <button
+            <motion.button
               key={s}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setFilter(s)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 filter === s
@@ -221,12 +234,14 @@ const LiveFeed = () => {
               }`}
             >
               {s === 'all' ? 'All' : s}
-            </button>
+            </motion.button>
           ))}
           <span className="w-px h-5 bg-gray-200 dark:bg-gray-700" />
           {['all', 'en', 'ms'].map(l => (
-            <button
+            <motion.button
               key={l}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setLangFilter(l)}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 langFilter === l
@@ -235,10 +250,10 @@ const LiveFeed = () => {
               }`}
             >
               {l === 'all' ? 'All' : l === 'ms' ? 'BM' : 'EN'}
-            </button>
+            </motion.button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* New articles banner */}
       <AnimatePresence>
@@ -258,27 +273,50 @@ const LiveFeed = () => {
       {/* Articles list */}
       <div ref={containerRef} className="space-y-3">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <div className="space-y-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] animate-pulse">
+                <div className="h-4 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded w-3/4 mb-3" />
+                <div className="h-3 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded w-full mb-2" />
+                <div className="flex gap-2">
+                  <div className="h-5 w-16 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded-full" />
+                  <div className="h-5 w-12 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredArticles.length === 0 ? (
-          <div className="text-center py-20 text-gray-400 dark:text-gray-500">
-            <svg className="w-12 h-12 mx-auto mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <motion.div
+            className="text-center py-20 text-gray-400 dark:text-gray-500"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <motion.svg
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-12 h-12 mx-auto mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+            >
               <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
+            </motion.svg>
             <p className="text-sm">No articles found</p>
-          </div>
+          </motion.div>
         ) : (
-          filteredArticles.map((article) => (
-            <ArticleCard
+          filteredArticles.map((article, i) => (
+            <motion.div
               key={article._id || article.url}
-              article={article}
-              isNew={newArticleIds.has(article._id || article.url)}
-            />
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: Math.min(i * 0.03, 0.5) }}
+            >
+              <ArticleCard
+                article={article}
+                isNew={newArticleIds.has(article._id || article.url)}
+              />
+            </motion.div>
           ))
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -23,12 +23,18 @@ const TrendBadge = ({ trend }) => {
   );
 };
 
-const StatCard = ({ label, value, sub }) => (
-  <div className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a]">
+const StatCard = ({ label, value, sub, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 15 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay }}
+    whileHover={{ y: -3, scale: 1.02 }}
+    className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] hover:shadow-lg transition-shadow"
+  >
     <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide mb-1">{label}</p>
     <p className="text-lg font-bold text-gray-900 dark:text-white">{value}</p>
     {sub && <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{sub}</p>}
-  </div>
+  </motion.div>
 );
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -87,12 +93,21 @@ const SentimentTimeline = () => {
   });
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-5xl mx-auto space-y-6"
+    >
       {/* Header */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Sentiment Timeline</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">Track how sentiment changes over time for any topic</p>
-      </div>
+      </motion.div>
 
       {/* Search form */}
       <form onSubmit={handleSubmit} className="flex items-center gap-3 flex-wrap">
@@ -137,18 +152,34 @@ const SentimentTimeline = () => {
 
       {/* Results */}
       {loading && (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] animate-pulse">
+                <div className="h-3 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded w-2/3 mb-2" />
+                <div className="h-5 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+          <div className="h-64 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl animate-pulse" />
         </div>
       )}
 
       {!loading && searched && timeline.length === 0 && (
-        <div className="text-center py-16 text-gray-400 dark:text-gray-500">
-          <svg className="w-12 h-12 mx-auto mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-16 text-gray-400 dark:text-gray-500"
+        >
+          <motion.svg
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-12 h-12 mx-auto mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+          >
             <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
-          </svg>
+          </motion.svg>
           <p className="text-sm">No data found for this topic and time range</p>
-        </div>
+        </motion.div>
       )}
 
       {!loading && timeline.length > 0 && (
@@ -160,17 +191,19 @@ const SentimentTimeline = () => {
           {/* Summary stats */}
           {summary && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <StatCard label="Total Articles" value={summary.totalArticles} />
+              <StatCard label="Total Articles" value={summary.totalArticles} delay={0.1} />
               <StatCard 
                 label="Avg Sentiment" 
                 value={summary.avgSentiment > 0 ? `+${summary.avgSentiment}` : summary.avgSentiment}
                 sub={summary.avgSentiment > 0.1 ? 'Leaning positive' : summary.avgSentiment < -0.1 ? 'Leaning negative' : 'Mostly neutral'}
+                delay={0.15}
               />
-              <StatCard label="Trend" value={<TrendBadge trend={summary.trend} />} />
+              <StatCard label="Trend" value={<TrendBadge trend={summary.trend} />} delay={0.2} />
               <StatCard 
                 label="Peak Dates" 
                 value={summary.peakPositiveDate ? `📈 ${summary.peakPositiveDate}` : 'N/A'}
                 sub={summary.peakNegativeDate ? `📉 ${summary.peakNegativeDate}` : ''}
+                delay={0.25}
               />
             </div>
           )}
@@ -232,11 +265,22 @@ const SentimentTimeline = () => {
 
           {/* Significant events */}
           {spikes.length > 0 && (
-            <div className="p-5 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a]">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="p-5 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a]"
+            >
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Significant Events</h3>
               <div className="space-y-2">
-                {spikes.map((spike) => (
-                  <div key={spike.date} className="flex items-center gap-3 text-xs">
+                {spikes.map((spike, i) => (
+                  <motion.div
+                    key={spike.date}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + i * 0.05 }}
+                    className="flex items-center gap-3 text-xs"
+                  >
                     <span className="font-mono text-gray-500 dark:text-gray-400 w-20">{spike.date}</span>
                     <span className={`px-2 py-0.5 rounded-full font-medium ${
                       spike.avgSentiment > 0 
@@ -246,14 +290,14 @@ const SentimentTimeline = () => {
                       {spike.avgSentiment > 0 ? '📈 Spike' : '📉 Drop'} ({spike.avgSentiment.toFixed(2)})
                     </span>
                     <span className="text-gray-500 dark:text-gray-400">{spike.totalArticles} articles</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

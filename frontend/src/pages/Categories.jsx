@@ -139,11 +139,16 @@ const Categories = () => {
 
       {/* Category Grid */}
       {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <svg className="animate-spin h-8 w-8 text-blue-500" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-          </svg>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 animate-pulse">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-[#f0f0f0] dark:bg-[#2a2a2a]" />
+                <div className="h-4 w-16 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded" />
+                <div className="h-3 w-12 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -217,14 +222,17 @@ const Categories = () => {
             </div>
 
             {articlesLoading ? (
-              <div className="flex items-center justify-center h-20">
-                <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-16 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded-xl animate-pulse" />
+                ))}
               </div>
             ) : articles.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">No articles found in this category</p>
+              <motion.p
+                animate={{ y: [0, -3, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                className="text-sm text-gray-400 text-center py-8"
+              >No articles found in this category</motion.p>
             ) : (
               <div className="space-y-3">
                 {articles.map((article, i) => (
@@ -233,7 +241,8 @@ const Categories = () => {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] hover:border-[#ccc] dark:hover:border-[#444] transition-colors"
+                    whileHover={{ x: 3, scale: 1.01 }}
+                    className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] hover:border-[#ccc] dark:hover:border-[#444] hover:shadow-md transition-all"
                   >
                     <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${
                       article.sentiment === 'Positive' ? 'bg-green-500' :

@@ -67,7 +67,12 @@ const Compare = () => {
   const winner = results ? results.reduce((best, r) => r.positivePercent > best.positivePercent ? r : best, results[0]) : null;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-5xl mx-auto space-y-6"
+    >
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Comparative Analysis</h1>
@@ -128,7 +133,9 @@ const Compare = () => {
             <option value={90}>Last 90 days</option>
           </select>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleCompare}
             disabled={loading}
             className="ml-auto px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
@@ -141,7 +148,7 @@ const Compare = () => {
               </svg>
             )}
             Compare
-          </button>
+          </motion.button>
         </div>
       </motion.div>
 
@@ -265,7 +272,7 @@ const Compare = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 

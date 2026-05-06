@@ -135,7 +135,9 @@ const Reports = () => {
           </ul>
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleGenerate}
           disabled={loading}
           className="mt-4 w-full md:w-auto px-6 py-3 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -156,7 +158,7 @@ const Reports = () => {
               Generate PDF
             </>
           )}
-        </button>
+        </motion.button>
       </motion.div>
 
       {/* History */}
@@ -184,7 +186,8 @@ const Reports = () => {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a]"
+                whileHover={{ x: 3, scale: 1.01 }}
+                className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] hover:shadow-md transition-shadow cursor-pointer"
               >
                 <div>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">{entry.topic}</p>

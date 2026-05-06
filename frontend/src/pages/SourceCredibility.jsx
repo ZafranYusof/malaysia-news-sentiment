@@ -67,7 +67,12 @@ const SourceCredibility = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-5xl mx-auto space-y-6"
+    >
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Source Credibility</h1>
@@ -82,8 +87,10 @@ const SourceCredibility = () => {
       >
         <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Filter:</span>
         {['all', 'left', 'center', 'right', 'unknown'].map(b => (
-          <button
+          <motion.button
             key={b}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setBiasFilter(b)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               biasFilter === b
@@ -92,22 +99,26 @@ const SourceCredibility = () => {
             }`}
           >
             {b === 'all' ? 'All' : b.charAt(0).toUpperCase() + b.slice(1)}
-          </button>
+          </motion.button>
         ))}
       </motion.div>
 
       {/* Sources Grid */}
       {sources.length === 0 ? (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-12 text-center"
         >
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center"
+          >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
-          </div>
+          </motion.div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No sources found</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">Source credibility data will appear here once seeded</p>
         </motion.div>
@@ -138,7 +149,8 @@ const SourceCredibility = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:border-accent/30 transition-colors cursor-pointer"
+                whileHover={{ y: -2, scale: 1.005 }}
+                className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:border-accent/30 hover:shadow-lg transition-all cursor-pointer"
                 onClick={() => setSelectedSource(selectedSource?._id === source._id ? null : source)}
               >
                 {/* Desktop */}
@@ -249,7 +261,7 @@ const SourceCredibility = () => {
           </AnimatePresence>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

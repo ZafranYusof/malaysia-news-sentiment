@@ -213,7 +213,7 @@ export default function EntityGraphPage() {
   }, []);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col h-full">
       {/* Header */}
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

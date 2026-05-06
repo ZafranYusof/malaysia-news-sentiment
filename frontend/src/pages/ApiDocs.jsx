@@ -166,9 +166,18 @@ const ApiDocs = () => {
   const [expandedIdx, setExpandedIdx] = useState(null);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto space-y-8"
+    >
       {/* Header */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>
@@ -178,24 +187,27 @@ const ApiDocs = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Access Malaysia news sentiment data programmatically
         </p>
-      </div>
+      </motion.div>
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Base URL</h3>
-          <code className="text-xs text-accent break-all">{API_BASE}/public</code>
-        </div>
-        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Rate Limit</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">100 requests/hour per IP</p>
-          <p className="text-xs text-gray-400 mt-1">1000/hour with API key</p>
-        </div>
-        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Authentication</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Optional: <code className="text-accent">x-api-key</code> header</p>
-          <p className="text-xs text-gray-400 mt-1">Higher rate limits with key</p>
-        </div>
+        {[
+          { title: 'Base URL', content: <code className="text-xs text-accent break-all">{API_BASE}/public</code> },
+          { title: 'Rate Limit', content: <><p className="text-xs text-gray-500 dark:text-gray-400">100 requests/hour per IP</p><p className="text-xs text-gray-400 mt-1">1000/hour with API key</p></> },
+          { title: 'Authentication', content: <><p className="text-xs text-gray-500 dark:text-gray-400">Optional: <code className="text-accent">x-api-key</code> header</p><p className="text-xs text-gray-400 mt-1">Higher rate limits with key</p></> },
+        ].map((card, i) => (
+          <motion.div
+            key={card.title}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + i * 0.05 }}
+            whileHover={{ y: -3, scale: 1.02 }}
+            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-lg transition-shadow"
+          >
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">{card.title}</h3>
+            {card.content}
+          </motion.div>
+        ))}
       </div>
 
       {/* API Key Section */}
@@ -217,7 +229,11 @@ const ApiDocs = () => {
         {endpoints.map((ep, idx) => (
           <motion.div
             key={idx}
-            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl overflow-hidden"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 + idx * 0.05 }}
+            whileHover={{ scale: 1.005 }}
+            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
           >
             <button
               onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
@@ -312,7 +328,7 @@ const ApiDocs = () => {
           <li>• Exceeding limit returns HTTP 429 with retry information</li>
         </ul>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

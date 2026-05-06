@@ -118,7 +118,12 @@ const History = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-5xl mx-auto"
+    >
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -220,9 +225,10 @@ const History = () => {
       {/* Articles */}
       <div>
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Filtering history...</p>
+          <div className="space-y-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-24 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl animate-pulse" />
+            ))}
           </div>
         ) : articles.length === 0 ? (
           <motion.div
@@ -230,7 +236,9 @@ const History = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
           >
-            <Archive size={48} className="text-gray-300 dark:text-gray-600" />
+            <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+              <Archive size={48} className="text-gray-300 dark:text-gray-600" />
+            </motion.div>
             <h3 className="mt-4 text-base font-semibold text-gray-700 dark:text-gray-300">No matches found</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Adjust your filters or try another search term.</p>
           </motion.div>
@@ -286,7 +294,7 @@ const History = () => {
         isOpen={showPreview} 
         onClose={() => setShowPreview(false)} 
       />
-    </div>
+    </motion.div>
   );
 };
 

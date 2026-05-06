@@ -102,9 +102,18 @@ const AdvancedSearch = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-7xl mx-auto space-y-6"
+    >
       {/* Header */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
@@ -112,7 +121,7 @@ const AdvancedSearch = () => {
           Advanced Search
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Search articles with powerful filters and facets</p>
-      </div>
+      </motion.div>
 
       {/* Search Bar */}
       <div className="flex gap-2">
@@ -304,7 +313,8 @@ const AdvancedSearch = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="block bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:border-accent/30 transition-all no-underline"
+                  whileHover={{ y: -3, scale: 1.01 }}
+                  className="block bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:border-accent/30 hover:shadow-lg transition-all no-underline"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -337,47 +347,67 @@ const AdvancedSearch = () => {
 
           {/* Empty state */}
           {!loading && results && results.articles?.length === 0 && (
-            <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-12 text-center">
-              <div className="text-4xl mb-3">🔍</div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-12 text-center"
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                className="text-4xl mb-3"
+              >🔍</motion.div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">No results found</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Try adjusting your search query or filters</p>
-            </div>
+            </motion.div>
           )}
 
           {/* Initial state */}
           {!loading && !results && (
-            <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-12 text-center">
-              <div className="text-4xl mb-3">🔎</div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-12 text-center"
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                className="text-4xl mb-3"
+              >🔎</motion.div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Start searching</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Enter a keyword or apply filters to find articles</p>
-            </div>
+            </motion.div>
           )}
 
           {/* Pagination */}
           {results && results.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => performSearch(page - 1)}
                 disabled={page <= 1}
                 className="px-3 py-2 rounded-lg text-sm bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] disabled:opacity-30 hover:border-accent/30 transition-colors"
               >
                 ← Prev
-              </button>
+              </motion.button>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 Page {results.page} of {results.totalPages}
               </span>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => performSearch(page + 1)}
                 disabled={page >= results.totalPages}
                 className="px-3 py-2 rounded-lg text-sm bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] disabled:opacity-30 hover:border-accent/30 transition-colors"
               >
                 Next →
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
