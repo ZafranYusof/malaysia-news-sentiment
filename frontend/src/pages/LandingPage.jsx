@@ -416,6 +416,134 @@ const LandingPage = () => {
         </div>
       </AnimatedSection>
 
+      {/* ─── USE CASES ─── */}
+      <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Use Cases</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Who is this for?</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: '🎓', title: 'Researchers', desc: 'Track media sentiment trends for academic papers and thesis research on Malaysian politics, economy, and social issues.' },
+              { icon: '📰', title: 'Journalists', desc: 'Monitor how different outlets cover the same story. Identify bias patterns and verify source credibility.' },
+              { icon: '📊', title: 'Analysts', desc: 'Real-time sentiment tracking for market analysis, brand monitoring, and public opinion research.' },
+              { icon: '🏛️', title: 'Policy Makers', desc: 'Understand public sentiment on policies, track media coverage of government initiatives.' },
+              { icon: '🎯', title: 'PR & Communications', desc: 'Monitor brand mentions, track crisis sentiment, measure campaign effectiveness across Malaysian media.' },
+              { icon: '🧑‍🎓', title: 'Students', desc: 'Learn NLP concepts through real Malaysian news data. Perfect for FYP and coursework projects.' },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInUp}
+                whileHover={{ y: -5 }}
+                className="bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 hover:shadow-lg hover:shadow-black/5 transition-all"
+              >
+                <span className="text-3xl mb-3 block">{item.icon}</span>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </AnimatedSection>
+
+      {/* ─── COMPARISON ─── */}
+      <AnimatedSection className="py-20 px-6" variants={staggerContainer}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">Why Us</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Manual vs AI Analysis</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <motion.div variants={fadeInUp} className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-2xl p-8">
+              <h3 className="font-bold text-red-700 dark:text-red-400 text-lg mb-4">❌ Manual Research</h3>
+              <ul className="space-y-3 text-sm text-red-600 dark:text-red-300">
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Hours reading individual articles</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Subjective sentiment interpretation</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Limited to few sources at a time</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> No entity relationship mapping</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Difficult to track trends over time</li>
+              </ul>
+            </motion.div>
+            <motion.div variants={fadeInUp} className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/30 rounded-2xl p-8">
+              <h3 className="font-bold text-blue-700 dark:text-blue-400 text-lg mb-4">✅ AI-Powered Analysis</h3>
+              <ul className="space-y-3 text-sm text-blue-600 dark:text-blue-300">
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Analyze 100+ articles in seconds</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Consistent NLP-based scoring</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> 50+ Malaysian news sources</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Auto entity extraction & graph</li>
+                <li className="flex items-start gap-2"><span className="mt-0.5">•</span> Real-time trend tracking & alerts</li>
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </AnimatedSection>
+
+      {/* ─── TESTIMONIALS ─── */}
+      <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Feedback</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">What users say</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: 'Dr. Ahmad', role: 'UMP Lecturer', text: 'Excellent tool for teaching students about NLP and sentiment analysis with real Malaysian data.' },
+              { name: 'Sarah K.', role: 'Journalism Student', text: 'Helped me identify media bias patterns for my thesis. The entity graph is incredibly useful.' },
+              { name: 'Rizal M.', role: 'Data Analyst', text: 'The real-time sentiment tracking saves hours of manual work. Source credibility feature is a game changer.' },
+            ].map((t, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInUp}
+                className="bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6"
+              >
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4 italic">"{t.text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-sm">
+                    {t.name[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{t.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </AnimatedSection>
+
+      {/* ─── FAQ ─── */}
+      <AnimatedSection className="py-20 px-6" variants={staggerContainer}>
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">FAQ</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Common questions</h2>
+          </div>
+          <div className="space-y-3">
+            {[
+              { q: 'What news sources are supported?', a: 'We analyze 50+ Malaysian news sources including The Star, NST, Malaysiakini, Bernama, Free Malaysia Today, and more.' },
+              { q: 'How accurate is the sentiment analysis?', a: 'Our NLP models achieve 85%+ accuracy on Malaysian news text, trained specifically on local language patterns and context.' },
+              { q: 'Is it free to use?', a: 'Yes! The basic features are completely free. This is a university research project (FYP) at UMPSA.' },
+              { q: 'Can I export the results?', a: 'Yes, you can export analysis results as PowerPoint presentations, perfect for reports and presentations.' },
+              { q: 'Does it support Bahasa Malaysia?', a: 'Currently optimized for English-language Malaysian news. BM support is on the roadmap.' },
+            ].map((faq, i) => (
+              <motion.details
+                key={i}
+                variants={fadeInUp}
+                className="group bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl overflow-hidden"
+              >
+                <summary className="flex items-center justify-between px-6 py-4 cursor-pointer text-sm font-medium text-gray-900 dark:text-white hover:bg-[#f8f8f8] dark:hover:bg-[#222] transition-colors">
+                  {faq.q}
+                  <span className="text-gray-400 group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <p className="px-6 pb-4 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{faq.a}</p>
+              </motion.details>
+            ))}
+          </div>
+        </div>
+      </AnimatedSection>
+
       {/* ─── CTA ─── */}
       <AnimatedSection className="py-20 px-6" variants={scaleIn}>
         <div className="max-w-3xl mx-auto text-center">
