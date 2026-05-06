@@ -25,6 +25,8 @@ import PricingPage from './pages/PricingPage';
 import AboutPage from './pages/AboutPage';
 import NotFound from './pages/NotFound';
 import EntityGraphPage from './pages/EntityGraphPage';
+import LiveFeed from './pages/LiveFeed';
+import SentimentTimeline from './pages/SentimentTimeline';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -122,6 +124,16 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
             }>{t('history')}</SideLink>
+            <SideLink to="/feed" onClick={onClose} icon={
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49"/><path d="M7.76 16.24a6 6 0 0 1 0-8.49"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14"/>
+              </svg>
+            }>Live Feed</SideLink>
+            <SideLink to="/timeline" onClick={onClose} icon={
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            }>Timeline</SideLink>
             <SideLink to="/entities" onClick={onClose} icon={
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/>
@@ -188,7 +200,9 @@ const TITLES = {
   '/admin': 'admin',
   '/bookmarks': 'bookmarks',
   '/trending': 'trending',
-  '/entities': 'entities'
+  '/entities': 'entities',
+  '/feed': 'liveFeed',
+  '/timeline': 'timeline'
 };
 
 // ── Bottom Navigation Bar (Mobile Only) — StatusMy Pattern ──────────────────────
@@ -436,6 +450,8 @@ const AppInner = () => (
     <Route path="/admin" element={<AdminRoute><Layout><AdminDashboard /></Layout></AdminRoute>} />
     <Route path="/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
     <Route path="/entities" element={<ProtectedRoute><Layout><EntityGraphPage /></Layout></ProtectedRoute>} />
+    <Route path="/feed" element={<ProtectedRoute><Layout><LiveFeed /></Layout></ProtectedRoute>} />
+    <Route path="/timeline" element={<ProtectedRoute><Layout><SentimentTimeline /></Layout></ProtectedRoute>} />
     
     {/* Static Informational Pages */}
     <Route path="/api" element={<StaticPage />} />

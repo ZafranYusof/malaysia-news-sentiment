@@ -3,7 +3,7 @@ const router   = express.Router();
 const { protect, authorize } = require('../middleware/auth');
 
 // Code Quality #17: Handlers now live in dedicated, focused controllers
-const { getAndAnalyzeNews, getTopSources, generateDigest, getKeywords, getForecast, getRegionalSentiment, getArticleAnalysis } = require('../controllers/newsController');
+const { getAndAnalyzeNews, getTopSources, generateDigest, getKeywords, getForecast, getRegionalSentiment, getArticleAnalysis, getSentimentTimeline } = require('../controllers/newsController');
 const { trackNewsView, handleSentimentVote, getTopViewedNews, toggleBookmarkStatus } = require('../controllers/engagementController');
 const { getAdminDashboardStats, getAdminInsights, triggerDigest } = require('../controllers/adminController');
 
@@ -16,6 +16,7 @@ router.get('/top',            protect, getTopViewedNews);
 router.post('/digest',        protect, generateDigest);
 router.post('/forecast',      protect, getForecast);
 router.post('/analyze-article', protect, getArticleAnalysis);
+router.get('/sentiment-timeline', protect, getSentimentTimeline);
 
 // ── Admin (role-gated) ────────────────────────────────────────
 router.get('/admin/stats',    protect, authorize('admin'), getAdminDashboardStats);

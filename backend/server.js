@@ -136,6 +136,7 @@ app.use('/api/v1/history', require('./routes/historyRoutes'));
 // ── New feature routes ────────────────────────────────────────
 app.use('/api/v1/entities', require('./routes/entityRoutes'));
 app.use('/api/v1/sources', require('./routes/sourceRoutes'));
+app.use('/api/v1/feed', require('./routes/feedRoutes'));
 
 // ── Backward compatibility — old routes redirect to v1 ───────
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -143,6 +144,7 @@ app.use('/api/news', require('./routes/newsRoutes'));
 app.use('/api/history', require('./routes/historyRoutes'));
 app.use('/api/entities', require('./routes/entityRoutes'));
 app.use('/api/sources', require('./routes/sourceRoutes'));
+app.use('/api/feed', require('./routes/feedRoutes'));
 // Metrics backward compat
 app.get('/api/admin/metrics', (req, res) => res.redirect('/api/v1/admin/metrics'));
 // ── Global error handler ──────────────────────────────────────

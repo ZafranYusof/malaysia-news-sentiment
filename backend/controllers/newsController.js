@@ -427,6 +427,111 @@ const getArticleAnalysis = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/news/sentiment-timeline?topic=xxx&days=30
+ * Returns daily sentiment aggregation for a topic over time
+ */
+const getSentimentTimeline = async (req, res) => {
+  try {
+    const { topic, days = 30 } = req.query;
+    const userId = req.user?.id;
+    const numDays = Math.min(parseInt(days) || 30, 365);
+    const startDate = new Date(Date.now() - numDays * 24 * 60 * 60 * 1000);
+
+    const match = { publishedAt: { $gte: startDate } };
+    
+    if (topic && topic.trim()) {
+      const escaped = escapeRegex(topic.trim());
+      match.$or = [
+        { title: { $regex: escaped, $options: 'i' } },
+        { description: { $regex: escaped, $options: 'i' } },
+        { topic: { $regex: escaped, $options: 'i' } },
+      ];
+    }
+
+    if (isValidObjectId(userId)) {
+      match.userId = new mongoose.Types.ObjectId(userId);
+    } else {
+      match.$or = match.$or 
+        ? [...match.$or]
+        : undefined;
+      // For non-user-specific, include all public articles
+      if (!match.$or) {
+        match.$or = [{ userId: null }, { userId: { $exists: false } }];
+      }
+    }
+
+    const timeline = await Article.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$publishedAt' } },
+          avgSentiment: {
+            $avg: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ['$sentiment', 'Positive'] }, then: 1 },
+                  { case: { $eq: ['$sentiment', 'Negative'] }, then: -1 },
+                ],
+                default: 0,
+              },
+            },
+          },
+          positiveCount: { $sum: { $cond: [{ $eq: ['$sentiment', 'Positive'] }, 1, 0] } },
+          negativeCount: { $sum: { $cond: [{ $eq: ['$sentiment', 'Negative'] }, 1, 0] } },
+          neutralCount: { $sum: { $cond: [{ $eq: ['$sentiment', 'Neutral'] }, 1, 0] } },
+          totalArticles: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          avgSentiment: { $round: ['$avgSentiment', 3] },
+          positiveCount: 1,
+          negativeCount: 1,
+          neutralCount: 1,
+          totalArticles: 1,
+        },
+      },
+    ]);
+
+    // Calculate summary stats
+    const totalArticles = timeline.reduce((sum, d) => sum + d.totalArticles, 0);
+    const avgSentiment = timeline.length > 0
+      ? parseFloat((timeline.reduce((sum, d) => sum + d.avgSentiment, 0) / timeline.length).toFixed(3))
+      : 0;
+    
+    // Trend direction: compare last 7 days avg vs previous 7 days
+    const recent = timeline.slice(-7);
+    const previous = timeline.slice(-14, -7);
+    const recentAvg = recent.length ? recent.reduce((s, d) => s + d.avgSentiment, 0) / recent.length : 0;
+    const prevAvg = previous.length ? previous.reduce((s, d) => s + d.avgSentiment, 0) / previous.length : 0;
+    const trend = recentAvg > prevAvg + 0.05 ? 'improving' : recentAvg < prevAvg - 0.05 ? 'declining' : 'stable';
+
+    // Peak dates
+    const peakPositive = timeline.reduce((best, d) => d.avgSentiment > (best?.avgSentiment ?? -2) ? d : best, null);
+    const peakNegative = timeline.reduce((best, d) => d.avgSentiment < (best?.avgSentiment ?? 2) ? d : best, null);
+
+    res.json({
+      success: true,
+      timeline,
+      summary: {
+        totalArticles,
+        avgSentiment,
+        trend,
+        days: numDays,
+        peakPositiveDate: peakPositive?.date || null,
+        peakNegativeDate: peakNegative?.date || null,
+      },
+    });
+  } catch (error) {
+    console.error('[Timeline] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAndAnalyzeNews,
   getTopSources,
@@ -435,4 +540,5 @@ module.exports = {
   getForecast,
   getRegionalSentiment,
   getArticleAnalysis,
+  getSentimentTimeline,
 };

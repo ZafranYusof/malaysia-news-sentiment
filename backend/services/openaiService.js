@@ -193,24 +193,35 @@ const tryMalayaNlp = async (text) => {
  */
 const analyzeSentiment = async (title, description) => {
   const text = `Title: ${title}\nDescription: ${description || 'No description available'}`;
+  const rawText = `${title} ${description || ''}`;
+  
+  // Detect language
+  const detectedLanguage = isMalayText(rawText) ? 'ms' : 'en';
 
   // ── Tier 1: Malaya NLP Service (handles BM & mixed BM/EN) ───
-  const rawText = `${title} ${description || ''}`;
   const malayaResult = await tryMalayaNlp(rawText);
   if (malayaResult) {
     // Enrich with alert & location detection from local analysis
     const localEnrich = localSentiment(title, description);
     malayaResult.isAlert = localEnrich.isAlert;
     malayaResult.stateLocation = localEnrich.stateLocation;
+    malayaResult.language = detectedLanguage;
     return malayaResult;
   }
 
   // ── Tier 2: Local rule-based (no API needed) ─────────────────
   if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes('your_')) {
-    return localSentiment(title, description);
+    const localResult = localSentiment(title, description);
+    localResult.language = detectedLanguage;
+    return localResult;
   }
 
-  const prompt = `You are a Malaysian news sentiment analyst.
+  const langHint = detectedLanguage === 'ms' 
+    ? 'This article is in Bahasa Malaysia. Analyze accordingly using BM context and nuance.'
+    : 'This article is in English.';
+
+  const prompt = `You are a Malaysian news sentiment analyst fluent in both English and Bahasa Malaysia.
+${langHint}
 Return ONLY one valid JSON object. No markdown. No text outside JSON.
 Classify the article as Positive, Negative, or Neutral.
 Rules:
@@ -265,12 +276,15 @@ ${text}`;
       ? Math.max(0, Math.min(1, Number(result.confidence)))
       : 0.5;
     result.analysis_source = isOllamaCloud() ? 'ollama' : 'ai';
+    result.language = detectedLanguage;
     if (!result.stateLocation) result.stateLocation = 'General';
     if (typeof result.isAlert !== 'boolean') result.isAlert = false;
     return result;
   } catch (err) {
     console.warn(`AI sentiment failed, using local fallback: ${err.message}`);
-    return localSentiment(title, description);
+    const fallback = localSentiment(title, description);
+    fallback.language = detectedLanguage;
+    return fallback;
   }
 };
 
