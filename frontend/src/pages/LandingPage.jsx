@@ -708,7 +708,7 @@ const LandingPage = () => {
       </motion.header>
 
       {/* ─── STATS ─── */}
-      <AnimatedSection className="py-16 px-6" variants={staggerContainer}>
+      <AnimatedSection className="py-10 px-6" variants={staggerContainer}>
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
           {[
             { target: 1000, suffix: '+', label: 'Articles Analyzed', icon: Newspaper },
@@ -732,7 +732,7 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── LIVE DEMO ─── */}
-      <AnimatedSection className="py-16 px-6" variants={scaleIn}>
+      <AnimatedSection className="py-10 px-6" variants={scaleIn}>
         <div className="max-w-3xl mx-auto">
           <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Live Preview</p>
           <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-10">See sentiment analysis in action</h2>
@@ -759,7 +759,7 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── FEATURES ─── */}
-      <AnimatedSection className="py-20 px-6" id="features" variants={staggerContainer}>
+      <AnimatedSection className="py-12 px-6" id="features" variants={staggerContainer}>
         <div className="max-w-6xl mx-auto">
           <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Features</p>
           <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-4">Everything you need to understand Malaysian news</h2>
@@ -804,7 +804,7 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── HOW IT WORKS ─── */}
-      <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#1a1a1a]" variants={staggerContainer}>
+      <AnimatedSection className="py-12 px-6 bg-white dark:bg-[#1a1a1a]" variants={staggerContainer}>
         <div className="max-w-5xl mx-auto">
           <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">How it works</p>
           <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-12">From search to insight in seconds</h2>
@@ -849,7 +849,7 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── TECH STACK ─── */}
-      <AnimatedSection className="py-16 px-6" variants={fadeInUp}>
+      <AnimatedSection className="py-10 px-6" variants={fadeInUp}>
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Tech Stack</p>
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Built with modern tools</h2>
@@ -868,9 +868,9 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── USE CASES ─── */}
-      <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
+      <AnimatedSection className="py-12 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Use Cases</p>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Who is this for?</h2>
           </div>
@@ -910,9 +910,9 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── COMPARISON ─── */}
-      <AnimatedSection className="py-20 px-6" variants={staggerContainer}>
+      <AnimatedSection className="py-12 px-6" variants={staggerContainer}>
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">Why Us</p>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Manual vs AI Analysis</h2>
           </div>
@@ -992,9 +992,9 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── TESTIMONIALS ─── */}
-      <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
+      <AnimatedSection className="py-12 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Feedback</p>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">What users say</h2>
           </div>
@@ -1044,9 +1044,9 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── FAQ ─── */}
-      <AnimatedSection className="py-20 px-6" variants={staggerContainer}>
+      <AnimatedSection className="py-12 px-6" variants={staggerContainer}>
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">FAQ</p>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Common questions</h2>
           </div>
@@ -1065,7 +1065,7 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── CTA ─── */}
-      <AnimatedSection className="py-20 px-6" variants={scaleIn}>
+      <AnimatedSection className="py-12 px-6" variants={scaleIn}>
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
             className="relative p-12 rounded-3xl overflow-hidden"
