@@ -28,6 +28,8 @@ import EntityGraphPage from './pages/EntityGraphPage';
 import LiveFeed from './pages/LiveFeed';
 import SentimentTimeline from './pages/SentimentTimeline';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import Alerts from './pages/Alerts';
+import SourceCredibility from './pages/SourceCredibility';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTransition from './components/PageTransition';
@@ -202,7 +204,9 @@ const TITLES = {
   '/trending': 'trending',
   '/entities': 'entities',
   '/feed': 'liveFeed',
-  '/timeline': 'timeline'
+  '/timeline': 'timeline',
+  '/alerts': 'alerts',
+  '/credibility': 'sources'
 };
 
 // ── Bottom Navigation Bar (Mobile Only) — StatusMy Pattern ──────────────────────
@@ -452,6 +456,8 @@ const AppInner = () => (
     <Route path="/entities" element={<ProtectedRoute><Layout><EntityGraphPage /></Layout></ProtectedRoute>} />
     <Route path="/feed" element={<ProtectedRoute><Layout><LiveFeed /></Layout></ProtectedRoute>} />
     <Route path="/timeline" element={<ProtectedRoute><Layout><SentimentTimeline /></Layout></ProtectedRoute>} />
+    <Route path="/alerts" element={<ProtectedRoute><Layout><Alerts /></Layout></ProtectedRoute>} />
+    <Route path="/credibility" element={<ProtectedRoute><Layout><SourceCredibility /></Layout></ProtectedRoute>} />
     
     {/* Static Informational Pages */}
     <Route path="/api" element={<StaticPage />} />

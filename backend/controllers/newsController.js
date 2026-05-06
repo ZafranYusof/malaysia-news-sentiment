@@ -532,6 +532,66 @@ const getSentimentTimeline = async (req, res) => {
   }
 };
 
+// ── Compare Topics (Multi-topic Comparative Analysis) ─────────
+const compareTopics = async (req, res) => {
+  try {
+    const { topics, days = 30 } = req.body;
+
+    if (!topics || !Array.isArray(topics) || topics.length < 2 || topics.length > 5) {
+      return res.status(400).json({ error: 'Provide 2-5 topics to compare.' });
+    }
+
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+
+    const results = [];
+
+    for (const topic of topics) {
+      const regex = new RegExp(topic, 'i');
+      const articles = await Article.find({
+        $or: [
+          { title: regex },
+          { description: regex },
+          { topics: regex },
+        ],
+        analyzedAt: { $gte: since },
+      }).lean();
+
+      const total = articles.length;
+      const positive = articles.filter(a => a.sentiment === 'positive').length;
+      const negative = articles.filter(a => a.sentiment === 'negative').length;
+      const neutral = articles.filter(a => a.sentiment === 'neutral').length;
+
+      const avgSentiment = total > 0
+        ? articles.reduce((sum, a) => sum + (a.sentimentScore || 0), 0) / total
+        : 0;
+
+      // Simple trend: compare first half vs second half sentiment
+      const mid = Math.floor(total / 2);
+      const firstHalf = articles.slice(0, mid);
+      const secondHalf = articles.slice(mid);
+      const firstAvg = firstHalf.length > 0 ? firstHalf.reduce((s, a) => s + (a.sentimentScore || 0), 0) / firstHalf.length : 0;
+      const secondAvg = secondHalf.length > 0 ? secondHalf.reduce((s, a) => s + (a.sentimentScore || 0), 0) / secondHalf.length : 0;
+      const trend = secondAvg - firstAvg > 0.05 ? 'improving' : secondAvg - firstAvg < -0.05 ? 'declining' : 'stable';
+
+      results.push({
+        topic,
+        avgSentiment: Math.round(avgSentiment * 100) / 100,
+        positivePercent: total > 0 ? Math.round((positive / total) * 100) : 0,
+        negativePercent: total > 0 ? Math.round((negative / total) * 100) : 0,
+        neutralPercent: total > 0 ? Math.round((neutral / total) * 100) : 0,
+        articleCount: total,
+        trend,
+      });
+    }
+
+    res.json({ comparison: results, days });
+  } catch (error) {
+    console.error('[Compare] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAndAnalyzeNews,
   getTopSources,
@@ -541,4 +601,5 @@ module.exports = {
   getRegionalSentiment,
   getArticleAnalysis,
   getSentimentTimeline,
+  compareTopics,
 };
