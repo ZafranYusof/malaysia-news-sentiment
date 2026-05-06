@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getTopViewed } from '../services/api';
 import ArticleCard from '../components/ArticleCard';
 import ArticlePreviewModal from '../components/ArticlePreviewModal';
 import toast from 'react-hot-toast';
-import LoadingScreen from '../components/LoadingScreen';
+import { TrendingUp, Flame } from 'lucide-react';
 
 const Trending = () => {
   const [articles, setArticles] = useState([]);
@@ -28,58 +29,98 @@ const Trending = () => {
 
   const handlePreview = (article) => setSelectedArticle(article);
 
-  return (
-    <div className="trending-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div>
-          <h2 className="section-title">Trending News</h2>
-          <p className="section-subtitle">Most popular stories being read right now.</p>
-        </div>
-        <div className="filter-group">
-          <select 
-            className="sidebar-tiny-select" 
-            style={{ fontSize: 13, padding: '6px 12px' }}
-            value={timeframe} 
-            onChange={(e) => setTimeframe(e.target.value)}
-          >
-            <option value="today">Today</option>
-            <option value="week">Past Week</option>
-          </select>
-        </div>
-      </div>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.06 } }
+  };
 
-      {loading ? (
-        <LoadingScreen message="Scanning Malaysian Sentiment Pulse..." />
-      ) : articles.length === 0 ? (
-        <div className="state-panel">
-          <div className="state-icon">🔥</div>
-          <h3 className="state-title">No trending articles yet</h3>
-          <p className="state-sub">Check back later once more users have viewed the news.</p>
+  const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] } }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between mb-6"
+      >
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <TrendingUp size={24} className="text-blue-600" />
+            Trending News
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Most popular stories being read right now
+          </p>
         </div>
-      ) : (
-        <div className="articles-list">
-          {articles.map((art, idx) => (
-            <div key={art._id} style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-               <div style={{ 
-                 fontSize: 32, 
-                 fontWeight: 900, 
-                 color: 'var(--border)', 
-                 opacity: 0.5,
-                 width: 40,
-                 paddingTop: 20,
-                 textAlign: 'center'
-               }}>
-                 {idx + 1}
-               </div>
-               <div style={{ flex: 1 }}>
-                 <ArticleCard 
-                   article={art} 
-                   onPreview={handlePreview}
-                 />
-               </div>
-            </div>
+        <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-1">
+          {[
+            { value: 'today', label: 'Today' },
+            { value: 'week', label: 'This Week' },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                timeframe === opt.value
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+              onClick={() => setTimeframe(opt.value)}
+            >
+              {opt.label}
+            </button>
           ))}
         </div>
+      </motion.div>
+
+      {/* Content */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading trending news...</p>
+        </div>
+      ) : articles.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+        >
+          <Flame size={48} className="text-gray-300 dark:text-gray-600" />
+          <h3 className="mt-4 text-base font-semibold text-gray-700 dark:text-gray-300">No trending articles yet</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Check back later once more users have viewed the news.</p>
+        </motion.div>
+      ) : (
+        <motion.div
+          className="space-y-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {articles.map((art, idx) => (
+            <motion.div
+              key={art._id}
+              variants={itemVariants}
+              className="flex gap-4 items-start"
+            >
+              <div className="shrink-0 w-10 pt-4 text-center">
+                <span className={`text-2xl font-black ${
+                  idx === 0 ? 'text-blue-600' : idx === 1 ? 'text-blue-400' : idx === 2 ? 'text-blue-300' : 'text-gray-300 dark:text-gray-600'
+                }`}>
+                  {idx + 1}
+                </span>
+              </div>
+              <div className="flex-1">
+                <ArticleCard 
+                  article={art} 
+                  onPreview={handlePreview}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
 
       <ArticlePreviewModal 

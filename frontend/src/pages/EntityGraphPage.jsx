@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Graph } from '@antv/g6';
 import { useTheme } from '../context/ThemeContext';
+import { Search, List, Network, X } from 'lucide-react';
 
 const SENTIMENT_COLORS = { Positive: '#10B981', Negative: '#EF4444', Neutral: '#F59E0B' };
 const SENTIMENT_GLOW = { Positive: 'rgba(16,185,129,0.4)', Negative: 'rgba(239,68,68,0.4)', Neutral: 'rgba(245,158,11,0.4)' };
@@ -27,7 +28,6 @@ export default function EntityGraphPage() {
   const containerRef = useRef(null);
   const graphInstance = useRef(null);
 
-  // Detect mobile and set default view
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth <= 768;
@@ -76,7 +76,6 @@ export default function EntityGraphPage() {
   // Initialize/update G6 graph
   useEffect(() => {
     if (loading || !data.nodes.length || !graphRef.current) return;
-    // Don't render graph if mobile list view is active
     if (isMobile && viewMode === 'list') {
       if (graphInstance.current) {
         graphInstance.current.destroy();
@@ -85,7 +84,6 @@ export default function EntityGraphPage() {
       return;
     }
 
-    // Destroy previous instance
     if (graphInstance.current) {
       graphInstance.current.destroy();
       graphInstance.current = null;
@@ -95,7 +93,6 @@ export default function EntityGraphPage() {
     const width = container.offsetWidth || 800;
     const height = container.offsetHeight || 600;
 
-    // On mobile graph mode, limit to top 15 nodes by mentions
     const mobileGraphMode = isMobile && viewMode === 'graph';
     let graphNodes = data.nodes;
     let graphEdges = data.edges;
@@ -107,7 +104,6 @@ export default function EntityGraphPage() {
     }
 
     const maxMentions = Math.max(...graphNodes.map(n => n.mentions), 1);
-    const maxNodeSize = mobileGraphMode ? 40 : 80;
     const baseNodeSize = mobileGraphMode ? 20 : 28;
     const sizeRange = mobileGraphMode ? 20 : 52;
 
@@ -117,12 +113,7 @@ export default function EntityGraphPage() {
         const nodeSize = baseNodeSize + (n.mentions / maxMentions) * sizeRange;
         return {
           id: n.id,
-          data: {
-            label: n.label,
-            mentions: n.mentions,
-            sentiment: n.sentiment,
-            category: n.category,
-          },
+          data: { label: n.label, mentions: n.mentions, sentiment: n.sentiment, category: n.category },
           style: {
             size: nodeSize,
             fill: color,
@@ -175,33 +166,16 @@ export default function EntityGraphPage() {
       },
       behaviors: ['drag-canvas', 'zoom-canvas', 'drag-element', 'hover-activate'],
       node: {
-        style: {
-          cursor: 'pointer',
-        },
+        style: { cursor: 'pointer' },
         state: {
-          active: {
-            lineWidth: 4,
-            fillOpacity: 0.6,
-            shadowBlur: 24,
-          },
-          inactive: {
-            fillOpacity: 0.08,
-            strokeOpacity: 0.2,
-            labelOpacity: 0.25,
-            shadowBlur: 0,
-          },
+          active: { lineWidth: 4, fillOpacity: 0.6, shadowBlur: 24 },
+          inactive: { fillOpacity: 0.08, strokeOpacity: 0.2, labelOpacity: 0.25, shadowBlur: 0 },
         },
       },
       edge: {
         state: {
-          active: {
-            stroke: '#6366F1',
-            lineWidth: 3.5,
-            strokeOpacity: 0.9,
-          },
-          inactive: {
-            strokeOpacity: 0.06,
-          },
+          active: { stroke: '#6366F1', lineWidth: 3.5, strokeOpacity: 0.9 },
+          inactive: { strokeOpacity: 0.06 },
         },
       },
       animation: true,
@@ -238,91 +212,143 @@ export default function EntityGraphPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const border = isDark ? 'rgba(77,122,255,0.15)' : '#e2e8f0';
-  const card = isDark ? 'rgba(21,23,32,0.9)' : '#fff';
-  const text1 = isDark ? '#e2e8f0' : '#1e293b';
-  const text2 = isDark ? '#94a3b8' : '#64748b';
-
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="eg-page-root" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full">
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <Network size={24} className="text-blue-600" />
+          Entity Graph
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Explore relationships between entities in the news
+        </p>
+      </div>
+
       {/* Toolbar */}
-      <div className="eg-toolbar" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 0', flexWrap: 'wrap' }}>
-        <input className="eg-search-input" placeholder="Search entities..." value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && fetchGraph()}
-          style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${border}`, background: card, color: text1, fontSize: 13, outline: 'none', width: 220, transition: 'border-color 0.2s', boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.06)' }} />
-        <div className="eg-filter-group" style={{ display: 'flex', gap: 5 }}>
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        {/* Search */}
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            className="pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors w-52 text-gray-900 dark:text-white placeholder:text-gray-400"
+            placeholder="Search entities..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && fetchGraph()}
+          />
+        </div>
+
+        {/* Type Filter */}
+        <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-0.5">
           {['', 'politicians', 'parties', 'organizations', 'locations'].map(t => (
-            <button key={t} className="eg-filter-btn" onClick={() => setTypeFilter(t)} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-              background: typeFilter === t ? (isDark ? 'rgba(99,102,241,0.25)' : '#e0e7ff') : (isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9'),
-              color: typeFilter === t ? '#6366F1' : text2 }}>{t ? `${TYPE_ICONS[t]} ${TYPE_LABELS[t]}` : '🌐 All'}</button>
+            <button
+              key={t}
+              onClick={() => setTypeFilter(t)}
+              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                typeFilter === t
+                  ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+            >
+              {t ? `${TYPE_ICONS[t]} ${TYPE_LABELS[t]}` : '🌐 All'}
+            </button>
           ))}
         </div>
-        <div className="eg-filter-group" style={{ display: 'flex', gap: 5 }}>
+
+        {/* Time Filter */}
+        <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-0.5">
           {[{ k: '', l: 'All Time' }, { k: '24h', l: '24H' }, { k: '7d', l: '7D' }, { k: '30d', l: '30D' }].map(o => (
-            <button key={o.k} className="eg-filter-btn" onClick={() => setTimeframe(o.k)} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-              background: timeframe === o.k ? (isDark ? 'rgba(99,102,241,0.25)' : '#e0e7ff') : (isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9'),
-              color: timeframe === o.k ? '#6366F1' : text2 }}>{o.l}</button>
+            <button
+              key={o.k}
+              onClick={() => setTimeframe(o.k)}
+              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                timeframe === o.k
+                  ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+            >
+              {o.l}
+            </button>
           ))}
         </div>
+
         {/* Stats */}
         {!loading && data.nodes.length > 0 && (
-          <div className="eg-stats" style={{ marginLeft: 'auto', display: 'flex', gap: 16, alignItems: 'center' }}>
-            <span style={{ fontSize: 11, color: text2, fontWeight: 500 }}>{data.nodes.length} entities</span>
-            <span style={{ fontSize: 11, color: text2, fontWeight: 500 }}>{data.edges.length} connections</span>
+          <div className="ml-auto flex gap-4 items-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
+            <span>{data.nodes.length} entities</span>
+            <span>{data.edges.length} connections</span>
           </div>
         )}
+
         {/* Legend */}
-        <div className="eg-legend" style={{ display: 'flex', gap: 14, fontSize: 11, color: text2, marginLeft: data.nodes.length ? 0 : 'auto' }}>
+        <div className="flex gap-3 text-[11px] text-gray-500 dark:text-gray-400">
           {Object.entries(SENTIMENT_COLORS).map(([k, v]) => (
-            <span key={k} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: v, boxShadow: `0 0 6px ${v}` }} />{k}
+            <span key={k} className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: v, boxShadow: `0 0 6px ${v}` }} />{k}
             </span>
           ))}
         </div>
+
         {/* Mobile View Toggle */}
         {isMobile && data.nodes.length > 0 && (
-          <div className="view-toggle">
-            <button className={`view-toggle-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')} title="List View">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-lg p-0.5">
+            <button
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600' : 'text-gray-400'}`}
+              onClick={() => setViewMode('list')}
+              title="List View"
+            >
+              <List size={16} />
             </button>
-            <button className={`view-toggle-btn${viewMode === 'graph' ? ' active' : ''}`} onClick={() => setViewMode('graph')} title="Graph View">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="18" r="2"/><line x1="6" y1="7" x2="10" y2="10"/><line x1="14" y1="14" x2="18" y2="17"/></svg>
+            <button
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'graph' ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600' : 'text-gray-400'}`}
+              onClick={() => setViewMode('graph')}
+              title="Graph View"
+            >
+              <Network size={16} />
             </button>
           </div>
         )}
       </div>
 
-      {/* Graph + Sidebar */}
-      <div className="eg-graph-container" style={{ flex: 1, display: 'flex', borderRadius: 16, overflow: 'hidden', border: `1px solid ${border}`, background: isDark ? 'rgba(8,10,18,0.7)' : '#fafbfc', boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 2px 12px rgba(0,0,0,0.06)', position: 'relative' }}>
+      {/* Graph + Sidebar Container */}
+      <div className="flex-1 flex rounded-2xl overflow-hidden border border-[#eee] dark:border-[#2a2a2a] bg-[#fafaf9] dark:bg-[#0f0f0f] relative min-h-[400px]">
         {/* Background gradient */}
-        {isDark && <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(16,185,129,0.04) 0%, transparent 50%)', pointerEvents: 'none', zIndex: 0 }} />}
+        {isDark && <div className="absolute inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(16,185,129,0.04) 0%, transparent 50%)' }} />}
 
         {/* Mobile List View */}
         {isMobile && viewMode === 'list' && !loading && data.nodes.length > 0 && (
-          <div className="entity-list-view">
+          <div className="w-full overflow-y-auto p-3 space-y-2">
             {[...data.nodes]
               .sort((a, b) => b.mentions - a.mentions)
               .slice(0, 20)
               .map(node => {
                 const connectedCount = data.edges.filter(e => e.source === node.id || e.target === node.id).length;
                 return (
-                  <div key={node.id} className="entity-card" onClick={() => handleNodeClick(node.id)}>
-                    <div className="entity-card-top">
-                      <div className="entity-card-info">
-                        <span className="entity-card-name">{node.label}</span>
-                        <span className="entity-card-badge" style={{ background: `${TYPE_COLORS[node.category] || '#6366f1'}20`, color: TYPE_COLORS[node.category] || '#6366f1' }}>
+                  <motion.div
+                    key={node.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-3 cursor-pointer hover:border-blue-300 dark:hover:border-blue-500/30 transition-colors"
+                    onClick={() => handleNodeClick(node.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">{node.label}</span>
+                        <span className="ml-2 text-[10px] font-semibold px-2 py-0.5 rounded-md" style={{ background: `${TYPE_COLORS[node.category] || '#6366f1'}15`, color: TYPE_COLORS[node.category] || '#6366f1' }}>
                           {TYPE_ICONS[node.category] || '📊'} {TYPE_LABELS[node.category] || node.category}
                         </span>
                       </div>
-                      <div className="entity-card-mentions">{node.mentions}</div>
+                      <span className="text-lg font-bold text-gray-900 dark:text-white">{node.mentions}</span>
                     </div>
-                    <div className="entity-card-bottom">
-                      <div className="entity-card-sentiment">
-                        <span className="entity-card-sentiment-dot" style={{ background: SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral, boxShadow: `0 0 6px ${SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral}` }} />
-                        <span className="entity-card-sentiment-label">{node.sentiment}</span>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full" style={{ background: SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral, boxShadow: `0 0 6px ${SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral}` }} />
+                        <span className="text-[11px] text-gray-500 dark:text-gray-400">{node.sentiment}</span>
                       </div>
-                      <span className="entity-card-connections">{connectedCount} connection{connectedCount !== 1 ? 's' : ''}</span>
+                      <span className="text-[11px] text-gray-400 dark:text-gray-500">{connectedCount} connection{connectedCount !== 1 ? 's' : ''}</span>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
           </div>
@@ -330,18 +356,18 @@ export default function EntityGraphPage() {
 
         {/* Graph View */}
         {(!isMobile || viewMode === 'graph') && (
-          <div ref={graphRef} className="eg-graph-area" style={{ flex: 1, minHeight: isMobile ? 350 : 550, position: 'relative', zIndex: 1 }}>
+          <div ref={graphRef} className="flex-1 relative z-[1]" style={{ minHeight: isMobile ? 350 : 550 }}>
             {loading && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: text2, gap: 12 }}>
-                <div style={{ width: 40, height: 40, border: `3px solid ${isDark ? 'rgba(99,102,241,0.3)' : '#e0e7ff'}`, borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                <span style={{ fontSize: 13 }}>Mapping entity connections...</span>
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 gap-3">
+                <div className="w-10 h-10 border-3 border-blue-100 dark:border-blue-500/20 border-t-blue-600 rounded-full animate-spin" />
+                <span className="text-sm">Mapping entity connections...</span>
               </div>
             )}
             {!loading && !data.nodes.length && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: text2, gap: 16 }}>
-                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3"><circle cx="12" cy="12" r="3" /><circle cx="4" cy="6" r="2" /><circle cx="20" cy="6" r="2" /><circle cx="4" cy="18" r="2" /><circle cx="20" cy="18" r="2" /><line x1="6" y1="7" x2="10" y2="10" /><line x1="18" y1="7" x2="14" y2="10" /></svg>
-                <p style={{ fontSize: 14, fontWeight: 500 }}>No entity data yet</p>
-                <p style={{ fontSize: 12, opacity: 0.7 }}>Analyze some articles to see the relationship graph</p>
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
+                <Network size={56} strokeWidth={1.2} className="opacity-30" />
+                <p className="text-sm font-medium">No entity data yet</p>
+                <p className="text-xs opacity-70">Analyze some articles to see the relationship graph</p>
               </div>
             )}
           </div>
@@ -349,85 +375,123 @@ export default function EntityGraphPage() {
 
         {/* Loading state for list view */}
         {isMobile && viewMode === 'list' && loading && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 300, color: text2, gap: 12, width: '100%' }}>
-            <div style={{ width: 40, height: 40, border: `3px solid ${isDark ? 'rgba(99,102,241,0.3)' : '#e0e7ff'}`, borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-            <span style={{ fontSize: 13 }}>Loading entities...</span>
+          <div className="flex flex-col items-center justify-center h-full min-h-[300px] w-full text-gray-500 dark:text-gray-400 gap-3">
+            <div className="w-10 h-10 border-3 border-blue-100 dark:border-blue-500/20 border-t-blue-600 rounded-full animate-spin" />
+            <span className="text-sm">Loading entities...</span>
           </div>
         )}
 
-        {/* Sidebar */}
+        {/* Detail Sidebar */}
         <AnimatePresence>
           {selectedNode && (
-            <motion.div className="eg-detail-sidebar" initial={{ width: 0, opacity: 0 }} animate={{ width: 340, opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              style={{ borderLeft: `1px solid ${border}`, background: isDark ? 'rgba(15,17,28,0.95)' : 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)', padding: 24, overflowY: 'auto', overflowX: 'hidden', zIndex: 2 }}>
-              {detailLoading ? <div style={{ color: text2 }}>Loading...</div> : detail ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: isMobile ? '100%' : 340, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className="border-l border-[#eee] dark:border-[#2a2a2a] bg-white/97 dark:bg-[#111]/97 backdrop-blur-xl overflow-y-auto overflow-x-hidden z-[2] p-5"
+            >
+              {/* Close button */}
+              <button
+                onClick={() => { setSelectedNode(null); setDetail(null); }}
+                className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 transition-colors"
+              >
+                <X size={16} />
+              </button>
+
+              {detailLoading ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : detail ? (
+                <div className="space-y-5">
+                  {/* Header */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 20 }}>{TYPE_ICONS[detail.category] || '📊'}</span>
-                      <h3 style={{ fontSize: 18, fontWeight: 700, color: text1, margin: 0 }}>{detail.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{TYPE_ICONS[detail.category] || '📊'}</span>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">{detail.name}</h3>
                     </div>
-                    <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 600, textTransform: 'capitalize', background: isDark ? 'rgba(99,102,241,0.15)' : '#eef2ff', padding: '2px 8px', borderRadius: 4, marginTop: 6, display: 'inline-block' }}>{detail.category}</span>
+                    <span className="inline-block mt-2 text-[11px] font-semibold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded capitalize">{detail.category}</span>
                   </div>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: text1 }}>{detail.totalMentions} <span style={{ fontSize: 12, fontWeight: 500, color: text2 }}>mentions</span></div>
+
+                  {/* Mentions count */}
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {detail.totalMentions} <span className="text-xs font-medium text-gray-500">mentions</span>
+                  </div>
+
                   {/* Sentiment bars */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: text1, marginBottom: 2 }}>Sentiment Distribution</div>
+                  <div className="space-y-2">
+                    <div className="text-[11px] font-semibold text-gray-900 dark:text-white">Sentiment Distribution</div>
                     {Object.entries(detail.sentimentBreakdown || {}).map(([k, v]) => (
-                      <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 10, width: 58, color: text2, fontWeight: 500 }}>{k}</span>
-                        <div style={{ flex: 1, height: 8, borderRadius: 4, background: isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9', overflow: 'hidden' }}>
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${detail.totalMentions ? (v / detail.totalMentions * 100) : 0}%` }} transition={{ duration: 0.6, ease: 'easeOut' }} style={{ height: '100%', borderRadius: 4, background: SENTIMENT_COLORS[k], boxShadow: `0 0 8px ${SENTIMENT_GLOW[k]}` }} />
+                      <div key={k} className="flex items-center gap-2">
+                        <span className="text-[10px] w-14 text-gray-500 font-medium">{k}</span>
+                        <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${detail.totalMentions ? (v / detail.totalMentions * 100) : 0}%` }}
+                            transition={{ duration: 0.6, ease: 'easeOut' }}
+                            className="h-full rounded-full"
+                            style={{ background: SENTIMENT_COLORS[k], boxShadow: `0 0 8px ${SENTIMENT_GLOW[k]}` }}
+                          />
                         </div>
-                        <span style={{ fontSize: 11, color: text1, width: 24, textAlign: 'right', fontWeight: 600 }}>{v}</span>
+                        <span className="text-[11px] font-semibold text-gray-900 dark:text-white w-6 text-right">{v}</span>
                       </div>
                     ))}
                   </div>
-                  {/* Connected */}
+
+                  {/* Connected Entities */}
                   {detail.connectedEntities?.length > 0 && (
                     <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: text1, marginBottom: 6 }}>Connected Entities</div>
-                      {detail.connectedEntities.slice(0, 8).map(c => (
-                        <div key={c.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 11, color: text2, borderBottom: `1px solid ${border}` }}>
-                          <span style={{ cursor: 'pointer', color: '#4D7AFF' }} onClick={() => handleNodeClick(c.name)}>{c.name}</span>
-                          <span>{c.coOccurrences}x</span>
-                        </div>
-                      ))}
+                      <div className="text-[11px] font-semibold text-gray-900 dark:text-white mb-2">Connected Entities</div>
+                      <div className="space-y-1">
+                        {detail.connectedEntities.slice(0, 8).map(c => (
+                          <div key={c.name} className="flex justify-between py-1.5 text-[11px] border-b border-[#eee] dark:border-[#2a2a2a] last:border-0">
+                            <span className="text-blue-600 cursor-pointer hover:underline" onClick={() => handleNodeClick(c.name)}>{c.name}</span>
+                            <span className="text-gray-400">{c.coOccurrences}x</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
+
                   {/* Articles */}
                   {detail.articles?.length > 0 && (
                     <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: text1, marginBottom: 6 }}>Recent Articles</div>
-                      {detail.articles.slice(0, 8).map((a, i) => (
-                        <div key={i} style={{ padding: '6px 0', borderBottom: `1px solid ${border}`, fontSize: 11 }}>
-                          <div style={{ color: text1, fontWeight: 500, lineHeight: 1.3 }}>{a.title?.slice(0, 60)}{a.title?.length > 60 ? '...' : ''}</div>
-                          <div style={{ display: 'flex', gap: 8, marginTop: 3 }}>
-                            <span style={{ color: SENTIMENT_COLORS[a.sentiment], fontWeight: 600, fontSize: 10 }}>{a.sentiment}</span>
-                            <span style={{ color: text2, fontSize: 10 }}>{a.source}</span>
+                      <div className="text-[11px] font-semibold text-gray-900 dark:text-white mb-2">Recent Articles</div>
+                      <div className="space-y-2">
+                        {detail.articles.slice(0, 8).map((a, i) => (
+                          <div key={i} className="py-2 border-b border-[#eee] dark:border-[#2a2a2a] last:border-0">
+                            <div className="text-[11px] font-medium text-gray-900 dark:text-white leading-snug">{a.title?.slice(0, 60)}{a.title?.length > 60 ? '...' : ''}</div>
+                            <div className="flex gap-2 mt-1">
+                              <span className="text-[10px] font-semibold" style={{ color: SENTIMENT_COLORS[a.sentiment] }}>{a.sentiment}</span>
+                              <span className="text-[10px] text-gray-400">{a.source}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   )}
+
                   {/* Trend */}
                   {detail.trend?.length > 1 && (
                     <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: text1, marginBottom: 6 }}>Trend</div>
-                      <div style={{ display: 'flex', alignItems: 'end', gap: 2, height: 50 }}>
+                      <div className="text-[11px] font-semibold text-gray-900 dark:text-white mb-2">Trend</div>
+                      <div className="flex items-end gap-0.5 h-12">
                         {detail.trend.slice(-14).map((d, i) => {
                           const total = d.Positive + d.Negative + d.Neutral;
-                          return <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1, height: '100%', justifyContent: 'flex-end' }}>
-                            <div style={{ background: SENTIMENT_COLORS.Positive, height: `${total ? (d.Positive / total * 100) : 0}%`, borderRadius: 2, minHeight: d.Positive ? 2 : 0 }} />
-                            <div style={{ background: SENTIMENT_COLORS.Neutral, height: `${total ? (d.Neutral / total * 100) : 0}%`, borderRadius: 2, minHeight: d.Neutral ? 2 : 0 }} />
-                            <div style={{ background: SENTIMENT_COLORS.Negative, height: `${total ? (d.Negative / total * 100) : 0}%`, borderRadius: 2, minHeight: d.Negative ? 2 : 0 }} />
-                          </div>;
+                          return (
+                            <div key={i} className="flex-1 flex flex-col gap-px h-full justify-end">
+                              <div className="rounded-sm" style={{ background: SENTIMENT_COLORS.Positive, height: `${total ? (d.Positive / total * 100) : 0}%`, minHeight: d.Positive ? 2 : 0 }} />
+                              <div className="rounded-sm" style={{ background: SENTIMENT_COLORS.Neutral, height: `${total ? (d.Neutral / total * 100) : 0}%`, minHeight: d.Neutral ? 2 : 0 }} />
+                              <div className="rounded-sm" style={{ background: SENTIMENT_COLORS.Negative, height: `${total ? (d.Negative / total * 100) : 0}%`, minHeight: d.Negative ? 2 : 0 }} />
+                            </div>
+                          );
                         })}
                       </div>
                     </div>
                   )}
                 </div>
-              ) : <div style={{ color: text2 }}>No data</div>}
+              ) : <div className="text-gray-500 text-sm">No data</div>}
             </motion.div>
           )}
         </AnimatePresence>

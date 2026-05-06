@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ArticleCard from '../components/ArticleCard';
 import ArticlePreviewModal from '../components/ArticlePreviewModal';
 import { getHistory } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import LoadingScreen from '../components/LoadingScreen';
+import { Bookmark, BookmarkX } from 'lucide-react';
 
 const Bookmarks = () => {
   const { user, toggleBookmark } = useAuth();
@@ -30,37 +31,74 @@ const Bookmarks = () => {
 
   const handleToggle = async (id) => {
     await toggleBookmark(id);
-    // If it was removed, hide it from the list locally too
     setArticles(prev => prev.filter(a => (a._id || a.id) !== id));
   };
 
-  if (loading) return <LoadingScreen message="Opening Personal Intelligence Vault..." />;
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25 } }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading bookmarks...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bookmarks-page">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-         <h2 className="section-title">Your Reading List</h2>
-         <p className="section-subtitle">Articles you have saved for later.</p>
-      </div>
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <Bookmark size={24} className="text-blue-600" />
+          Bookmarks
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Articles you've saved for later
+        </p>
+      </motion.div>
 
+      {/* Content */}
       {articles.length === 0 ? (
-        <div className="state-panel">
-          <div className="state-icon">🔖</div>
-          <h3 className="state-title">No bookmarks yet</h3>
-          <p className="state-sub">Start saving articles to see them here.</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+        >
+          <BookmarkX size={48} className="text-gray-300 dark:text-gray-600" />
+          <h3 className="mt-4 text-base font-semibold text-gray-700 dark:text-gray-300">No bookmarks yet</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Start saving articles to see them here.</p>
+        </motion.div>
       ) : (
-        <div className="articles-list">
+        <motion.div
+          className="grid gap-3 md:grid-cols-2"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {articles.map(art => (
-            <ArticleCard 
-              key={art._id || art.id} 
-              article={art} 
-              onPreview={handlePreview}
-              onBookmark={handleToggle}
-              isBookmarked={user?.bookmarks?.includes(art._id || art.id)}
-            />
+            <motion.div key={art._id || art.id} variants={itemVariants}>
+              <ArticleCard 
+                article={art} 
+                onPreview={handlePreview}
+                onBookmark={handleToggle}
+                isBookmarked={user?.bookmarks?.includes(art._id || art.id)}
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       <ArticlePreviewModal 

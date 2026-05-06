@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../services/api';
+import { Lock, Eye, EyeOff, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 
 const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
@@ -24,7 +26,6 @@ const ResetPasswordPage = () => {
       api.get(`/auth/verify-email/${token}`)
         .then(res => {
           setVerifyMsg(res.data.message);
-          // Auto log in if token returned
           if (res.data.token) {
             localStorage.setItem('token', res.data.token);
             api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
@@ -57,87 +58,135 @@ const ResetPasswordPage = () => {
   // Email verification view
   if (window.location.pathname === '/verify-email') {
     return (
-      <div className="auth-page">
-        <div className="auth-card" style={{ textAlign: 'center' }}>
+      <div className="min-h-screen flex items-center justify-center bg-[#fafaf9] dark:bg-[#0f0f0f] p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="w-full max-w-sm bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-8 text-center shadow-xl shadow-black/5"
+        >
           {verifying ? (
             <>
-              <div className="auth-spinner-lg" />
-              <h1 className="auth-title" style={{ marginTop: 20 }}>Verifying...</h1>
+              <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white mt-5">Verifying...</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Please wait while we verify your email</p>
             </>
           ) : verifyMsg ? (
             <>
-              <div style={{ fontSize: 52 }}>✅</div>
-              <h1 className="auth-title">Email Verified!</h1>
-              <p className="auth-sub">{verifyMsg}</p>
-              <p style={{ fontSize: 12, color: 'var(--text-400)' }}>Redirecting to dashboard...</p>
+              <div className="w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mx-auto">
+                <CheckCircle size={28} className="text-emerald-500" />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white mt-4">Email Verified!</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{verifyMsg}</p>
+              <p className="text-xs text-gray-400 mt-3">Redirecting to dashboard...</p>
             </>
           ) : (
             <>
-              <div style={{ fontSize: 52 }}>❌</div>
-              <h1 className="auth-title">Verification Failed</h1>
-              <p className="auth-sub">{error}</p>
-              <Link to="/login" className="auth-btn-primary" style={{ display: 'block', textDecoration: 'none', textAlign: 'center', marginTop: 16 }}>Back to Login</Link>
+              <div className="w-14 h-14 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mx-auto">
+                <XCircle size={28} className="text-red-500" />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white mt-4">Verification Failed</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{error}</p>
+              <Link to="/login" className="inline-block mt-5 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors no-underline">
+                Back to Login
+              </Link>
             </>
           )}
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   // Password reset view
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <div className="auth-logo">
-          <div className="logo-mark" style={{ width: 40, height: 40 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
+    <div className="min-h-screen flex items-center justify-center bg-[#fafaf9] dark:bg-[#0f0f0f] p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        className="w-full max-w-sm bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-8 shadow-xl shadow-black/5"
+      >
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
+            <Lock size={22} className="text-white" />
           </div>
         </div>
-        <h1 className="auth-title">Set New Password</h1>
-        <p className="auth-sub">Enter your new password below</p>
+
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white text-center">Set New Password</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1.5">Enter your new password below</p>
 
         {success ? (
-          <div className="auth-success-box" style={{ marginBottom: 16 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <motion.div
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 flex items-center gap-2 px-4 py-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-emerald-600 text-sm"
+          >
+            <CheckCircle size={16} />
             {success} Redirecting...
-          </div>
+          </motion.div>
         ) : (
-          <form onSubmit={handleReset} className="auth-form">
+          <form onSubmit={handleReset} className="mt-6 space-y-4">
             {error && (
-              <div className="auth-error-box">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400 text-sm"
+              >
+                <XCircle size={14} />
                 {error}
-              </div>
+              </motion.div>
             )}
-            <div className="auth-field">
-              <label className="auth-label">New password</label>
-              <div className="auth-input-pw">
-                <input type={showPassword ? 'text' : 'password'} className="auth-input"
-                  placeholder="Min. 6 characters" value={password} onChange={e => setPassword(e.target.value)} required autoFocus />
-                <button type="button" className="auth-pw-eye" onClick={() => setShowPassword(p => !p)}>
-                  {showPassword
-                    ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                    : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  }
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">New password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="w-full px-4 py-3 text-sm bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a] rounded-xl outline-none focus:border-blue-500 text-gray-900 dark:text-white placeholder:text-gray-400 transition-colors pr-10"
+                  placeholder="Min. 6 characters"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => setShowPassword(p => !p)}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
-            <div className="auth-field">
-              <label className="auth-label">Confirm password</label>
-              <input type={showPassword ? 'text' : 'password'} className="auth-input"
-                placeholder="Re-enter password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm password</label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="w-full px-4 py-3 text-sm bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a] rounded-xl outline-none focus:border-blue-500 text-gray-900 dark:text-white placeholder:text-gray-400 transition-colors"
+                placeholder="Re-enter password"
+                value={confirm}
+                onChange={e => setConfirm(e.target.value)}
+                required
+              />
             </div>
-            <button type="submit" className="auth-btn-primary" disabled={loading}>
-              {loading ? <span className="auth-spinner" /> : null}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
         )}
 
-        <Link to="/login" className="auth-link-btn">← Back to Login</Link>
-      </div>
+        <Link to="/login" className="flex items-center justify-center gap-1.5 mt-5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors no-underline">
+          <ArrowLeft size={12} /> Back to Login
+        </Link>
+      </motion.div>
     </div>
   );
 };

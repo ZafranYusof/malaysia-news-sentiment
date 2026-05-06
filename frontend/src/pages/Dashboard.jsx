@@ -14,16 +14,17 @@ import AnalyzingOverlay from '../components/AnalyzingOverlay';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import useSwipeTabs from '../hooks/useSwipeTabs';
 import { hapticImpact } from '../utils/haptics';
+import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download } from 'lucide-react';
 
-// #5 Lazy load chart components
+// Lazy load chart components
 const SentimentBarChart = lazy(() => import('../components/SentimentBarChart'));
 const TrendLineChart = lazy(() => import('../components/TrendLineChart'));
 const TopSourcesChart = lazy(() => import('../components/TopSourcesChart'));
 const SentimentMap = lazy(() => import('../components/SentimentMap'));
 
 const ChartFallback = () => (
-  <div className="chart-lazy-fallback">
-    <div className="chart-lazy-spinner" />
+  <div className="flex items-center justify-center h-48 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#eee] dark:border-[#2a2a2a]">
+    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
   </div>
 );
 
@@ -76,11 +77,10 @@ const Dashboard = () => {
 
   // Mobile tab state
   const [mobileTab, setMobileTab] = useState('overview');
-  const [tabSwitching, setTabSwitching] = useState(false); // #3 skeleton on tab switch
+  const [tabSwitching, setTabSwitching] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showFabTooltip, setShowFabTooltip] = useState(false);
 
-  // #3 Tab switch with brief skeleton
   const handleTabSwitch = useCallback((tab) => {
     if (tab === mobileTab) return;
     setTabSwitching(true);
@@ -94,7 +94,7 @@ const Dashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // #1 Pull-to-refresh
+  // Pull-to-refresh
   const handlePullRefresh = useCallback(async () => {
     await queryClient.invalidateQueries(['dashboardInit']);
     await queryClient.invalidateQueries(['topSources']);
@@ -102,11 +102,11 @@ const Dashboard = () => {
   }, [queryClient]);
   const { pullDistance, isRefreshing, onTouchStart: pullTouchStart, onTouchMove: pullTouchMove, onTouchEnd: pullTouchEnd } = usePullToRefresh(handlePullRefresh);
 
-  // #8 Swipe between tabs
+  // Swipe between tabs
   const MOBILE_TABS = ['overview', 'charts', 'ai'];
   const { onTouchStart: swipeTouchStart, onTouchEnd: swipeTouchEnd } = useSwipeTabs(MOBILE_TABS, mobileTab, setMobileTab);
 
-  // #13 FAB label tooltip on first visit
+  // FAB label tooltip on first visit
   useEffect(() => {
     if (!isMobile) return;
     const seen = localStorage.getItem('fab-tooltip-seen');
@@ -120,7 +120,7 @@ const Dashboard = () => {
     }
   }, [isMobile]);
 
-  // 1. Dashboard Init Query (History Mode)
+  // Dashboard Init Query (History Mode)
   const { 
     data: dashboardData, 
     isFetching: isDashboardFetching,
@@ -133,21 +133,21 @@ const Dashboard = () => {
     staleTime: 60000,
   });
 
-  // 2. Top Sources Query
+  // Top Sources Query
   const { data: sourcesData, isLoading: isSourcesLoading } = useQuery({
     queryKey: ['topSources', isHistoryView ? '' : currentQuery],
     queryFn: () => getTopSources(isHistoryView ? '' : currentQuery),
     staleTime: 60000,
   });
 
-  // 3. Regional Data Query
+  // Regional Data Query
   const { data: regData, isLoading: isRegLoading } = useQuery({
     queryKey: ['regionalData', isHistoryView ? '' : currentQuery],
     queryFn: () => getRegionalData(isHistoryView ? '' : currentQuery),
     staleTime: 60000,
   });
 
-  // States that still need manual management (Search results, AI generation)
+  // States that still need manual management
   const [searchArticles, setSearchArticles] = useState([]);
   const [searchDistribution, setSearchDistribution] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -158,7 +158,7 @@ const Dashboard = () => {
   const [manualError, setManualError]     = useState('');
   const [showExportSheet, setShowExportSheet] = useState(false);
 
-  // #11 Back gesture handling for export sheet
+  // Back gesture handling for export sheet
   useEffect(() => {
     if (!showExportSheet) return;
     window.history.pushState(null, '');
@@ -210,7 +210,7 @@ const Dashboard = () => {
       .finally(() => setForecastLoading(false));
   }, []);
 
-  // Automatically trigger forecast when history data loads and we don't have one
+  // Automatically trigger forecast when history data loads
   useEffect(() => {
     if (isHistoryView && articles.length > 0 && !digest && !forecast && !digestLoading && !forecastLoading) {
       loadForecastAndDigest(articles, 'Recent History');
@@ -237,7 +237,6 @@ const Dashboard = () => {
     const searchToast = toast.loading(msg);
     setAnalysisProgress({ done: 0, total: 0 });
 
-    // Listen for real-time progress updates
     const progressHandler = (data) => {
       setAnalysisProgress(data);
       if (data.total > 0) {
@@ -299,15 +298,15 @@ const Dashboard = () => {
   };
 
   const KPI = [
-    { label: t('totalArticles'), value: counts.total,    mod: 'total', sub: 'articles analyzed' },
-    { label: t('positive'),       value: counts.positive, mod: 'pos',   sub: `${counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total` },
-    { label: t('negative'),       value: counts.negative, mod: 'neg',   sub: `${counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total` },
-    { label: t('neutral'),        value: counts.neutral,  mod: 'neu',   sub: `${counts.total ? Math.round(counts.neutral  / counts.total * 100) : 0}% of total` },
+    { label: t('totalArticles'), value: counts.total,    color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10', sub: 'articles analyzed' },
+    { label: t('positive'),       value: counts.positive, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10', sub: `${counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total` },
+    { label: t('negative'),       value: counts.negative, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10', sub: `${counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total` },
+    { label: t('neutral'),        value: counts.neutral,  color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10', sub: `${counts.total ? Math.round(counts.neutral  / counts.total * 100) : 0}% of total` },
   ];
 
   const isLoading = initLoading || searchLoading;
 
-  // Animation variants — purposeful, minimal motion
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -340,89 +339,110 @@ const Dashboard = () => {
     }
   };
 
-  const bannerVariants = {
-    hidden: { opacity: 0, y: -8 },
-    visible: { 
-      opacity: 1, y: 0,
-      transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
-    }
-  };
-
   return (
     <div
-      className="dashboard-root"
+      className="relative"
       onTouchStart={(e) => { pullTouchStart(e); swipeTouchStart(e); }}
       onTouchMove={pullTouchMove}
       onTouchEnd={(e) => { pullTouchEnd(e); swipeTouchEnd(e); }}
     >
-      {/* #1 Pull-to-refresh indicator */}
+      {/* Pull-to-refresh indicator */}
       {isMobile && (pullDistance > 0 || isRefreshing) && (
-        <div className="pull-to-refresh-indicator" style={{ height: pullDistance, opacity: Math.min(pullDistance / 80, 1) }}>
-          <div className={`ptr-spinner ${isRefreshing ? 'spinning' : ''}`} style={{ transform: `rotate(${pullDistance * 3}deg)` }}>
+        <div className="flex items-center justify-center overflow-hidden transition-all" style={{ height: pullDistance, opacity: Math.min(pullDistance / 80, 1) }}>
+          <div className={`text-blue-600 ${isRefreshing ? 'animate-spin' : ''}`} style={{ transform: `rotate(${pullDistance * 3}deg)` }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
             </svg>
           </div>
         </div>
       )}
+
       <AnalyzingOverlay progress={analysisProgress} />
+
+      {/* Greeting Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {user?.name ? `Welcome back, ${user.name.split(' ')[0]}` : 'Dashboard'}
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Malaysia News Sentiment Analysis
+        </p>
+      </motion.div>
+
       <SearchBar onSearch={handleSearch} loading={searchLoading} />
 
       {error && (
-        <div className="error-bar" role="alert">
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400 text-sm"
+          role="alert"
+        >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           {error}
-        </div>
+        </motion.div>
       )}
 
-
-      {/* Search results or history sections */}
-      <div className={`dashboard-content-wrapper ${isLoading ? 'loading-mask' : ''}`}>
+      {/* Content */}
+      <div className={`mt-6 ${isLoading ? 'opacity-60' : ''} transition-opacity`}>
         {!error && (articles.length > 0 || isLoading) && (
           <>
+            {/* View Banner */}
             <Skeleton name="dash-banner" loading={isLoading}>
               <motion.div 
-                className="dash-view-banner"
-                variants={bannerVariants}
-                initial="hidden"
-                animate="visible"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-wrap items-center gap-3 px-4 py-3 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl mb-6"
               >
                 {isHistoryView ? (
-                  <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Showing <strong>{articles.length}</strong> previous analyses</span>
-                  </>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <Clock size={16} className="text-gray-400" />
+                    <span>Showing <strong className="text-gray-900 dark:text-white">{articles.length}</strong> previous analyses</span>
+                  </div>
                 ) : (
-                  <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <span>Showing results for <strong>"{currentQuery}"</strong></span>
-                    <button className="dash-view-back" onClick={() => { setIsHistoryView(true); setManualError(''); }}>Back</button>
-                  </>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <Search size={16} className="text-gray-400" />
+                    <span>Results for <strong className="text-gray-900 dark:text-white">"{currentQuery}"</strong></span>
+                    <button 
+                      onClick={() => { setIsHistoryView(true); setManualError(''); }}
+                      className="ml-2 flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      <ArrowLeft size={12} /> Back
+                    </button>
+                  </div>
                 )}
-                <div className="banner-actions">
+                <div className="flex items-center gap-2 ml-auto flex-wrap">
                   {isHistoryView && (
-                    <div className="time-filter-group">
+                    <div className="flex gap-1 bg-gray-50 dark:bg-white/5 rounded-lg p-0.5">
                       {TIME_OPTIONS.map(opt => (
-                        <motion.button
+                        <button
                           key={opt.key}
-                          className={`btn-text-only time-filter-btn ${timeframe === opt.key ? 'is-active' : ''}`}
+                          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                            timeframe === opt.key 
+                              ? 'bg-white dark:bg-[#2a2a2a] text-blue-600 shadow-sm' 
+                              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                          }`}
                           onClick={() => { setTimeframe(opt.key); setPage(1); }}
-                          
                         >
                           {opt.label}
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
                   )}
-                  <button className="btn-text-only" onClick={handleManualForecast}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '4px' }}>
-                      <path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/>
-                    </svg>
-                    AI Forecast
+                  <button onClick={handleManualForecast} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors">
+                    <Sparkles size={12} /> AI Forecast
                   </button>
                   <ExportPPT articles={articles} distribution={distribution} sources={sources} query={currentQuery} />
-                  <button className="btn-text-only" onClick={handlePrint}>Report</button>
-                  <button className="btn-text-only" onClick={handleExport}>CSV</button>
+                  <button onClick={handlePrint} className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+                    Report
+                  </button>
+                  <button onClick={handleExport} className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+                    CSV
+                  </button>
                 </div>
               </motion.div>
             </Skeleton>
@@ -430,41 +450,41 @@ const Dashboard = () => {
             {/* Mobile Tab Layout */}
             {isMobile ? (
               <>
-                <div className="mobile-dash-tabs">
-                  <button
-                    className={`mobile-dash-tab ${mobileTab === 'overview' ? 'active' : ''}`}
-                    onClick={() => handleTabSwitch('overview')}
-                  >
-                    Overview
-                  </button>
-                  <button
-                    className={`mobile-dash-tab ${mobileTab === 'charts' ? 'active' : ''}`}
-                    onClick={() => handleTabSwitch('charts')}
-                  >
-                    Charts
-                  </button>
-                  <button
-                    className={`mobile-dash-tab ${mobileTab === 'ai' ? 'active' : ''}`}
-                    onClick={() => handleTabSwitch('ai')}
-                  >
-                    AI Insights
-                  </button>
+                <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-1 mb-4">
+                  {[
+                    { key: 'overview', label: 'Overview', icon: <BarChart3 size={14} /> },
+                    { key: 'charts', label: 'Charts', icon: <TrendingUp size={14} /> },
+                    { key: 'ai', label: 'AI Insights', icon: <Brain size={14} /> },
+                  ].map(tab => (
+                    <button
+                      key={tab.key}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                        mobileTab === tab.key
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                      onClick={() => handleTabSwitch(tab.key)}
+                    >
+                      {tab.icon} {tab.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* #3 Skeleton on tab switch */}
+                {/* Tab switch skeleton */}
                 {tabSwitching && (
-                  <div className="mobile-tab-skeleton">
-                    <div className="skeleton-bar" style={{ width: '80%', height: 16 }} />
-                    <div className="skeleton-bar" style={{ width: '60%', height: 12 }} />
-                    <div className="skeleton-bar" style={{ width: '90%', height: 100 }} />
+                  <div className="space-y-3 animate-pulse">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/5" />
+                    <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl" />
                   </div>
                 )}
 
                 {!tabSwitching && mobileTab === 'overview' && (
-                  <div className="mobile-tab-content">
+                  <div className="space-y-4">
+                    {/* KPI Cards */}
                     <Skeleton name="kpi-row" loading={isLoading}>
                       <motion.div 
-                        className="kpi-row"
+                        className="grid grid-cols-2 gap-3"
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
@@ -472,22 +492,23 @@ const Dashboard = () => {
                         {KPI.map(c => (
                           <motion.div 
                             key={c.label} 
-                            className="kpi-card"
+                            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4"
                             variants={kpiItemVariants}
                             whileHover={{ y: -2 }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
                           >
-                            <div className="kpi-label">{c.label}</div>
-                            <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
-                            <div className="kpi-sub">{c.sub}</div>
+                            <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
+                            <div className={`text-2xl font-bold mt-1 ${c.color}`}>{c.value}</div>
+                            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{c.sub}</div>
                           </motion.div>
                         ))}
                       </motion.div>
                     </Skeleton>
 
+                    {/* Pie Chart */}
                     <Skeleton name="charts-grid" loading={isLoading}>
                       <motion.div 
-                        className="charts-grid"
+                        className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4"
                         variants={chartVariants}
                         initial="hidden"
                         animate="visible"
@@ -498,30 +519,34 @@ const Dashboard = () => {
                       </motion.div>
                     </Skeleton>
 
-                    <div className="articles-section" id="analysis-results" style={{ marginTop: '16px' }}>
-                      <div className="section-toolbar">
-                        <h2 className="section-heading">
-                          {t('analysisResults')} <Skeleton name="article-count" loading={isLoading} inline><span className="section-count">{filteredArticles.length}</span></Skeleton>
+                    {/* Articles */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                          {t('analysisResults')} 
+                          <Skeleton name="article-count" loading={isLoading} inline>
+                            <span className="text-xs font-medium text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">{filteredArticles.length}</span>
+                          </Skeleton>
                         </h2>
-                        <div className="filter-rail-wrapper">
-                          <div className="filter-rail">
-                            {FILTER_OPTIONS.map(opt => (
-                              <motion.button 
-                                key={opt.key} 
-                                className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
-                                onClick={() => setFilter(opt.key)}
-                                
-                              >
-                                {opt.label}
-                              </motion.button>
-                            ))}
-                          </div>
-                          <div className="filter-rail-fade-right" />
-                        </div>
+                      </div>
+                      <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+                        {FILTER_OPTIONS.map(opt => (
+                          <button 
+                            key={opt.key} 
+                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                              filter === opt.key 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                            }`}
+                            onClick={() => setFilter(opt.key)}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
                       </div>
 
                       <motion.div 
-                        className="articles-list"
+                        className="space-y-3"
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
@@ -543,24 +568,23 @@ const Dashboard = () => {
                       </motion.div>
 
                       {isHistoryView && stats.total > LIMIT && (
-                        <div className="pagination" style={{ marginTop: '20px' }}>
+                        <div className="flex items-center justify-between mt-4 px-2">
                           <button 
                             disabled={page === 1 || isLoading} 
                             onClick={() => handlePageChange(page - 1)}
-                            className="btn-pagination"
+                            className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                           >
-                            Previous
+                            <ChevronLeft size={14} /> Prev
                           </button>
-                          <div className="pagination-info">
-                             Page <strong>{page}</strong> of {Math.ceil(stats.total / LIMIT)}
-                             <span className="total-label">({stats.total} total)</span>
-                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Page <strong className="text-gray-900 dark:text-white">{page}</strong> of {Math.ceil(stats.total / LIMIT)}
+                          </span>
                           <button 
                             disabled={page >= Math.ceil(stats.total / LIMIT) || isLoading} 
                             onClick={() => handlePageChange(page + 1)}
-                            className="btn-pagination"
+                            className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                           >
-                            Next
+                            Next <ChevronRight size={14} />
                           </button>
                         </div>
                       )}
@@ -569,44 +593,49 @@ const Dashboard = () => {
                 )}
 
                 {!tabSwitching && mobileTab === 'charts' && (
-                  <div className="mobile-tab-content">
+                  <div className="space-y-4">
                     {articles.length === 0 && !isLoading ? (
-                      /* #14 Empty state for Charts tab */
-                      <div className="charts-empty-state">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
-                        </svg>
-                        <p>No chart data available</p>
-                        <span>Search or analyze news to see charts</span>
+                      <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
+                        <BarChart3 size={48} strokeWidth={1.5} />
+                        <p className="mt-3 font-medium">No chart data available</p>
+                        <span className="text-xs mt-1">Search or analyze news to see charts</span>
                       </div>
                     ) : (
                       <Skeleton name="charts-grid" loading={isLoading}>
                         <motion.div 
-                          className="charts-grid"
+                          className="space-y-4"
                           variants={chartVariants}
                           initial="hidden"
                           animate="visible"
                         >
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Bar Chart">
-                              <SentimentBarChart distribution={distribution} />
-                            </InlineErrorBoundary>
-                          </Suspense>
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Trend Chart">
-                              <TrendLineChart trendsData={trends} />
-                            </InlineErrorBoundary>
-                          </Suspense>
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Sentiment Map">
-                              <SentimentMap data={regionalData} loading={isLoading} />
-                            </InlineErrorBoundary>
-                          </Suspense>
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Sources Chart">
-                              <TopSourcesChart sourcesData={sources} />
-                            </InlineErrorBoundary>
-                          </Suspense>
+                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Bar Chart">
+                                <SentimentBarChart distribution={distribution} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
+                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Trend Chart">
+                                <TrendLineChart trendsData={trends} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
+                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Sentiment Map">
+                                <SentimentMap data={regionalData} loading={isLoading} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
+                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Sources Chart">
+                                <TopSourcesChart sourcesData={sources} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
                         </motion.div>
                       </Skeleton>
                     )}
@@ -614,103 +643,13 @@ const Dashboard = () => {
                 )}
 
                 {!tabSwitching && mobileTab === 'ai' && (
-                  <div className="mobile-tab-content">
+                  <div className="space-y-4">
                     {(digest || digestLoading) && (
                       <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
                     )}
-                    <div className="forecast-wide-wrapper" style={{ marginTop: '16px' }}>
-                      <InlineErrorBoundary name="AI Forecast">
-                        <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
-                      </InlineErrorBoundary>
-                    </div>
-                    <div style={{ marginTop: '16px' }}>
-                      <Skeleton name="word-cloud" loading={isLoading}>
-                        <InlineErrorBoundary name="Word Cloud">
-                          <WordCloud words={keywords} />
-                        </InlineErrorBoundary>
-                      </Skeleton>
-                    </div>
-                    <div style={{ marginTop: '16px' }}>
-                      <InlineErrorBoundary name="Source Credibility">
-                        <SourceCredibility />
-                      </InlineErrorBoundary>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              /* Desktop Layout - unchanged */
-              <>
-                <div className="dashboard-grid-layout">
-                  <div className="dashboard-main-content">
-                    {(digest || digestLoading) && !isHistoryView && (
-                      <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
-                    )}
-                    
-                    <Skeleton name="kpi-row" loading={isLoading}>
-                      <motion.div 
-                        className="kpi-row"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        {KPI.map(c => (
-                          <motion.div 
-                            key={c.label} 
-                            className="kpi-card"
-                            variants={kpiItemVariants}
-                            whileHover={{ y: -2 }}
-                            transition={{ duration: 0.15, ease: 'easeOut' }}
-                          >
-                            <div className="kpi-label">{c.label}</div>
-                            <div className={`kpi-value kpi-value--${c.mod}`}>{c.value}</div>
-                            <div className="kpi-sub">{c.sub}</div>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </Skeleton>
-
-                    <Skeleton name="charts-grid" loading={isLoading}>
-                      <motion.div 
-                        className="charts-grid"
-                        variants={chartVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        <InlineErrorBoundary name="Pie Chart">
-                          <SentimentPieChart distribution={distribution} />
-                        </InlineErrorBoundary>
-                        <Suspense fallback={<ChartFallback />}>
-                          <InlineErrorBoundary name="Bar Chart">
-                            <SentimentBarChart distribution={distribution} />
-                          </InlineErrorBoundary>
-                        </Suspense>
-                        <Suspense fallback={<ChartFallback />}>
-                          <InlineErrorBoundary name="Sentiment Map">
-                            <SentimentMap data={regionalData} loading={isLoading} />
-                          </InlineErrorBoundary>
-                        </Suspense>
-                        <Suspense fallback={<ChartFallback />}>
-                          <InlineErrorBoundary name="Trend Chart">
-                            <TrendLineChart trendsData={trends} />
-                          </InlineErrorBoundary>
-                        </Suspense>
-                        <Suspense fallback={<ChartFallback />}>
-                          <InlineErrorBoundary name="Sources Chart">
-                            <TopSourcesChart sourcesData={sources} />
-                          </InlineErrorBoundary>
-                        </Suspense>
-                      </motion.div>
-                    </Skeleton>
-                    
-                    <div className="forecast-wide-wrapper" style={{ marginTop: '32px' }}>
-                      <InlineErrorBoundary name="AI Forecast">
-                        <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
-                      </InlineErrorBoundary>
-                    </div>
-                  </div>
-                  
-                  <aside className="dashboard-side-panels">
+                    <InlineErrorBoundary name="AI Forecast">
+                      <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
+                    </InlineErrorBoundary>
                     <Skeleton name="word-cloud" loading={isLoading}>
                       <InlineErrorBoundary name="Word Cloud">
                         <WordCloud words={keywords} />
@@ -719,36 +658,142 @@ const Dashboard = () => {
                     <InlineErrorBoundary name="Source Credibility">
                       <SourceCredibility />
                     </InlineErrorBoundary>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Desktop Layout */
+              <>
+                <div className="grid grid-cols-[1fr_300px] gap-6">
+                  <div className="space-y-6">
+                    {(digest || digestLoading) && !isHistoryView && (
+                      <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
+                    )}
+                    
+                    {/* KPI Row */}
+                    <Skeleton name="kpi-row" loading={isLoading}>
+                      <motion.div 
+                        className="grid grid-cols-4 gap-4"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        {KPI.map(c => (
+                          <motion.div 
+                            key={c.label} 
+                            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-md transition-shadow"
+                            variants={kpiItemVariants}
+                            whileHover={{ y: -2 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                          >
+                            <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
+                            <div className={`text-3xl font-bold mt-1.5 ${c.color}`}>{c.value}</div>
+                            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">{c.sub}</div>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    </Skeleton>
+
+                    {/* Charts Grid */}
+                    <Skeleton name="charts-grid" loading={isLoading}>
+                      <motion.div 
+                        className="grid grid-cols-2 gap-4"
+                        variants={chartVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                          <InlineErrorBoundary name="Pie Chart">
+                            <SentimentPieChart distribution={distribution} />
+                          </InlineErrorBoundary>
+                        </div>
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Bar Chart">
+                              <SentimentBarChart distribution={distribution} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                        </div>
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Sentiment Map">
+                              <SentimentMap data={regionalData} loading={isLoading} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                        </div>
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Trend Chart">
+                              <TrendLineChart trendsData={trends} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                        </div>
+                        <div className="col-span-2 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                          <Suspense fallback={<ChartFallback />}>
+                            <InlineErrorBoundary name="Sources Chart">
+                              <TopSourcesChart sourcesData={sources} />
+                            </InlineErrorBoundary>
+                          </Suspense>
+                        </div>
+                      </motion.div>
+                    </Skeleton>
+                    
+                    {/* Forecast */}
+                    <InlineErrorBoundary name="AI Forecast">
+                      <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
+                    </InlineErrorBoundary>
+                  </div>
+                  
+                  {/* Sidebar */}
+                  <aside className="space-y-4">
+                    <Skeleton name="word-cloud" loading={isLoading}>
+                      <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                        <InlineErrorBoundary name="Word Cloud">
+                          <WordCloud words={keywords} />
+                        </InlineErrorBoundary>
+                      </div>
+                    </Skeleton>
+                    <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                      <InlineErrorBoundary name="Source Credibility">
+                        <SourceCredibility />
+                      </InlineErrorBoundary>
+                    </div>
                   </aside>
                 </div>
 
-                <div className="articles-section" id="analysis-results" style={{ marginTop: '40px' }}>
-                  <div className="section-toolbar">
-                    <h2 className="section-heading">
-                      {t('analysisResults')} <Skeleton name="article-count" loading={isLoading} inline><span className="section-count">{filteredArticles.length}</span></Skeleton>
+                {/* Articles Section */}
+                <div className="mt-8" id="analysis-results">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      {t('analysisResults')} 
+                      <Skeleton name="article-count" loading={isLoading} inline>
+                        <span className="text-xs font-medium text-gray-400 bg-gray-100 dark:bg-white/5 px-2.5 py-0.5 rounded-full">{filteredArticles.length}</span>
+                      </Skeleton>
                     </h2>
-                    <div className="filter-rail">
+                    <div className="flex gap-1.5">
                       {FILTER_OPTIONS.map(opt => (
-                        <motion.button 
+                        <button 
                           key={opt.key} 
-                          className={`filter-pill ${filter === opt.key ? 'active' : ''}`} 
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                            filter === opt.key 
+                              ? 'bg-blue-600 text-white shadow-sm' 
+                              : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                          }`}
                           onClick={() => setFilter(opt.key)}
-                          
                         >
                           {opt.label}
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
                   </div>
 
                   <motion.div 
-                    className="articles-list"
+                    className="space-y-3"
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                   >
                     <Skeleton name="article-card" loading={isLoading || historyLoading} count={3}>
-                      {/* #7 Virtualized list when > 20 articles */}
                       {filteredArticles.length > 20 ? (
                         <VirtualList
                           height={600}
@@ -771,7 +816,7 @@ const Dashboard = () => {
                           }}
                         </VirtualList>
                       ) : (
-                        filteredArticles.map((article, idx) => (
+                        filteredArticles.map((article) => (
                           <motion.div
                             key={article._id || article.url}
                             variants={articleVariants}
@@ -787,26 +832,26 @@ const Dashboard = () => {
                     </Skeleton>
                   </motion.div>
 
-                  {/* Pagination Controls (#6) */}
+                  {/* Pagination */}
                   {isHistoryView && stats.total > LIMIT && (
-                    <div className="pagination" style={{ marginTop: '20px' }}>
+                    <div className="flex items-center justify-between mt-6 px-2">
                       <button 
                         disabled={page === 1 || isLoading} 
                         onClick={() => handlePageChange(page - 1)}
-                        className="btn-pagination"
+                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                       >
-                        Previous
+                        <ChevronLeft size={16} /> Previous
                       </button>
-                      <div className="pagination-info">
-                         Page <strong>{page}</strong> of {Math.ceil(stats.total / LIMIT)}
-                         <span className="total-label">({stats.total} total)</span>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Page <strong className="text-gray-900 dark:text-white">{page}</strong> of {Math.ceil(stats.total / LIMIT)}
+                        <span className="text-xs ml-2 text-gray-400">({stats.total} total)</span>
                       </div>
                       <button 
                         disabled={page >= Math.ceil(stats.total / LIMIT) || isLoading} 
                         onClick={() => handlePageChange(page + 1)}
-                        className="btn-pagination"
+                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                       >
-                        Next
+                        Next <ChevronRight size={16} />
                       </button>
                     </div>
                   )}
@@ -817,13 +862,12 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Mobile FABs - AI Forecast + Export */}
-      <div className="mobile-fab-container">
-        {/* #13 FAB tooltip */}
+      {/* Mobile FABs */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-30 md:hidden">
         <AnimatePresence>
           {showFabTooltip && (
             <motion.div
-              className="fab-tooltip fab-tooltip-secondary"
+              className="absolute right-14 top-0 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg whitespace-nowrap"
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
@@ -831,22 +875,18 @@ const Dashboard = () => {
           )}
         </AnimatePresence>
         <motion.button
-          className="mobile-fab-secondary"
+          className="w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300"
           onClick={() => { hapticImpact('Light'); setShowExportSheet(true); }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           aria-label="Export options"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
+          <Download size={18} />
         </motion.button>
         <AnimatePresence>
           {showFabTooltip && (
             <motion.div
-              className="fab-tooltip fab-tooltip-primary"
+              className="absolute right-14 bottom-0 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg whitespace-nowrap"
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
@@ -854,17 +894,13 @@ const Dashboard = () => {
           )}
         </AnimatePresence>
         <motion.button
-          className="mobile-fab"
+          className="w-12 h-12 rounded-full bg-blue-600 shadow-lg shadow-blue-600/30 flex items-center justify-center text-white"
           onClick={() => { hapticImpact('Medium'); handleManualForecast(); }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           aria-label="AI Forecast"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/>
-            <path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/>
-            <path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/>
-          </svg>
+          <Sparkles size={20} />
         </motion.button>
       </div>
 
@@ -873,14 +909,14 @@ const Dashboard = () => {
         {showExportSheet && (
           <>
             <motion.div
-              className="export-sheet-backdrop"
+              className="fixed inset-0 bg-black/40 z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowExportSheet(false)}
             />
             <motion.div
-              className="export-sheet"
+              className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1a1a1a] rounded-t-3xl z-50 p-6 pb-8"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -892,26 +928,28 @@ const Dashboard = () => {
                 if (info.offset.y > 100) setShowExportSheet(false);
               }}
             >
-              <div className="export-sheet-handle" />
-              <div className="export-sheet-title">Export Options</div>
-              <button className="export-sheet-option" onClick={() => { document.querySelector('.export-ppt-trigger')?.click(); setShowExportSheet(false); }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>
-                </svg>
-                <span>Export PPTX</span>
-              </button>
-              <button className="export-sheet-option" onClick={() => { handlePrint(); setShowExportSheet(false); }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
-                </svg>
-                <span>Print Report</span>
-              </button>
-              <button className="export-sheet-option" onClick={() => { handleExport(); setShowExportSheet(false); }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-                <span>Export CSV</span>
-              </button>
+              <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4" />
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Export Options</h3>
+              <div className="space-y-2">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { document.querySelector('.export-ppt-trigger')?.click(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-500">
+                    <Printer size={18} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Export PPTX</span>
+                </button>
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handlePrint(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-500">
+                    <Printer size={18} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Print Report</span>
+                </button>
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handleExport(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                    <FileDown size={18} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Export CSV</span>
+                </button>
+              </div>
             </motion.div>
           </>
         )}
