@@ -611,11 +611,11 @@ const LandingPage = () => {
     <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors overflow-x-hidden relative">
       {/* Global gradient mesh background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#2563eb]/[0.04] dark:bg-[#2563eb]/[0.06] rounded-full blur-[120px] animate-[float_20s_ease-in-out_infinite]" />
-        <div className="absolute top-[30%] right-[-15%] w-[500px] h-[500px] bg-[#7c3aed]/[0.04] dark:bg-[#7c3aed]/[0.06] rounded-full blur-[120px] animate-[float_25s_ease-in-out_infinite_reverse]" />
-        <div className="absolute bottom-[-10%] left-[20%] w-[700px] h-[700px] bg-[#059669]/[0.03] dark:bg-[#059669]/[0.05] rounded-full blur-[140px] animate-[float_30s_ease-in-out_infinite_2s]" />
-        <div className="absolute top-[60%] right-[30%] w-[400px] h-[400px] bg-[#d97706]/[0.03] dark:bg-[#d97706]/[0.04] rounded-full blur-[100px] animate-[float_22s_ease-in-out_infinite_4s]" />
-        <div className="absolute top-[10%] left-[50%] w-[350px] h-[350px] bg-[#ec4899]/[0.03] dark:bg-[#ec4899]/[0.04] rounded-full blur-[100px] animate-[float_18s_ease-in-out_infinite_1s]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[120px]" style={{ background: 'rgba(37, 99, 235, 0.06)', animation: 'float 20s ease-in-out infinite' }} />
+        <div className="absolute top-[30%] right-[-15%] w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: 'rgba(124, 58, 237, 0.06)', animation: 'float 25s ease-in-out infinite reverse' }} />
+        <div className="absolute bottom-[-10%] left-[20%] w-[700px] h-[700px] rounded-full blur-[140px]" style={{ background: 'rgba(5, 150, 105, 0.05)', animation: 'float 30s ease-in-out infinite 2s' }} />
+        <div className="absolute top-[60%] right-[30%] w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: 'rgba(217, 119, 6, 0.05)', animation: 'float 22s ease-in-out infinite 4s' }} />
+        <div className="absolute top-[10%] left-[50%] w-[350px] h-[350px] rounded-full blur-[100px]" style={{ background: 'rgba(236, 72, 153, 0.05)', animation: 'float 18s ease-in-out infinite 1s' }} />
       </div>
 
       <div className="relative z-10">
