@@ -4,6 +4,7 @@ const { protect, authorize } = require('../middleware/auth');
 
 // Code Quality #17: Handlers now live in dedicated, focused controllers
 const { getAndAnalyzeNews, getTopSources, generateDigest, getKeywords, getForecast, getRegionalSentiment, getArticleAnalysis, getSentimentTimeline, compareTopics } = require('../controllers/newsController');
+const { advancedSearch } = require('../controllers/searchController');
 const { trackNewsView, handleSentimentVote, getTopViewedNews, toggleBookmarkStatus } = require('../controllers/engagementController');
 const { getAdminDashboardStats, getAdminInsights, triggerDigest } = require('../controllers/adminController');
 
@@ -17,6 +18,7 @@ router.post('/digest',        protect, generateDigest);
 router.post('/forecast',      protect, getForecast);
 router.post('/analyze-article', protect, getArticleAnalysis);
 router.get('/sentiment-timeline', protect, getSentimentTimeline);
+router.get('/advanced-search',    protect, advancedSearch);
 router.post('/compare',           protect, compareTopics);
 
 // ── Admin (role-gated) ────────────────────────────────────────
