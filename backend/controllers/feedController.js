@@ -56,6 +56,7 @@ const streamFeed = async (req, res) => {
   }, 15000);
 
   // Poll for new articles every 30s
+  let errorCount = 0;
   const poller = setInterval(async () => {
     if (!isAlive) return;
     try {
@@ -69,8 +70,17 @@ const streamFeed = async (req, res) => {
         lastCheck = new Date();
         res.write(`data: ${JSON.stringify({ type: 'new_articles', articles: newArticles, timestamp: lastCheck.toISOString() })}\n\n`);
       }
+      errorCount = 0; // reset on success
     } catch (err) {
       console.error('[Feed] SSE poll error:', err.message);
+      errorCount++;
+      if (errorCount >= 5) {
+        res.write(`data: ${JSON.stringify({ type: 'error', message: 'Connection lost' })}\n\n`);
+        isAlive = false;
+        clearInterval(heartbeat);
+        clearInterval(poller);
+        res.end();
+      }
     }
   }, 30000);
 

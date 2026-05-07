@@ -1,6 +1,8 @@
 const Article = require('../models/Article');
 const { performAiRequest } = require('../services/openaiService');
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /**
  * Simple linear regression helper
  */
@@ -48,12 +50,13 @@ const getForecast = async (req, res) => {
     startDate.setDate(startDate.getDate() - historyDays);
 
     // Get articles matching topic
+    const safeTopic = escapeRegex(topic);
     const articles = await Article.find({
       $or: [
-        { topic: { $regex: topic, $options: 'i' } },
-        { title: { $regex: topic, $options: 'i' } },
-        { description: { $regex: topic, $options: 'i' } },
-        { categories: { $regex: topic, $options: 'i' } },
+        { topic: { $regex: safeTopic, $options: 'i' } },
+        { title: { $regex: safeTopic, $options: 'i' } },
+        { description: { $regex: safeTopic, $options: 'i' } },
+        { categories: { $regex: safeTopic, $options: 'i' } },
       ],
       publishedAt: { $gte: startDate },
     }).select('sentiment confidence publishedAt createdAt').sort({ publishedAt: 1 });

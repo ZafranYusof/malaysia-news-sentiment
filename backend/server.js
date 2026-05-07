@@ -105,7 +105,8 @@ app.use(express.json({ limit: '2mb' }));
 // Rate limiters disabled for development/testing as requested
 
 // ── API Metrics Endpoint (after CORS) ───────────────────
-app.get('/api/v1/admin/metrics', (req, res) => {
+const { protect, authorize } = require('./middleware/auth');
+app.get('/api/v1/admin/metrics', protect, authorize('admin'), (req, res) => {
   const topEndpoints = Object.entries(apiMetrics.endpoints)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 15)
@@ -162,7 +163,7 @@ app.use('/api/forecast', require('./routes/forecastRoutes'));
 app.use('/api', require('./routes/shareRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
 // Metrics backward compat
-app.get('/api/admin/metrics', (req, res) => res.redirect('/api/v1/admin/metrics'));
+app.get('/api/admin/metrics', protect, authorize('admin'), (req, res) => res.redirect('/api/v1/admin/metrics'));
 // ── Global error handler ──────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);

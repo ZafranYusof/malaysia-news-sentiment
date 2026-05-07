@@ -20,8 +20,9 @@ exports.getSources = async (req, res) => {
 // GET /api/credibility/:sourceName — get specific source details
 exports.getSourceByName = async (req, res) => {
   try {
+    const escapedName = req.params.sourceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const source = await Source.findOne({
-      name: new RegExp(`^${req.params.sourceName}$`, 'i'),
+      name: new RegExp(`^${escapedName}$`, 'i'),
     }).lean();
 
     if (!source) return res.status(404).json({ error: 'Source not found.' });
@@ -37,7 +38,8 @@ exports.analyzeSource = async (req, res) => {
     const { sourceName } = req.body;
     if (!sourceName) return res.status(400).json({ error: 'sourceName is required.' });
 
-    let source = await Source.findOne({ name: new RegExp(`^${sourceName}$`, 'i') });
+    const escapedSourceName = sourceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let source = await Source.findOne({ name: new RegExp(`^${escapedSourceName}$`, 'i') });
     if (!source) {
       source = await Source.create({ name: sourceName });
     }

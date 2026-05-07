@@ -22,9 +22,11 @@ const protect = (req, res, next) => {
     req.userId   = decoded.id;
     req.userRole = decoded.role || 'user';
     req.isGuest  = decoded.isGuest || false;
-    // Guest users get a synthetic user object for compatibility
+    // Set req.user for all users (controllers use req.user._id and req.user?.id)
     if (decoded.isGuest) {
-      req.user = { _id: 'guest', name: 'Guest User', role: 'guest', isGuest: true };
+      req.user = { _id: 'guest', id: 'guest', name: 'Guest User', role: 'guest', isGuest: true };
+    } else {
+      req.user = { _id: decoded.id, id: decoded.id, role: decoded.role || 'user' };
     }
     next();
   } catch (err) {

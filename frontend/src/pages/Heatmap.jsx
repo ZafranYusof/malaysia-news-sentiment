@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 
 // Simplified Malaysia state SVG paths (approximate boundaries)
 const STATE_PATHS = {
@@ -37,7 +38,8 @@ const Heatmap = () => {
   const [hoveredState, setHoveredState] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
   const [tooltip, setTooltip] = useState({ x: 0, y: 0 });
-  const isDark = document.documentElement.classList.contains('dark') || window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   useEffect(() => {
     fetchData();

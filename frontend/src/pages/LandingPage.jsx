@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,9 @@ import {
   Search, Zap, LineChart, Sun, Moon, ArrowRight, Play, Newspaper,
   ChevronRight, Star, Globe, Clock, X, Plus, Check
 } from 'lucide-react';
+
+// Lazy load Spline for performance (only on desktop)
+const Spline = lazy(() => import('@splinetool/react-spline'));
 
 // ── Animation Variants ──
 const fadeInUp = {
@@ -632,9 +635,20 @@ const LandingPage = () => {
 
       {/* ─── HERO ─── */}
       <motion.header className="relative pt-32 pb-20 px-6 overflow-hidden min-h-[90vh] flex items-center" style={{ y: heroY, opacity: heroOpacity }}>
-        {/* Background effects */}
-        <GradientOrbs />
-        <FloatingParticles count={40} />
+        {/* 3D Spline Background (desktop only) */}
+        <div className="absolute inset-0 hidden md:block pointer-events-none z-0">
+          <Suspense fallback={null}>
+            <Spline
+              scene="https://prod.spline.design/websitelandingpage08-zUhU6B6BsMGZUDMJaD9x7DHl/scene.splinecode"
+              style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, opacity: 0.65 }}
+            />
+          </Suspense>
+        </div>
+        {/* Fallback background effects (mobile + while Spline loads) */}
+        <div className="md:hidden">
+          <GradientOrbs />
+          <FloatingParticles count={40} />
+        </div>
         <MouseFollowGradient />
 
         <motion.div className="relative max-w-5xl mx-auto text-center w-full" initial="hidden" animate="visible" variants={staggerContainer}>

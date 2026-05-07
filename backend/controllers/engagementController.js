@@ -94,12 +94,14 @@ const getTopViewedNews = async (req, res) => {
 
     if (category) match.topic = { $regex: escapeRegex(category), $options: 'i' };
 
-    const now = new Date();
     if (filter === 'today') {
-      match.createdAt = { $gte: new Date(now.setHours(0, 0, 0, 0)) };
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      match.createdAt = { $gte: startOfDay };
     } else if (filter === 'week') {
       const weekAgo = new Date();
-      match.createdAt = { $gte: new Date(weekAgo.setDate(weekAgo.getDate() - 7)) };
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      match.createdAt = { $gte: weekAgo };
     }
 
     const topNews = await Article.find(match)

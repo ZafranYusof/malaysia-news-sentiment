@@ -37,6 +37,7 @@ const SourceCredibility = () => {
   }, [sortBy, sortOrder, biasFilter]);
 
   const fetchSources = async () => {
+    setLoading(true);
     try {
       const { data } = await api.get('/credibility', {
         params: { sort: sortBy, order: sortOrder, bias: biasFilter },

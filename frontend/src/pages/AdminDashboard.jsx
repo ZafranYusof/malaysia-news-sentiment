@@ -33,7 +33,8 @@ const AdminDashboard = () => {
     setMetricsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/v1/admin/metrics', { headers: { Authorization: `Bearer ${token}` } });
+      const API = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api/v1';
+      const res = await fetch(`${API}/admin/metrics`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setMetrics(await res.json());
       else setMetrics({ totalCalls: 0, methods: {}, statusCodes: {}, avgResponseTime: 0, topEndpoints: [], errors: 0, errorRate: '0', uptime: '0h 0m', startedAt: new Date().toISOString(), requestsPerMinute: '0', hourlyDistribution: {} });
     } catch { setMetrics({ totalCalls: 0, methods: {}, statusCodes: {}, avgResponseTime: 0, topEndpoints: [], errors: 0, errorRate: '0', uptime: '0h 0m', startedAt: new Date().toISOString(), requestsPerMinute: '0', hourlyDistribution: {} }); }

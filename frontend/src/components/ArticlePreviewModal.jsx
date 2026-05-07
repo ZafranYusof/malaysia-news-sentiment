@@ -17,15 +17,14 @@ const ArticlePreviewModal = ({ article, isOpen, onClose }) => {
   const [localFeedback, setLocalFeedback] = useState(article?.feedback || null);
 
   useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
     if (isOpen && article?._id) {
       document.body.style.overflow = 'hidden';
       trackView(article._id).catch(() => {});
-    } else {
-      document.body.style.overflow = 'auto';
     }
 
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = originalOverflow || '';
     };
   }, [isOpen, article?._id]);
 
@@ -59,9 +58,20 @@ const ArticlePreviewModal = ({ article, isOpen, onClose }) => {
 
   const cleanHtml = (html) => {
     if (!html) return '';
+    // Strip dangerous tags and attributes for XSS prevention
+    let clean = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+    clean = clean.replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '');
+    clean = clean.replace(/<object[^>]*>[\s\S]*?<\/object>/gi, '');
+    clean = clean.replace(/<embed[^>]*>/gi, '');
+    clean = clean.replace(/<link[^>]*>/gi, '');
     // Strip image/figure tags that might break layout
-    let clean = html.replace(/<figure[^>]*>[\s\S]*?<\/figure>/gi, '');
+    clean = clean.replace(/<figure[^>]*>[\s\S]*?<\/figure>/gi, '');
     clean = clean.replace(/<img[^>]*>/gi, '');
+    // Remove event handlers (onclick, onerror, onload, etc.)
+    clean = clean.replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '');
+    clean = clean.replace(/\son\w+\s*=\s*[^\s>]*/gi, '');
+    // Remove javascript: URLs
+    clean = clean.replace(/href\s*=\s*["']javascript:[^"']*["']/gi, '');
     // Remove complex style attributes
     clean = clean.replace(/style="[^"]*"/gi, '');
     return clean;

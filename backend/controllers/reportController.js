@@ -11,8 +11,9 @@ const generatePDFReport = async (req, res) => {
     const { topic, dateFrom, dateTo } = req.body;
 
     // Build query
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const query = {};
-    if (topic && topic !== 'all') query.topic = new RegExp(topic, 'i');
+    if (topic && topic !== 'all') query.topic = new RegExp(escapeRegex(topic), 'i');
     if (dateFrom || dateTo) {
       query.publishedAt = {};
       if (dateFrom) query.publishedAt.$gte = new Date(dateFrom);
@@ -148,7 +149,12 @@ const generatePDFReport = async (req, res) => {
     doc.end();
   } catch (err) {
     console.error('PDF generation error:', err);
-    res.status(500).json({ error: 'Failed to generate report' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to generate report' });
+    } else {
+      // Headers already sent (PDF streaming started), just end the response
+      res.end();
+    }
   }
 };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../services/api';
 
 const SENTIMENT_COLORS = {
   Positive: '#34D882',
@@ -146,14 +147,8 @@ const EntityGraph = ({ query }) => {
       setLoading(true);
       setError(null);
       try {
-        const token = localStorage.getItem('token');
-        const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api/v1';
-        const params = query ? `?query=${encodeURIComponent(query)}` : '';
-        const res = await fetch(`${API_BASE}/entities/graph${params}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error('Failed to fetch entity data');
-        const json = await res.json();
+        const params = query ? { query } : {};
+        const { data: json } = await api.get('/entities/graph', { params });
         setData(json);
       } catch (err) {
         setError(err.message);

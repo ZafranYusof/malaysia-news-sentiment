@@ -204,8 +204,8 @@ const sendDailyDigest = async () => {
  * Schedule daily digest — runs every day at 8:00 AM MYT (0:00 UTC)
  */
 const scheduleNewsletter = () => {
-  // Every day at 8:00 AM Malaysia Time (UTC+8 = 0:00 UTC)
-  cron.schedule('0 0 * * *', () => {
+  // Every day at 8:00 AM Malaysia Time
+  cron.schedule('0 8 * * *', () => {
     console.log('[Newsletter] Cron triggered — generating daily digest...');
     sendDailyDigest();
   }, { timezone: 'Asia/Kuala_Lumpur' });

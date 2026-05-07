@@ -439,26 +439,27 @@ const getSentimentTimeline = async (req, res) => {
     const startDate = new Date(Date.now() - numDays * 24 * 60 * 60 * 1000);
 
     const match = { publishedAt: { $gte: startDate } };
+    const andConditions = [];
     
     if (topic && topic.trim()) {
       const escaped = escapeRegex(topic.trim());
-      match.$or = [
-        { title: { $regex: escaped, $options: 'i' } },
-        { description: { $regex: escaped, $options: 'i' } },
-        { topic: { $regex: escaped, $options: 'i' } },
-      ];
+      andConditions.push({
+        $or: [
+          { title: { $regex: escaped, $options: 'i' } },
+          { description: { $regex: escaped, $options: 'i' } },
+          { topic: { $regex: escaped, $options: 'i' } },
+        ]
+      });
     }
 
     if (isValidObjectId(userId)) {
       match.userId = new mongoose.Types.ObjectId(userId);
     } else {
-      match.$or = match.$or 
-        ? [...match.$or]
-        : undefined;
-      // For non-user-specific, include all public articles
-      if (!match.$or) {
-        match.$or = [{ userId: null }, { userId: { $exists: false } }];
-      }
+      andConditions.push({ $or: [{ userId: null }, { userId: { $exists: false } }] });
+    }
+
+    if (andConditions.length) {
+      match.$and = andConditions;
     }
 
     const timeline = await Article.aggregate([
@@ -547,31 +548,33 @@ const compareTopics = async (req, res) => {
     const results = [];
 
     for (const topic of topics) {
-      const regex = new RegExp(topic, 'i');
+      const regex = new RegExp(escapeRegex(topic), 'i');
       const articles = await Article.find({
         $or: [
           { title: regex },
           { description: regex },
-          { topics: regex },
+          { topic: regex },
         ],
-        analyzedAt: { $gte: since },
+        publishedAt: { $gte: since },
       }).lean();
 
       const total = articles.length;
-      const positive = articles.filter(a => a.sentiment === 'positive').length;
-      const negative = articles.filter(a => a.sentiment === 'negative').length;
-      const neutral = articles.filter(a => a.sentiment === 'neutral').length;
+      const positive = articles.filter(a => a.sentiment === 'Positive').length;
+      const negative = articles.filter(a => a.sentiment === 'Negative').length;
+      const neutral = articles.filter(a => a.sentiment === 'Neutral').length;
 
+      // Calculate avg sentiment score: Positive=1, Negative=-1, Neutral=0
+      const sentimentScore = (a) => a.sentiment === 'Positive' ? 1 : a.sentiment === 'Negative' ? -1 : 0;
       const avgSentiment = total > 0
-        ? articles.reduce((sum, a) => sum + (a.sentimentScore || 0), 0) / total
+        ? articles.reduce((sum, a) => sum + sentimentScore(a), 0) / total
         : 0;
 
       // Simple trend: compare first half vs second half sentiment
       const mid = Math.floor(total / 2);
       const firstHalf = articles.slice(0, mid);
       const secondHalf = articles.slice(mid);
-      const firstAvg = firstHalf.length > 0 ? firstHalf.reduce((s, a) => s + (a.sentimentScore || 0), 0) / firstHalf.length : 0;
-      const secondAvg = secondHalf.length > 0 ? secondHalf.reduce((s, a) => s + (a.sentimentScore || 0), 0) / secondHalf.length : 0;
+      const firstAvg = firstHalf.length > 0 ? firstHalf.reduce((s, a) => s + sentimentScore(a), 0) / firstHalf.length : 0;
+      const secondAvg = secondHalf.length > 0 ? secondHalf.reduce((s, a) => s + sentimentScore(a), 0) / secondHalf.length : 0;
       const trend = secondAvg - firstAvg > 0.05 ? 'improving' : secondAvg - firstAvg < -0.05 ? 'declining' : 'stable';
 
       results.push({

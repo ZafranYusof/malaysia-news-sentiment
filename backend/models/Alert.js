@@ -18,7 +18,7 @@ const alertSchema = new mongoose.Schema({
   conditions: {
     sentiment: {
       type: String,
-      enum: ['negative', 'positive', 'any'],
+      enum: ['Negative', 'Positive', 'Neutral', 'any'],
       default: 'any',
     },
     threshold: {

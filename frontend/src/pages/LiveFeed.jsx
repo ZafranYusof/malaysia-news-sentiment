@@ -118,12 +118,18 @@ const LiveFeed = () => {
     fetchArticles();
   }, [fetchArticles]);
 
-  // SSE connection
+  // SSE connection - use ref for autoScroll to avoid re-creating EventSource
+  const autoScrollRef = useRef(autoScroll);
+  useEffect(() => { autoScrollRef.current = autoScroll; }, [autoScroll]);
+
   useEffect(() => {
     const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api/v1';
     const url = `${API_BASE}/feed/stream`;
+    let reconnectTimer = null;
+    let cancelled = false;
     
     const connect = () => {
+      if (cancelled) return;
       const es = new EventSource(url);
       eventSourceRef.current = es;
 
@@ -141,7 +147,7 @@ const LiveFeed = () => {
               const newIds = new Set(genuinelyNew.map(a => a._id || a.url));
               setNewArticleIds(prev => new Set([...prev, ...newIds]));
               
-              if (!autoScroll) {
+              if (!autoScrollRef.current) {
                 setNewCount(prev => prev + genuinelyNew.length);
               }
               
@@ -156,19 +162,22 @@ const LiveFeed = () => {
       es.onerror = () => {
         setSseConnected(false);
         es.close();
-        // Reconnect after 5s
-        setTimeout(connect, 5000);
+        if (!cancelled) {
+          reconnectTimer = setTimeout(connect, 5000);
+        }
       };
     };
 
     connect();
 
     return () => {
+      cancelled = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
       }
     };
-  }, [autoScroll]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Clear "new" status after 5s
   useEffect(() => {

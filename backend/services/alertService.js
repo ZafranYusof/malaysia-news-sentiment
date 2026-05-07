@@ -28,20 +28,20 @@ const checkAlerts = async (article) => {
 const matchesConditions = (alert, article) => {
   const { sentiment, threshold, topics, sources } = alert.conditions;
 
-  // Sentiment filter
+  // Sentiment filter (normalize case for comparison)
   if (sentiment !== 'any') {
-    if (article.sentiment !== sentiment) return false;
+    if (article.sentiment?.toLowerCase() !== sentiment.toLowerCase()) return false;
   }
 
   // Confidence threshold
   if (article.confidence && article.confidence < threshold) return false;
 
-  // Topics filter
+  // Topics filter (schema uses 'topic' singular string, not 'topics' array)
   if (topics && topics.length > 0) {
-    const articleTopics = (article.topics || []).map(t => t.toLowerCase());
+    const articleTopic = (article.topic || '').toLowerCase();
     const titleLower = (article.title || '').toLowerCase();
     const hasMatch = topics.some(t => 
-      articleTopics.includes(t.toLowerCase()) || titleLower.includes(t.toLowerCase())
+      articleTopic.includes(t.toLowerCase()) || titleLower.includes(t.toLowerCase())
     );
     if (!hasMatch) return false;
   }
@@ -72,7 +72,7 @@ const sendEmailAlert = async (user, article, alert) => {
       },
     });
 
-    const sentimentEmoji = article.sentiment === 'positive' ? '🟢' : article.sentiment === 'negative' ? '🔴' : '🟡';
+    const sentimentEmoji = article.sentiment === 'Positive' ? '🟢' : article.sentiment === 'Negative' ? '🔴' : '🟡';
 
     await transporter.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
@@ -107,7 +107,7 @@ const sendTelegramAlert = async (chatId, article) => {
       return;
     }
 
-    const sentimentEmoji = article.sentiment === 'positive' ? '🟢' : article.sentiment === 'negative' ? '🔴' : '🟡';
+    const sentimentEmoji = article.sentiment === 'Positive' ? '🟢' : article.sentiment === 'Negative' ? '🔴' : '🟡';
     const text = `${sentimentEmoji} *News Alert*\n\n*${article.title}*\nSource: ${article.source || 'Unknown'}\nSentiment: ${article.sentiment} (${Math.round((article.confidence || 0) * 100)}%)\n${article.url ? `\n[Read Article](${article.url})` : ''}`;
 
     const fetch = require('node-fetch');

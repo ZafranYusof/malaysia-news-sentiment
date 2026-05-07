@@ -64,7 +64,7 @@ const AdvancedSearch = () => {
     }
   }, [query, filters]);
 
-  // Debounced search on query change
+  // Debounced search on query/filter change
   useEffect(() => {
     const timer = setTimeout(() => {
       if (query.trim().length >= 2 || filters.sentiment.length || filters.source.length) {
@@ -72,7 +72,7 @@ const AdvancedSearch = () => {
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [query, filters, performSearch]);
+  }, [query, filters.sentiment, filters.source, filters.dateFrom, filters.dateTo, filters.language, filters.minConfidence, filters.sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleSentiment = (s) => {
     setFilters(prev => ({

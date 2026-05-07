@@ -4,17 +4,19 @@ import { useLocation } from 'react-router-dom';
 const PageTransition = ({ children }) => {
   const location = useLocation();
   const [displayChildren, setDisplayChildren] = useState(children);
+  const [currentPath, setCurrentPath] = useState(location.pathname);
   const [transitionStage, setTransitionStage] = useState('fade-in');
 
   useEffect(() => {
-    if (children !== displayChildren) {
+    if (location.pathname !== currentPath) {
       setTransitionStage('fade-out');
     }
-  }, [children, displayChildren]);
+  }, [location.pathname, currentPath]);
 
   const handleTransitionEnd = () => {
     if (transitionStage === 'fade-out') {
       setDisplayChildren(children);
+      setCurrentPath(location.pathname);
       setTransitionStage('fade-in');
     }
   };

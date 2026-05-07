@@ -69,7 +69,8 @@ const generateTopicDigest = async (req, res) => {
     const { topic } = req.params;
     if (!topic) return res.status(400).json({ error: 'Topic parameter required.' });
 
-    const regex = new RegExp(topic, 'i');
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapeRegex(topic), 'i');
     const articles = await Article.find({
       $or: [
         { title: regex },

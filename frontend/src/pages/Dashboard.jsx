@@ -213,9 +213,15 @@ const Dashboard = () => {
       .finally(() => setForecastLoading(false));
   }, []);
 
-  // Automatically trigger forecast when history data loads
+  // Automatically trigger forecast when history data loads (once per view switch)
+  const hasTriedAutoForecast = useRef(false);
   useEffect(() => {
-    if (isHistoryView && articles.length > 0 && !digest && !forecast && !digestLoading && !forecastLoading) {
+    if (!isHistoryView) hasTriedAutoForecast.current = false;
+  }, [isHistoryView]);
+
+  useEffect(() => {
+    if (isHistoryView && articles.length > 0 && !digest && !forecast && !digestLoading && !forecastLoading && !hasTriedAutoForecast.current) {
+      hasTriedAutoForecast.current = true;
       loadForecastAndDigest(articles, 'Recent History');
     }
   }, [articles, isHistoryView, digest, forecast, digestLoading, forecastLoading, loadForecastAndDigest]);
