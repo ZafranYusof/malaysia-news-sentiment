@@ -996,67 +996,69 @@ const apiCategories = [
 
 // ─── Sidebar TOC ─────────────────────────────────────────────────────────────
 const Sidebar = ({ categories, activeSection, onNavigate }) => {
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: '📖' },
+    { id: 'authentication', label: 'Authentication', icon: '🔐' },
+    { id: 'errors', label: 'Error Codes', icon: '⚠️' },
+    { id: 'realtime', label: 'Real-time / SSE', icon: '📡' },
+  ];
+
   return (
-    <nav className="hidden lg:block w-56 shrink-0 sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
-      <div className="space-y-1">
-        <button
-          onClick={() => onNavigate('overview')}
-          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            activeSection === 'overview'
-              ? 'bg-accent/10 text-accent'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-          }`}
-        >
-          Overview
-        </button>
-        <button
-          onClick={() => onNavigate('authentication')}
-          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            activeSection === 'authentication'
-              ? 'bg-accent/10 text-accent'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-          }`}
-        >
-          Authentication
-        </button>
-        <button
-          onClick={() => onNavigate('errors')}
-          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            activeSection === 'errors'
-              ? 'bg-accent/10 text-accent'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-          }`}
-        >
-          Error Codes
-        </button>
-        <button
-          onClick={() => onNavigate('realtime')}
-          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            activeSection === 'realtime'
-              ? 'bg-accent/10 text-accent'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-          }`}
-        >
-          Real-time / SSE
-        </button>
-        <div className="pt-2 pb-1 px-3">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Endpoints</span>
+    <nav className="hidden lg:block w-60 shrink-0 sticky top-[4.5rem] self-start max-h-[calc(100vh-5rem)] overflow-y-auto pr-2">
+      <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4 space-y-1">
+        {/* Logo/Title */}
+        <div className="px-3 pb-3 mb-2 border-b border-[#eee] dark:border-[#2a2a2a]">
+          <p className="text-xs font-bold text-gray-900 dark:text-white">API Reference</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">v1.0 • REST + SSE</p>
         </div>
-        {categories.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => onNavigate(cat.id)}
-            className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-2 ${
-              activeSection === cat.id
-                ? 'bg-accent/10 text-accent'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-            }`}
-          >
-            <span className="text-sm">{cat.icon}</span>
-            <span>{cat.title}</span>
-            <span className="ml-auto text-[10px] text-gray-400">{cat.endpoints.length}</span>
-          </button>
-        ))}
+
+        {/* General sections */}
+        <div className="space-y-0.5">
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2.5 ${
+                activeSection === item.id
+                  ? 'bg-accent/10 text-accent border-l-2 border-accent'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
+              }`}
+            >
+              <span className="text-sm w-5 text-center">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="pt-3 pb-2 px-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Endpoints</span>
+        </div>
+
+        {/* Endpoint categories */}
+        <div className="space-y-0.5">
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => onNavigate(cat.id)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2.5 ${
+                activeSection === cat.id
+                  ? 'bg-accent/10 text-accent border-l-2 border-accent'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
+              }`}
+            >
+              <span className="text-sm w-5 text-center">{cat.icon}</span>
+              <span className="flex-1">{cat.title}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400">{cat.endpoints.length}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="pt-3 mt-2 border-t border-[#eee] dark:border-[#2a2a2a] px-3">
+          <p className="text-[10px] text-gray-400">Base URL:</p>
+          <code className="text-[10px] text-accent break-all">{API_BASE}</code>
+        </div>
       </div>
     </nav>
   );
