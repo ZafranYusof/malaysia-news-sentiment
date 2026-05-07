@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 
@@ -755,7 +755,7 @@ const apiCategories = [
     ],
   },
   {
-    id: 'sources-analysis',
+    id: 'sources',
     title: 'Source Analysis',
     icon: '🔍',
     description: 'Calculated credibility scores based on algorithmic analysis.',
@@ -994,14 +994,19 @@ const apiCategories = [
   },
 ];
 
-// ─── Sidebar TOC ─────────────────────────────────────────────────────────────
-const Sidebar = ({ categories, activeSection, onNavigate }) => {
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: '📖' },
-    { id: 'authentication', label: 'Authentication', icon: '🔐' },
-    { id: 'errors', label: 'Error Codes', icon: '⚠️' },
-    { id: 'realtime', label: 'Real-time / SSE', icon: '📡' },
-  ];
+// ─── Route mapping ───────────────────────────────────────────────────────────
+const SECTION_ROUTES = [
+  { path: '', id: 'overview', label: 'Overview', icon: '📖' },
+  { path: 'authentication', id: 'authentication', label: 'Authentication', icon: '🔐' },
+  { path: 'errors', id: 'errors', label: 'Error Codes', icon: '⚠️' },
+  { path: 'realtime', id: 'realtime', label: 'Real-time / SSE', icon: '📡' },
+  ...apiCategories.map(cat => ({ path: cat.id, id: cat.id, label: cat.title, icon: cat.icon })),
+];
+
+// ─── Sidebar ─────────────────────────────────────────────────────────────────
+const Sidebar = ({ activeSection }) => {
+  const generalItems = SECTION_ROUTES.slice(0, 4);
+  const categoryItems = SECTION_ROUTES.slice(4);
 
   return (
     <nav className="hidden md:block w-60 shrink-0 sticky top-[4.5rem] self-start max-h-[calc(100vh-5rem)] overflow-y-auto pr-2">
@@ -1014,10 +1019,10 @@ const Sidebar = ({ categories, activeSection, onNavigate }) => {
 
         {/* General sections */}
         <div className="space-y-0.5">
-          {navItems.map(item => (
-            <button
+          {generalItems.map(item => (
+            <Link
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              to={`/api${item.path ? '/' + item.path : ''}`}
               className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2.5 ${
                 activeSection === item.id
                   ? 'bg-accent/10 text-accent border-l-2 border-accent'
@@ -1026,7 +1031,7 @@ const Sidebar = ({ categories, activeSection, onNavigate }) => {
             >
               <span className="text-sm w-5 text-center">{item.icon}</span>
               <span>{item.label}</span>
-            </button>
+            </Link>
           ))}
         </div>
 
@@ -1037,21 +1042,24 @@ const Sidebar = ({ categories, activeSection, onNavigate }) => {
 
         {/* Endpoint categories */}
         <div className="space-y-0.5">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => onNavigate(cat.id)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2.5 ${
-                activeSection === cat.id
-                  ? 'bg-accent/10 text-accent border-l-2 border-accent'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
-              }`}
-            >
-              <span className="text-sm w-5 text-center">{cat.icon}</span>
-              <span className="flex-1">{cat.title}</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400">{cat.endpoints.length}</span>
-            </button>
-          ))}
+          {categoryItems.map(item => {
+            const cat = apiCategories.find(c => c.id === item.id);
+            return (
+              <Link
+                key={item.id}
+                to={`/api/${item.path}`}
+                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2.5 ${
+                  activeSection === item.id
+                    ? 'bg-accent/10 text-accent border-l-2 border-accent'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
+                }`}
+              >
+                <span className="text-sm w-5 text-center">{item.icon}</span>
+                <span className="flex-1">{item.label}</span>
+                {cat && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400">{cat.endpoints.length}</span>}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Footer */}
@@ -1064,9 +1072,9 @@ const Sidebar = ({ categories, activeSection, onNavigate }) => {
   );
 };
 
-// ─── Endpoint Card ───────────────────────────────────────────────────────────
-const EndpointCard = ({ endpoint, isPublic }) => {
-  const [expanded, setExpanded] = useState(false);
+// ─── Endpoint Card (always expanded on category pages) ───────────────────────
+const EndpointCard = ({ endpoint, isPublic, defaultExpanded = false }) => {
+  const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
     <motion.div
@@ -1161,46 +1169,330 @@ const EndpointCard = ({ endpoint, isPublic }) => {
   );
 };
 
-// ─── Main Component ──────────────────────────────────────────────────────────
-const ApiDocs = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeSection, setActiveSection] = useState('overview');
-  const [expandedCategories, setExpandedCategories] = useState(new Set(apiCategories.map(c => c.id)));
-  const sectionRefs = useRef({});
-
-  // Filter endpoints by search
-  const filteredCategories = useMemo(() => {
-    if (!searchQuery.trim()) return apiCategories;
-    const q = searchQuery.toLowerCase();
-    return apiCategories
-      .map(cat => ({
-        ...cat,
-        endpoints: cat.endpoints.filter(ep =>
-          ep.path.toLowerCase().includes(q) ||
-          ep.method.toLowerCase().includes(q) ||
-          ep.description.toLowerCase().includes(q)
-        ),
-      }))
-      .filter(cat => cat.endpoints.length > 0);
-  }, [searchQuery]);
-
+// ─── Overview Page ───────────────────────────────────────────────────────────
+const OverviewPage = () => {
   const totalEndpoints = apiCategories.reduce((sum, cat) => sum + cat.endpoints.length, 0);
 
-  const handleNavigate = (sectionId) => {
-    setActiveSection(sectionId);
-    const el = sectionRefs.current[sectionId];
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>
+            </svg>
+            API Documentation
+          </h1>
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-accent/10 text-accent border border-accent/20">v1.0</span>
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/20 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            Operational
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+          Complete reference for the Malaysia News Sentiment Analysis API. {totalEndpoints} endpoints across {apiCategories.length} categories.
+        </p>
 
-  const toggleCategory = (catId) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev);
-      if (next.has(catId)) next.delete(catId);
-      else next.add(catId);
-      return next;
-    });
+        {/* Getting Started */}
+        <div className="mt-6 bg-gradient-to-r from-accent/5 to-purple-500/5 border border-accent/20 rounded-xl p-5">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">🚀 Quick Start</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div className="space-y-1">
+              <p className="font-semibold text-gray-700 dark:text-gray-300">1. Try Public API</p>
+              <p className="text-gray-500 dark:text-gray-400">No auth needed. Test sentiment analysis instantly.</p>
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold text-gray-700 dark:text-gray-300">2. Register & Get Token</p>
+              <p className="text-gray-500 dark:text-gray-400">POST /auth/register for full access to all endpoints.</p>
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold text-gray-700 dark:text-gray-300">3. Explore & Build</p>
+              <p className="text-gray-500 dark:text-gray-400">Use JWT token in headers. 1000 req/hr limit.</p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: 'Base URL', value: API_BASE, mono: true },
+          { label: 'Total Endpoints', value: totalEndpoints },
+          { label: 'Auth Method', value: 'JWT Bearer' },
+          { label: 'Rate Limit', value: '100 req/hr' },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + i * 0.05 }}
+            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-4"
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{stat.label}</p>
+            <p className={`text-sm font-medium text-gray-900 dark:text-white ${stat.mono ? 'font-mono text-xs break-all' : ''}`}>{stat.value}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Rate Limiting */}
+      <div className="bg-yellow-50 dark:bg-yellow-500/5 border border-yellow-200 dark:border-yellow-500/20 rounded-2xl p-5">
+        <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-400 mb-2">⚡ Rate Limiting</h3>
+        <ul className="text-xs text-yellow-700 dark:text-yellow-400/80 space-y-1">
+          <li>• Without auth: <strong>100 requests/hour</strong> per IP</li>
+          <li>• With auth token: <strong>1,000 requests/hour</strong></li>
+          <li>• Admin accounts: <strong>10,000 requests/hour</strong></li>
+          <li>• Headers: <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code></li>
+          <li>• Exceeding returns HTTP 429 with <code>Retry-After</code> header (seconds)</li>
+        </ul>
+      </div>
+
+      {/* All Categories Overview */}
+      <div>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">📚 Endpoint Categories</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {apiCategories.map(cat => (
+            <Link
+              key={cat.id}
+              to={`/api/${cat.id}`}
+              className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-4 hover:shadow-md hover:border-accent/30 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">{cat.icon}</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-accent transition-colors">{cat.title}</p>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">{cat.description}</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400">{cat.endpoints.length}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-[#eee] dark:border-[#2a2a2a] pt-6 text-center">
+        <p className="text-xs text-gray-400 dark:text-gray-500">
+          Malaysia News Sentiment Analysis API v1.0 — Built with NanoT5 & HuggingFace Models
+        </p>
+        <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-1">
+          {totalEndpoints} endpoints • JWT Authentication • SSE Real-time • Rate Limited
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ─── Authentication Page ─────────────────────────────────────────────────────
+const AuthenticationPage = () => (
+  <div className="space-y-6">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        🔐 Authentication
+      </h1>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Protected endpoints require a JWT Bearer token in the <code className="text-accent bg-accent/5 px-1.5 py-0.5 rounded">Authorization</code> header.
+        Obtain a token via <code className="text-accent bg-accent/5 px-1.5 py-0.5 rounded">/auth/login</code> or <code className="text-accent bg-accent/5 px-1.5 py-0.5 rounded">/auth/register</code>.
+      </p>
+      <CodeBlock code={`# Include in all protected requests:\ncurl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." "${API_BASE}/news"`} language="bash" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-2 py-0.5 rounded bg-green-50 dark:bg-green-500/5 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/20 font-medium">Public</span>
+          <span className="text-gray-500">No token needed</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-2 py-0.5 rounded bg-yellow-50 dark:bg-yellow-500/5 text-yellow-600 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/20 font-medium">Auth Required</span>
+          <span className="text-gray-500">Valid JWT token</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-2 py-0.5 rounded bg-red-50 dark:bg-red-500/5 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 font-medium">Admin</span>
+          <span className="text-gray-500">Admin role JWT</span>
+        </div>
+      </div>
+      <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 space-y-2">
+        <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">Token Lifecycle</h4>
+        <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+          <li>• Tokens expire after <strong>7 days</strong></li>
+          <li>• Guest tokens expire after <strong>24 hours</strong></li>
+          <li>• Include token in header: <code className="text-accent">Authorization: Bearer &lt;token&gt;</code></li>
+          <li>• Expired tokens return <code className="text-accent">401 Unauthorized</code></li>
+        </ul>
+      </div>
+    </motion.div>
+  </div>
+);
+
+// ─── Errors Page ─────────────────────────────────────────────────────────────
+const ErrorsPage = () => (
+  <div className="space-y-6">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        ⚠️ Error Codes
+      </h1>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        All errors follow a consistent JSON format with an error message and optional details.
+      </p>
+      <CodeBlock code={`{\n  "error": "Validation failed",\n  "message": "Text parameter is required and must be at least 5 characters",\n  "statusCode": 400\n}`} />
+      <div className="border border-[#eee] dark:border-[#2a2a2a] rounded-xl overflow-hidden">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="bg-gray-50 dark:bg-white/5">
+              <th className="text-left px-4 py-2.5 font-medium text-gray-500">Code</th>
+              <th className="text-left px-4 py-2.5 font-medium text-gray-500">Status</th>
+              <th className="text-left px-4 py-2.5 font-medium text-gray-500">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { code: 200, status: 'OK', desc: 'Request successful' },
+              { code: 201, status: 'Created', desc: 'Resource created successfully' },
+              { code: 400, status: 'Bad Request', desc: 'Invalid parameters or missing required fields' },
+              { code: 401, status: 'Unauthorized', desc: 'Missing or invalid authentication token' },
+              { code: 403, status: 'Forbidden', desc: 'Insufficient permissions (e.g., admin-only endpoint)' },
+              { code: 404, status: 'Not Found', desc: 'Resource does not exist' },
+              { code: 429, status: 'Too Many Requests', desc: 'Rate limit exceeded. Check Retry-After header' },
+              { code: 500, status: 'Internal Error', desc: 'Server error. Contact admin if persistent' },
+            ].map((err, i) => (
+              <tr key={i} className="border-t border-[#eee] dark:border-[#2a2a2a]">
+                <td className="px-4 py-2.5 font-mono font-bold text-gray-900 dark:text-white">{err.code}</td>
+                <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">{err.status}</td>
+                <td className="px-4 py-2.5 text-gray-500 dark:text-gray-400">{err.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
+  </div>
+);
+
+// ─── Real-time Page ──────────────────────────────────────────────────────────
+const RealtimePage = () => (
+  <div className="space-y-6">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        📡 Real-time Updates (SSE)
+      </h1>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        The API supports Server-Sent Events (SSE) for real-time article updates. Connect to the stream endpoint to receive new articles as they are analyzed.
+      </p>
+      <div className="space-y-3">
+        <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">JavaScript Example</h4>
+        <CodeBlock code={`const eventSource = new EventSource('${API_BASE}/feed/stream');\n\neventSource.addEventListener('article', (event) => {\n  const article = JSON.parse(event.data);\n  console.log('New article:', article.title, article.sentiment);\n});\n\neventSource.addEventListener('heartbeat', (event) => {\n  // Connection keep-alive\n});\n\neventSource.onerror = () => {\n  // Auto-reconnects by default\n  console.log('Connection lost, reconnecting...');\n};`} language="javascript" />
+      </div>
+      <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 space-y-2">
+        <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">Event Types</h4>
+        <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+          <li>• <code className="text-accent">article</code> — New article analyzed (includes full article data)</li>
+          <li>• <code className="text-accent">heartbeat</code> — Keep-alive signal (every 30s)</li>
+          <li>• <code className="text-accent">error</code> — Stream error notification</li>
+        </ul>
+      </div>
+      <div className="bg-blue-50 dark:bg-blue-500/5 border border-blue-200 dark:border-blue-500/20 rounded-xl p-4">
+        <p className="text-xs text-blue-700 dark:text-blue-400">
+          <strong>Note:</strong> SSE connections auto-reconnect on disconnect. No authentication required for the public stream. Average latency from article ingestion to stream delivery is ~2 seconds.
+        </p>
+      </div>
+    </motion.div>
+  </div>
+);
+
+// ─── Category Page ───────────────────────────────────────────────────────────
+const CategoryPage = ({ category }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredEndpoints = useMemo(() => {
+    if (!searchQuery.trim()) return category.endpoints;
+    const q = searchQuery.toLowerCase();
+    return category.endpoints.filter(ep =>
+      ep.path.toLowerCase().includes(q) ||
+      ep.method.toLowerCase().includes(q) ||
+      ep.description.toLowerCase().includes(q)
+    );
+  }, [searchQuery, category]);
+
+  return (
+    <div className="space-y-6">
+      {/* Category Header */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-2xl">{category.icon}</span>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{category.title}</h1>
+          <span className="text-xs text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">
+            {category.endpoints.length} endpoint{category.endpoints.length > 1 ? 's' : ''}
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{category.description}</p>
+      </motion.div>
+
+      {/* Search within category */}
+      {category.endpoints.length > 3 && (
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input
+            type="text"
+            placeholder={`Search ${category.title} endpoints...`}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
+          />
+        </div>
+      )}
+
+      {/* Endpoints (expanded by default) */}
+      <div className="space-y-3">
+        {filteredEndpoints.map((ep, idx) => (
+          <EndpointCard
+            key={`${category.id}-${idx}`}
+            endpoint={ep}
+            isPublic={ep.auth === 'none' && ep.method === 'GET' && ep.path.startsWith('/public')}
+            defaultExpanded={true}
+          />
+        ))}
+      </div>
+
+      {filteredEndpoints.length === 0 && searchQuery && (
+        <div className="text-center py-12">
+          <p className="text-gray-400 dark:text-gray-500 text-sm">No endpoints match "{searchQuery}"</p>
+          <button onClick={() => setSearchQuery('')} className="mt-2 text-accent text-xs hover:underline">Clear search</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Main Component ──────────────────────────────────────────────────────────
+const ApiDocs = () => {
+  const location = useLocation();
+
+  // Determine active section from URL path
+  const activeSection = useMemo(() => {
+    const path = location.pathname.replace(/^\/api\/?/, '').replace(/\/$/, '');
+    if (!path) return 'overview';
+    return path;
+  }, [location.pathname]);
+
+  // Render the appropriate page content
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'overview':
+        return <OverviewPage />;
+      case 'authentication':
+        return <AuthenticationPage />;
+      case 'errors':
+        return <ErrorsPage />;
+      case 'realtime':
+        return <RealtimePage />;
+      default: {
+        const category = apiCategories.find(c => c.id === activeSection);
+        if (category) {
+          return <CategoryPage category={category} key={category.id} />;
+        }
+        return <OverviewPage />;
+      }
+    }
   };
 
   return (
@@ -1220,313 +1512,30 @@ const ApiDocs = () => {
         </div>
       </nav>
 
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="flex gap-8 max-w-7xl mx-auto px-6 py-8"
-    >
-      {/* Sidebar */}
-      <Sidebar
-        categories={apiCategories}
-        activeSection={activeSection}
-        onNavigate={handleNavigate}
-      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className="flex gap-8 max-w-7xl mx-auto px-6 py-8"
+      >
+        {/* Sidebar */}
+        <Sidebar activeSection={activeSection} />
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0 space-y-8 pb-20">
-        {/* Header */}
-        <motion.div
-          ref={el => sectionRefs.current['overview'] = el}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>
-              </svg>
-              API Documentation
-            </h1>
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-accent/10 text-accent border border-accent/20">v1.0</span>
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/20 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              Operational
-            </span>
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-            Complete reference for the Malaysia News Sentiment Analysis API. {totalEndpoints} endpoints across {apiCategories.length} categories.
-          </p>
-
-          {/* Getting Started */}
-          <div className="mt-6 bg-gradient-to-r from-accent/5 to-purple-500/5 border border-accent/20 rounded-xl p-5">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">🚀 Quick Start</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div className="space-y-1">
-                <p className="font-semibold text-gray-700 dark:text-gray-300">1. Try Public API</p>
-                <p className="text-gray-500 dark:text-gray-400">No auth needed. Test sentiment analysis instantly.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-semibold text-gray-700 dark:text-gray-300">2. Register & Get Token</p>
-                <p className="text-gray-500 dark:text-gray-400">POST /auth/register for full access to all endpoints.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-semibold text-gray-700 dark:text-gray-300">3. Explore & Build</p>
-                <p className="text-gray-500 dark:text-gray-400">Use JWT token in headers. 1000 req/hr limit.</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Search */}
-        <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search endpoints... (e.g. sentiment, POST, bookmark)"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          )}
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: 'Base URL', value: API_BASE, mono: true },
-            { label: 'Total Endpoints', value: totalEndpoints },
-            { label: 'Auth Method', value: 'JWT Bearer' },
-            { label: 'Rate Limit', value: '100 req/hr' },
-          ].map((stat, i) => (
+        {/* Main Content */}
+        <div className="flex-1 min-w-0 pb-20">
+          <AnimatePresence mode="wait">
             <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.05 }}
-              className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-4"
+              key={activeSection}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
             >
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{stat.label}</p>
-              <p className={`text-sm font-medium text-gray-900 dark:text-white ${stat.mono ? 'font-mono text-xs break-all' : ''}`}>{stat.value}</p>
+              {renderContent()}
             </motion.div>
-          ))}
+          </AnimatePresence>
         </div>
-
-        {/* Authentication Section */}
-        <motion.div
-          ref={el => sectionRefs.current['authentication'] = el}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4"
-        >
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            🔐 Authentication
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Protected endpoints require a JWT Bearer token in the <code className="text-accent bg-accent/5 px-1.5 py-0.5 rounded">Authorization</code> header.
-            Obtain a token via <code className="text-accent bg-accent/5 px-1.5 py-0.5 rounded">/auth/login</code> or <code className="text-accent bg-accent/5 px-1.5 py-0.5 rounded">/auth/register</code>.
-          </p>
-          <CodeBlock code={`# Include in all protected requests:\ncurl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." "${API_BASE}/news"`} language="bash" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2 py-0.5 rounded bg-green-50 dark:bg-green-500/5 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/20 font-medium">Public</span>
-              <span className="text-gray-500">No token needed</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2 py-0.5 rounded bg-yellow-50 dark:bg-yellow-500/5 text-yellow-600 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/20 font-medium">Auth Required</span>
-              <span className="text-gray-500">Valid JWT token</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2 py-0.5 rounded bg-red-50 dark:bg-red-500/5 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 font-medium">Admin</span>
-              <span className="text-gray-500">Admin role JWT</span>
-            </div>
-          </div>
-          <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 space-y-2">
-            <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">Token Lifecycle</h4>
-            <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-              <li>• Tokens expire after <strong>7 days</strong></li>
-              <li>• Guest tokens expire after <strong>24 hours</strong></li>
-              <li>• Include token in header: <code className="text-accent">Authorization: Bearer &lt;token&gt;</code></li>
-              <li>• Expired tokens return <code className="text-accent">401 Unauthorized</code></li>
-            </ul>
-          </div>
-        </motion.div>
-
-        {/* Error Codes Section */}
-        <motion.div
-          ref={el => sectionRefs.current['errors'] = el}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4"
-        >
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            ⚠️ Error Codes
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            All errors follow a consistent JSON format with an error message and optional details.
-          </p>
-          <CodeBlock code={`{\n  "error": "Validation failed",\n  "message": "Text parameter is required and must be at least 5 characters",\n  "statusCode": 400\n}`} />
-          <div className="border border-[#eee] dark:border-[#2a2a2a] rounded-xl overflow-hidden">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="bg-gray-50 dark:bg-white/5">
-                  <th className="text-left px-4 py-2.5 font-medium text-gray-500">Code</th>
-                  <th className="text-left px-4 py-2.5 font-medium text-gray-500">Status</th>
-                  <th className="text-left px-4 py-2.5 font-medium text-gray-500">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { code: 200, status: 'OK', desc: 'Request successful' },
-                  { code: 201, status: 'Created', desc: 'Resource created successfully' },
-                  { code: 400, status: 'Bad Request', desc: 'Invalid parameters or missing required fields' },
-                  { code: 401, status: 'Unauthorized', desc: 'Missing or invalid authentication token' },
-                  { code: 403, status: 'Forbidden', desc: 'Insufficient permissions (e.g., admin-only endpoint)' },
-                  { code: 404, status: 'Not Found', desc: 'Resource does not exist' },
-                  { code: 429, status: 'Too Many Requests', desc: 'Rate limit exceeded. Check Retry-After header' },
-                  { code: 500, status: 'Internal Error', desc: 'Server error. Contact admin if persistent' },
-                ].map((err, i) => (
-                  <tr key={i} className="border-t border-[#eee] dark:border-[#2a2a2a]">
-                    <td className="px-4 py-2.5 font-mono font-bold text-gray-900 dark:text-white">{err.code}</td>
-                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">{err.status}</td>
-                    <td className="px-4 py-2.5 text-gray-500 dark:text-gray-400">{err.desc}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-
-        {/* Real-time / SSE Section */}
-        <motion.div
-          ref={el => sectionRefs.current['realtime'] = el}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4"
-        >
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            📡 Real-time Updates (SSE)
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            The API supports Server-Sent Events (SSE) for real-time article updates. Connect to the stream endpoint to receive new articles as they are analyzed.
-          </p>
-          <div className="space-y-3">
-            <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">JavaScript Example</h4>
-            <CodeBlock code={`const eventSource = new EventSource('${API_BASE}/feed/stream');\n\neventSource.addEventListener('article', (event) => {\n  const article = JSON.parse(event.data);\n  console.log('New article:', article.title, article.sentiment);\n});\n\neventSource.addEventListener('heartbeat', (event) => {\n  // Connection keep-alive\n});\n\neventSource.onerror = () => {\n  // Auto-reconnects by default\n  console.log('Connection lost, reconnecting...');\n};`} language="javascript" />
-          </div>
-          <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 space-y-2">
-            <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">Event Types</h4>
-            <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-              <li>• <code className="text-accent">article</code> — New article analyzed (includes full article data)</li>
-              <li>• <code className="text-accent">heartbeat</code> — Keep-alive signal (every 30s)</li>
-              <li>• <code className="text-accent">error</code> — Stream error notification</li>
-            </ul>
-          </div>
-          <div className="bg-blue-50 dark:bg-blue-500/5 border border-blue-200 dark:border-blue-500/20 rounded-xl p-4">
-            <p className="text-xs text-blue-700 dark:text-blue-400">
-              <strong>Note:</strong> SSE connections auto-reconnect on disconnect. No authentication required for the public stream. Average latency from article ingestion to stream delivery is ~2 seconds.
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Rate Limiting */}
-        <div className="bg-yellow-50 dark:bg-yellow-500/5 border border-yellow-200 dark:border-yellow-500/20 rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-400 mb-2">⚡ Rate Limiting</h3>
-          <ul className="text-xs text-yellow-700 dark:text-yellow-400/80 space-y-1">
-            <li>• Without auth: <strong>100 requests/hour</strong> per IP</li>
-            <li>• With auth token: <strong>1,000 requests/hour</strong></li>
-            <li>• Admin accounts: <strong>10,000 requests/hour</strong></li>
-            <li>• Headers: <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code></li>
-            <li>• Exceeding returns HTTP 429 with <code>Retry-After</code> header (seconds)</li>
-          </ul>
-        </div>
-
-        {/* Endpoint Categories */}
-        {filteredCategories.map((cat) => (
-          <motion.div
-            key={cat.id}
-            ref={el => sectionRefs.current[cat.id] = el}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-3"
-          >
-            <button
-              onClick={() => toggleCategory(cat.id)}
-              className="w-full flex items-center gap-3 group"
-            >
-              <span className="text-xl">{cat.icon}</span>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{cat.title}</h2>
-              <span className="text-xs text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">
-                {cat.endpoints.length} endpoint{cat.endpoints.length > 1 ? 's' : ''}
-              </span>
-              <svg
-                className={`ml-auto w-5 h-5 text-gray-400 transition-transform ${expandedCategories.has(cat.id) ? 'rotate-180' : ''}`}
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              >
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </button>
-            <p className="text-xs text-gray-500 dark:text-gray-400 pl-9">{cat.description}</p>
-
-            <AnimatePresence>
-              {expandedCategories.has(cat.id) && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-2 overflow-hidden"
-                >
-                  {cat.endpoints.map((ep, idx) => (
-                    <EndpointCard
-                      key={`${cat.id}-${idx}`}
-                      endpoint={ep}
-                      isPublic={ep.auth === 'none' && ep.method === 'GET' && ep.path.startsWith('/public')}
-                    />
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        ))}
-
-        {/* No Results */}
-        {filteredCategories.length === 0 && searchQuery && (
-          <div className="text-center py-12">
-            <p className="text-gray-400 dark:text-gray-500 text-sm">No endpoints match "{searchQuery}"</p>
-            <button
-              onClick={() => setSearchQuery('')}
-              className="mt-2 text-accent text-xs hover:underline"
-            >
-              Clear search
-            </button>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="border-t border-[#eee] dark:border-[#2a2a2a] pt-6 text-center">
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            Malaysia News Sentiment Analysis API v1.0 — Built with NanoT5 & HuggingFace Models
-          </p>
-          <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-1">
-            {totalEndpoints} endpoints • JWT Authentication • SSE Real-time • Rate Limited
-          </p>
-        </div>
-      </div>
-    </motion.div>
+      </motion.div>
     </div>
   );
 };
