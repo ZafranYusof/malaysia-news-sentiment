@@ -632,23 +632,32 @@ const LandingPage = () => {
       <div className="relative z-10">
       <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
-      {/* ─── HERO ─── */}
-      <motion.header className="relative pt-32 pb-20 px-6 overflow-hidden min-h-[90vh] flex items-center" style={{ y: heroY, opacity: heroOpacity }}>
-        {/* 3D Spline Background (desktop only) */}
-        <div className="absolute inset-0 hidden md:block pointer-events-none z-0 overflow-hidden">
+      {/* ─── HERO - Full Spline 3D ─── */}
+      <section className="relative w-full h-screen overflow-hidden bg-black">
+        {/* Spline 3D Scene - takes full viewport */}
+        <div className="absolute inset-0 z-0">
           <Spline
             scene="https://prod.spline.design/agN6RQgH0kZxBGNx/scene.splinecode"
-            style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, opacity: 0.65 }}
+            style={{ width: '100%', height: '100%' }}
           />
         </div>
-        {/* Fallback background effects (mobile + while Spline loads) */}
-        <div className="md:hidden">
-          <GradientOrbs />
-          <FloatingParticles count={40} />
-        </div>
-        <MouseFollowGradient />
 
-        <motion.div className="relative max-w-5xl mx-auto text-center w-full" initial="hidden" animate="visible" variants={staggerContainer}>
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <span className="text-white/50 text-xs uppercase tracking-widest">Scroll</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </motion.div>
+      </section>
+
+      {/* ─── CONTENT BELOW HERO ─── */}
+      <motion.section className="relative pt-20 pb-16 px-6" style={{ opacity: heroOpacity }}>
+        <motion.div className="max-w-5xl mx-auto text-center" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
           {/* Badge */}
           <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8">
             <motion.span
@@ -684,7 +693,7 @@ const LandingPage = () => {
             Real-time AI that monitors, classifies, and visualizes sentiment across Malaysia's top news sources. Never miss a narrative shift.
           </motion.p>
 
-          {/* CTA with glow */}
+          {/* CTA */}
           <motion.div variants={staggerItem} className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <motion.button
               onClick={() => navigate('/register')}
@@ -725,7 +734,7 @@ const LandingPage = () => {
             ))}
           </motion.div>
         </motion.div>
-      </motion.header>
+      </motion.section>
 
       {/* ─── STATS ─── */}
       <AnimatedSection className="py-10 px-6" variants={staggerContainer}>
