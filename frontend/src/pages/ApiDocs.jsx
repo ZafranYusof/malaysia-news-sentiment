@@ -1223,15 +1223,41 @@ const ApiDocs = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>
-            </svg>
-            API Documentation
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>
+              </svg>
+              API Documentation
+            </h1>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-accent/10 text-accent border border-accent/20">v1.0</span>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/20 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              Operational
+            </span>
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
             Complete reference for the Malaysia News Sentiment Analysis API. {totalEndpoints} endpoints across {apiCategories.length} categories.
           </p>
+
+          {/* Getting Started */}
+          <div className="mt-6 bg-gradient-to-r from-accent/5 to-purple-500/5 border border-accent/20 rounded-xl p-5">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">🚀 Quick Start</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="space-y-1">
+                <p className="font-semibold text-gray-700 dark:text-gray-300">1. Try Public API</p>
+                <p className="text-gray-500 dark:text-gray-400">No auth needed. Test sentiment analysis instantly.</p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-semibold text-gray-700 dark:text-gray-300">2. Register & Get Token</p>
+                <p className="text-gray-500 dark:text-gray-400">POST /auth/register for full access to all endpoints.</p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-semibold text-gray-700 dark:text-gray-300">3. Explore & Build</p>
+                <p className="text-gray-500 dark:text-gray-400">Use JWT token in headers. 1000 req/hr limit.</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Search */}
