@@ -24,8 +24,65 @@ const TopSourcesChart = lazy(() => import('../components/TopSourcesChart'));
 const SentimentMap = lazy(() => import('../components/SentimentMap'));
 
 const ChartFallback = () => (
-  <div className="flex items-center justify-center h-48 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#eee] dark:border-[#2a2a2a]">
-    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+  <div className="h-48 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#eee] dark:border-[#2a2a2a] p-5 space-y-3">
+    <div className="flex items-center gap-2">
+      <div className="h-3 w-3 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+      <div className="h-3 w-32 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+    </div>
+    <div className="flex items-end gap-3 h-28 pt-4">
+      <div className="flex-1 h-[60%] rounded-t-lg bg-gray-200 dark:bg-gray-700 animate-pulse" style={{ animationDelay: '0ms' }} />
+      <div className="flex-1 h-[80%] rounded-t-lg bg-gray-200 dark:bg-gray-700 animate-pulse" style={{ animationDelay: '150ms' }} />
+      <div className="flex-1 h-[45%] rounded-t-lg bg-gray-200 dark:bg-gray-700 animate-pulse" style={{ animationDelay: '300ms' }} />
+      <div className="flex-1 h-[70%] rounded-t-lg bg-gray-200 dark:bg-gray-700 animate-pulse" style={{ animationDelay: '450ms' }} />
+      <div className="flex-1 h-[55%] rounded-t-lg bg-gray-200 dark:bg-gray-700 animate-pulse" style={{ animationDelay: '600ms' }} />
+    </div>
+  </div>
+);
+
+const DashboardSkeleton = () => (
+  <div className="space-y-6 animate-pulse">
+    {/* Header skeleton */}
+    <div className="space-y-2">
+      <div className="h-7 w-48 rounded-lg bg-gray-200 dark:bg-gray-700" />
+      <div className="h-4 w-64 rounded bg-gray-200 dark:bg-gray-700" />
+    </div>
+    {/* Search bar skeleton */}
+    <div className="h-12 rounded-2xl bg-gray-200 dark:bg-gray-700" />
+    {/* KPI row skeleton */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {[1,2,3,4].map(i => (
+        <div key={i} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 space-y-2">
+          <div className="h-3 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-8 w-12 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+        </div>
+      ))}
+    </div>
+    {/* Charts skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {[1,2].map(i => (
+        <div key={i} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-3 w-28 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="h-40 rounded-xl bg-gray-100 dark:bg-gray-800" />
+        </div>
+      ))}
+    </div>
+    {/* Article cards skeleton */}
+    <div className="space-y-3">
+      {[1,2,3].map(i => (
+        <div key={i} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4 flex gap-4">
+          <div className="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-700 shrink-0" />
+          <div className="flex-1 space-y-2 py-1">
+            <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-3 w-full rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+        </div>
+      ))}
+    </div>
   </div>
 );
 
@@ -41,6 +98,7 @@ import {
 import { exportToCSV } from '../services/exportUtils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '../context/SocketContext';
+import api from '../services/api';
 
 const FILTER_OPTIONS = [
   { key: 'All',      label: 'All' },
@@ -292,6 +350,30 @@ const Dashboard = () => {
     window.print();
   };
 
+  const handleDownloadPDF = async () => {
+    const pdfToast = toast.loading('Generating PDF report...');
+    try {
+      const response = await api.post('/reports/generate', {
+        topic: currentQuery || 'All Topics',
+        dateFrom: '',
+        dateTo: '',
+      }, { responseType: 'blob' });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `malaysia-news-sentiment-report-${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('PDF report downloaded!', { id: pdfToast });
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      toast.error('Failed to generate PDF report.', { id: pdfToast });
+    }
+  };
+
   const filteredArticles = (() => {
     if (filter === 'All')    return articles;
     if (filter === 'Alerts') return articles.filter(a => a.isAlert);
@@ -397,8 +479,13 @@ const Dashboard = () => {
       )}
 
       {/* Content */}
-      <div className={`mt-6 ${isLoading ? 'opacity-60' : ''} transition-opacity`}>
-        {!error && (articles.length > 0 || isLoading) && (
+      <div className="mt-6 transition-opacity">
+        {/* Full-page skeleton for initial load with no cached data */}
+        {initLoading && articles.length === 0 && !error && (
+          <DashboardSkeleton />
+        )}
+
+        {!error && (articles.length > 0 || (isLoading && !initLoading)) && (
           <>
             {/* View Banner */}
             <Skeleton name="dash-banner" loading={isLoading}>
@@ -449,6 +536,9 @@ const Dashboard = () => {
                     <Sparkles size={12} /> AI Forecast
                   </button>
                   <ExportPPT articles={articles} distribution={distribution} sources={sources} query={currentQuery} />
+                  <button onClick={handleDownloadPDF} className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors">
+                    <FileDown size={12} /> PDF
+                  </button>
                   <button onClick={handlePrint} className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
                     Report
                   </button>
@@ -960,6 +1050,12 @@ const Dashboard = () => {
                     <FileDown size={18} />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Export CSV</span>
+                </button>
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handleDownloadPDF(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+                    <FileDown size={18} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Download PDF Report</span>
                 </button>
               </div>
             </motion.div>

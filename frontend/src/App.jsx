@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,37 +7,44 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import Dashboard from './pages/Dashboard';
-import History from './pages/History';
+
+// Lazy-loaded heavy pages (code splitting)
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Heatmap = lazy(() => import('./pages/Heatmap'));
+const EntityGraphPage = lazy(() => import('./pages/EntityGraphPage'));
+const Reports = lazy(() => import('./pages/Reports'));
+const AdvancedSearch = lazy(() => import('./pages/AdvancedSearch'));
+const LiveFeed = lazy(() => import('./pages/LiveFeed'));
+const Forecast = lazy(() => import('./pages/Forecast'));
+const Categories = lazy(() => import('./pages/Categories'));
+const SentimentTimeline = lazy(() => import('./pages/SentimentTimeline'));
+const ComparePage = lazy(() => import('./pages/Compare'));
+const Trending = lazy(() => import('./pages/Trending'));
+const Digest = lazy(() => import('./pages/Digest'));
+
+// Lighter pages - still lazy but less critical
+const History = lazy(() => import('./pages/History'));
+const Bookmarks = lazy(() => import('./pages/Bookmarks'));
+const Alerts = lazy(() => import('./pages/Alerts'));
+const SourceCredibility = lazy(() => import('./pages/SourceCredibility'));
+const ApiDocs = lazy(() => import('./pages/ApiDocs'));
+const SharedArticle = lazy(() => import('./pages/SharedArticle'));
+
+// Small/auth pages - eagerly loaded for fast navigation
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
-import ComparePage from './pages/Compare';
-import Bookmarks from './pages/Bookmarks';
-import Trending from './pages/Trending';
-import LandingPage from './pages/LandingPage';
-import AdminDashboard from './pages/AdminDashboard';
 import StaticPage from './pages/StaticPage';
 import ContactPage from './pages/ContactPage';
 import FeaturesPage from './pages/FeaturesPage';
 import PricingPage from './pages/PricingPage';
 import AboutPage from './pages/AboutPage';
 import NotFound from './pages/NotFound';
-import EntityGraphPage from './pages/EntityGraphPage';
-import LiveFeed from './pages/LiveFeed';
-import SentimentTimeline from './pages/SentimentTimeline';
 import VerifyEmailPage from './pages/VerifyEmailPage';
-import Alerts from './pages/Alerts';
-import SourceCredibility from './pages/SourceCredibility';
-import Digest from './pages/Digest';
-import AdvancedSearch from './pages/AdvancedSearch';
-import ApiDocs from './pages/ApiDocs';
-import Reports from './pages/Reports';
-import Heatmap from './pages/Heatmap';
-import Categories from './pages/Categories';
-import Forecast from './pages/Forecast';
-import SharedArticle from './pages/SharedArticle';
+
 import LoadingScreen from './components/LoadingScreen';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTransition from './components/PageTransition';
@@ -447,8 +454,10 @@ const AppShell = ({ children }) => {
 };
 
 import { SocketProvider } from './context/SocketContext';
+import LoadingSpinner from './components/LoadingSpinner';
 
 const AppInner = () => (
+  <Suspense fallback={<LoadingSpinner />}>
   <PageTransition>
   <Routes>
     <Route path="/"               element={<LandingPage />} />
@@ -493,6 +502,7 @@ const AppInner = () => (
     <Route path="*" element={<NotFound />} />
   </Routes>
   </PageTransition>
+  </Suspense>
 );
 
 const App = () => (

@@ -365,41 +365,152 @@ const FAQItem = ({ question, answer, index }) => {
 };
 
 // ── Navbar ──
-const Navbar = ({ isDark, toggleTheme, navigate }) => (
-  <motion.nav
-    className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
-    initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-  >
-    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-        <Newspaper className="w-5 h-5 text-accent" />
-        <span>MY News <span className="text-accent">Sentiment</span></span>
-      </Link>
-      <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
-        <a href="#features" className="hover:text-accent transition-colors">Features</a>
-        <Link to="/api" className="hover:text-accent transition-colors">Docs</Link>
-        <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
-        <Link to="/about" className="hover:text-accent transition-colors">About</Link>
-        <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
-      </div>
-      <div className="flex items-center gap-3">
-        <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
-          {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
-        </button>
-        <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
-          Log in
-        </Link>
-        <motion.button
-          onClick={() => navigate('/register')}
-          className="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
-          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-        >
-          Get Started
-        </motion.button>
-      </div>
-    </div>
-  </motion.nav>
-);
+const Navbar = ({ isDark, toggleTheme, navigate }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  return (
+    <>
+      <motion.nav
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
+        initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+            <Newspaper className="w-5 h-5 text-accent" />
+            <span>MY News <span className="text-accent">Sentiment</span></span>
+          </Link>
+          <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+            <a href="#features" className="hover:text-accent transition-colors">Features</a>
+            <Link to="/api" className="hover:text-accent transition-colors">Docs</Link>
+            <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+            <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
+              {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+            </button>
+            <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
+              Log in
+            </Link>
+            <motion.button
+              onClick={() => navigate('/register')}
+              className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+            >
+              Get Started
+            </motion.button>
+            {/* Hamburger button - mobile only */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors"
+              aria-label="Toggle menu"
+            >
+              <AnimatePresence mode="wait">
+                {mobileMenuOpen ? (
+                  <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
+                    <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  </motion.div>
+                ) : (
+                  <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
+                    <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </button>
+          </div>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            className="fixed inset-0 z-40 md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+              onClick={() => setMobileMenuOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            {/* Menu panel */}
+            <motion.div
+              className="absolute top-16 left-0 right-0 bg-white dark:bg-[#0f0f0f] border-b border-[#eee] dark:border-[#2a2a2a] shadow-xl"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="flex flex-col px-6 py-4 space-y-1">
+                {[
+                  { label: 'Features', href: '#features', isAnchor: true },
+                  { label: 'Docs', to: '/api' },
+                  { label: 'Pricing', to: '/pricing' },
+                  { label: 'About', to: '/about' },
+                  { label: 'Contact', to: '/contact' },
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.3 }}
+                  >
+                    {item.isAnchor ? (
+                      <a
+                        href={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors"
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={item.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </motion.div>
+                ))}
+                <motion.div
+                  className="pt-3 mt-2 border-t border-[#eee] dark:border-[#2a2a2a] flex flex-col gap-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.25 }}
+                >
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); navigate('/register'); }}
+                    className="w-full py-3 text-sm font-semibold text-white bg-accent rounded-xl hover:bg-blue-700 transition-colors"
+                  >
+                    Get Started
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
 
 // ── Footer ──
 const Footer = () => (

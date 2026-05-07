@@ -130,8 +130,8 @@ app.get('/api/v1/admin/metrics', protect, authorize('admin'), (req, res) => {
 });
 
 // ── Routes (v1) ───────────────────────────────────────────────
-app.use('/api/v1/auth', require('./routes/authRoutes'));
-app.use('/api/v1/news', require('./routes/newsRoutes'));
+app.use('/api/v1/auth', authLimiter, require('./routes/authRoutes'));
+app.use('/api/v1/news', analysisLimiter, require('./routes/newsRoutes'));
 app.use('/api/v1/history', require('./routes/historyRoutes'));
 
 // ── New feature routes ────────────────────────────────────────
@@ -142,14 +142,14 @@ app.use('/api/v1/alerts', require('./routes/alertRoutes'));
 app.use('/api/v1/credibility', require('./routes/credibilityRoutes'));
 app.use('/api/v1/digest', require('./routes/digestRoutes'));
 app.use('/api/v1/public', require('./routes/publicApiRoutes'));
-app.use('/api/v1/reports', require('./routes/reportRoutes'));
+app.use('/api/v1/reports', analysisLimiter, require('./routes/reportRoutes'));
 app.use('/api/v1/forecast', require('./routes/forecastRoutes'));
 app.use('/api/v1', require('./routes/shareRoutes'));
 app.use('/api/v1/user', require('./routes/userRoutes'));
 
 // ── Backward compatibility — old routes redirect to v1 ───────
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/news', require('./routes/newsRoutes'));
+app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
+app.use('/api/news', analysisLimiter, require('./routes/newsRoutes'));
 app.use('/api/history', require('./routes/historyRoutes'));
 app.use('/api/entities', require('./routes/entityRoutes'));
 app.use('/api/sources', require('./routes/sourceRoutes'));
@@ -158,7 +158,7 @@ app.use('/api/alerts', require('./routes/alertRoutes'));
 app.use('/api/credibility', require('./routes/credibilityRoutes'));
 app.use('/api/digest', require('./routes/digestRoutes'));
 app.use('/api/public', require('./routes/publicApiRoutes'));
-app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/reports', analysisLimiter, require('./routes/reportRoutes'));
 app.use('/api/forecast', require('./routes/forecastRoutes'));
 app.use('/api', require('./routes/shareRoutes'));
 app.use('/api/user', require('./routes/userRoutes'));
