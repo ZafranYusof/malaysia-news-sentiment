@@ -9,7 +9,7 @@ import {
   ChevronRight, Star, Globe, Clock, X, Plus, Check
 } from 'lucide-react';
 
-// Spline 3D scene embedded via iframe (public viewer URL)
+import Spline from '@splinetool/react-spline';
 
 // ── Animation Variants ──
 const fadeInUp = {
@@ -636,14 +636,9 @@ const LandingPage = () => {
       <motion.header className="relative pt-32 pb-20 px-6 overflow-hidden min-h-[90vh] flex items-center" style={{ y: heroY, opacity: heroOpacity }}>
         {/* 3D Spline Background (desktop only) */}
         <div className="absolute inset-0 hidden md:block pointer-events-none z-0 overflow-hidden">
-          <iframe
-            src="https://my.spline.design/websitelandingpage08-zUhU6B6BsMGZUDMJaD9x7DHl/"
-            frameBorder="0"
-            width="100%"
-            height="100%"
-            style={{ position: 'absolute', top: 0, left: 0, opacity: 0.65, border: 'none' }}
-            title="3D Background"
-            loading="lazy"
+          <Spline
+            scene="https://prod.spline.design/agN6RQgH0kZxBGNx/scene.splinecode"
+            style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, opacity: 0.65 }}
           />
         </div>
         {/* Fallback background effects (mobile + while Spline loads) */}
