@@ -102,7 +102,21 @@ app.use(helmet());
 app.use(express.json({ limit: '2mb' }));
 
 // ── Rate limiting ─────────────────────────────────────────────
-// Rate limiters disabled for development/testing as requested
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many auth attempts. Please try again in 15 minutes.' },
+});
+
+const analysisLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please slow down.' },
+});
 
 // ── API Metrics Endpoint (after CORS) ───────────────────
 const { protect, authorize } = require('./middleware/auth');
@@ -234,3 +248,4 @@ server.listen(PORT, () => {
   console.log('   Real-time: Socket.io Enabled');
   scheduleNewsletter();
 });
+
