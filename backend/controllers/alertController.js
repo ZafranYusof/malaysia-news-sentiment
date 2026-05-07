@@ -1,5 +1,5 @@
 const Alert = require('../models/Alert');
-const { sendEmailAlert, sendTelegramAlert } = require('../services/alertService');
+const { sendAlertEmailNotification, sendTelegramAlert } = require('../services/alertService');
 
 // GET /api/alerts — list user's alerts
 exports.getAlerts = async (req, res) => {
@@ -95,7 +95,7 @@ exports.testAlert = async (req, res) => {
     };
 
     if (alert.type === 'email' && alert.user?.email) {
-      await sendEmailAlert(alert.user, testArticle, alert);
+      await sendAlertEmailNotification(alert.user, testArticle, alert);
     } else if (alert.type === 'telegram' && alert.telegramChatId) {
       await sendTelegramAlert(alert.telegramChatId, testArticle);
     } else {

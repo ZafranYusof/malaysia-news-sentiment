@@ -1,7 +1,5 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
-import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,29 +11,19 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase safely
+// Initialize Firebase safely — only auth is eagerly loaded.
+// Analytics and AI are lazy-loaded to reduce initial bundle size.
 let app;
 let auth;
 let googleProvider;
-let ai;
-let geminiModel;
 
 try {
   if (firebaseConfig.apiKey) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
-    
-    // Initialize Firebase AI Logic
-    try {
-      ai = getAI(app, { backend: new GoogleAIBackend() });
-      geminiModel = getGenerativeModel(ai, { model: "gemini-2.5-flash" }); // Updated to 2.5-flash
-    } catch (aiErr) {
-      console.warn("Firebase AI initialization failed:", aiErr);
-    }
   } else {
     console.warn("⚠️ Firebase API Key missing. Authentication features will be disabled.");
-    // Provide dummy safe versions to avoid crashing imports
     auth = { onAuthStateChanged: (cb) => { cb(null); return () => {}; } }; 
     googleProvider = {};
   }
@@ -44,15 +32,47 @@ try {
   auth = { onAuthStateChanged: (cb) => { cb(null); return () => {}; } };
 }
 
-// Analytics is only available in browser environments
-let analytics;
-if (typeof window !== "undefined" && app) {
-  try {
-    analytics = getAnalytics(app);
-  } catch (err) {
-    console.warn("Firebase Analytics failed to initialize:", err);
+// Lazy-load Firebase Analytics (code-split into separate chunk)
+let _analyticsPromise = null;
+export function getAnalyticsLazy() {
+  if (!_analyticsPromise) {
+    _analyticsPromise = (async () => {
+      if (typeof window === "undefined" || !app) return null;
+      try {
+        const { getAnalytics } = await import("firebase/analytics");
+        return getAnalytics(app);
+      } catch (err) {
+        console.warn("Firebase Analytics failed to initialize:", err);
+        return null;
+      }
+    })();
   }
+  return _analyticsPromise;
 }
 
-export { auth, googleProvider, analytics, geminiModel };
+// Lazy-load Firebase AI / Gemini model (code-split into separate chunk)
+let _geminiPromise = null;
+export function getGeminiModel() {
+  if (!_geminiPromise) {
+    _geminiPromise = (async () => {
+      if (!app) return null;
+      try {
+        const { getAI, getGenerativeModel, GoogleAIBackend } = await import("firebase/ai");
+        const ai = getAI(app, { backend: new GoogleAIBackend() });
+        return getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+      } catch (err) {
+        console.warn("Firebase AI initialization failed:", err);
+        return null;
+      }
+    })();
+  }
+  return _geminiPromise;
+}
+
+// Initialize analytics after first paint (non-blocking)
+if (typeof window !== "undefined" && app) {
+  requestIdleCallback?.(() => getAnalyticsLazy()) ?? setTimeout(() => getAnalyticsLazy(), 3000);
+}
+
+export { auth, googleProvider };
 export default app;

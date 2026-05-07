@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { geminiModel } from '../config/firebase';
+import { getGeminiModel } from '../config/firebase';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api/v1';
 
@@ -151,7 +151,8 @@ export const getKeywords = async (params = {}) => {
  * Generate an AI digest summary for a batch of articles
  */
 export const generateDigest = async (articles, topic) => {
-  if (geminiModel) {
+  const gemini = await getGeminiModel();
+  if (gemini) {
     try {
       const articleSummary = articles
         .slice(0, 15)
@@ -174,7 +175,7 @@ Format as strict JSON ONLY, no markdown formatting:
   "ms": "Ringkasan eksekutif: ...\\n\\nTema utama berita:\\n• ..."
 }`;
 
-      const result = await geminiModel.generateContent(prompt);
+      const result = await gemini.generateContent(prompt);
       let responseText = await result.response.text();
       responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
       const parsed = JSON.parse(responseText);
@@ -192,7 +193,8 @@ Format as strict JSON ONLY, no markdown formatting:
  * Generate a 7-day AI forecast based on analyzed articles
  */
 export const generateForecast = async (articles, topic) => {
-  if (geminiModel) {
+  const gemini = await getGeminiModel();
+  if (gemini) {
     try {
       const summary = articles.slice(0, 30)
         .map(a => `- [${a.sentiment}] ${a.title}`)
@@ -218,7 +220,7 @@ Format as strict JSON ONLY, no markdown formatting:
 Headlines:
 ${summary}`;
       
-      const result = await geminiModel.generateContent(prompt);
+      const result = await gemini.generateContent(prompt);
       let responseText = await result.response.text();
       // Remove any markdown fencing before parsing
       responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();

@@ -259,4 +259,4 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
   );
 };
 
-export default ArticleCard;
+export default React.memo(ArticleCard);

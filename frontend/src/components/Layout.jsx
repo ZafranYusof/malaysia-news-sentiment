@@ -210,7 +210,7 @@ const Layout = ({ children }) => {
           {user && (
             <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
               {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center text-xs font-bold">
                   {initials}

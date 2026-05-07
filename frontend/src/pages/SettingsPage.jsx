@@ -310,7 +310,7 @@ const SettingsPage = () => {
         <SettingRow label="Display Photo" desc={isGuest ? "Sign in to set a profile photo" : "Automatically provided from your login source"}>
           <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 flex items-center justify-center text-sm font-bold overflow-hidden">
             {!isGuest && safeUser.avatar ? (
-              <img src={safeUser.avatar} alt="Current" className="w-full h-full object-cover" />
+              <img src={safeUser.avatar} alt="Current" className="w-full h-full object-cover" loading="lazy" decoding="async" />
             ) : (
               (name || safeUser.name || '?').charAt(0).toUpperCase()
             )}

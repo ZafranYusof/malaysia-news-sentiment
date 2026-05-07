@@ -114,7 +114,7 @@ const ArticlePreviewModal = ({ article, isOpen, onClose }) => {
           <div className="modal-body">
             {urlToImage && (
               <div className="modal-image-wrapper">
-                <img src={urlToImage} alt={title} className="modal-image" />
+                <img src={urlToImage} alt={title} className="modal-image" loading="lazy" decoding="async" />
               </div>
             )}
 

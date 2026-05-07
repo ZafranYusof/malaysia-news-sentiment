@@ -185,7 +185,7 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
           {user ? (
             <div className="sidebar-user">
               {user.avatar
-                ? <img src={user.avatar} alt={user.name} className="sidebar-avatar-img" />
+                ? <img src={user.avatar} alt={user.name} className="sidebar-avatar-img" loading="lazy" decoding="async" />
                 : <div className="sidebar-avatar">{initials}</div>
               }
               <div className="sidebar-user-info">

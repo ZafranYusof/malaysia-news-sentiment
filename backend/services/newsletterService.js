@@ -2,32 +2,7 @@ const cron = require('node-cron');
 const Article = require('../models/Article');
 const User = require('../models/User');
 const { generateDigest } = require('./openaiService');
-const nodemailer = require('nodemailer');
-
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-
-/**
- * Get email transporter (reuse from emailService pattern)
- */
-const getTransporter = async () => {
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASS && !process.env.EMAIL_USER.includes('your_')) {
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: false,
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    });
-  }
-  // Fallback: Ethereal test account
-  const testAccount = await nodemailer.createTestAccount();
-  console.log('[Newsletter] Using Ethereal test email. Preview at: https://ethereal.email');
-  return nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false,
-    auth: { user: testAccount.user, pass: testAccount.pass },
-  });
-};
+const { sendEmail, FRONTEND_URL } = require('./emailService');
 
 /**
  * Generate newsletter HTML from digest data
@@ -174,20 +149,15 @@ const sendDailyDigest = async () => {
       return;
     }
 
-    const transporter = await getTransporter();
     let sent = 0;
 
     for (const user of users) {
       try {
-        const info = await transporter.sendMail({
-          from: `"MY News Sentiment" <${process.env.EMAIL_USER || 'noreply@mynews.my'}>`,
+        await sendEmail({
           to: user.email,
           subject: `📊 Daily Sentiment Digest — ${date}`,
           html,
         });
-
-        const preview = nodemailer.getTestMessageUrl(info);
-        if (preview) console.log(`[Newsletter] Preview for ${user.email}: ${preview}`);
         sent++;
       } catch (err) {
         console.warn(`[Newsletter] Failed to send to ${user.email}:`, err.message);

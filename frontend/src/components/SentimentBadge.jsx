@@ -16,4 +16,4 @@ const SentimentBadge = ({ sentiment }) => {
   );
 };
 
-export default SentimentBadge;
+export default React.memo(SentimentBadge);

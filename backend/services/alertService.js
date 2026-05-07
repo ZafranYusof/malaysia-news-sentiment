@@ -1,4 +1,5 @@
 const Alert = require('../models/Alert');
+const { sendAlertEmail } = require('./emailService');
 
 /**
  * Check all enabled alerts against a newly analyzed article.
@@ -12,7 +13,7 @@ const checkAlerts = async (article) => {
       if (!matchesConditions(alert, article)) continue;
 
       if (alert.type === 'email' && alert.user?.email) {
-        await sendEmailAlert(alert.user, article, alert);
+        await sendAlertEmailNotification(alert.user, article, alert);
       } else if (alert.type === 'telegram' && alert.telegramChatId) {
         await sendTelegramAlert(alert.telegramChatId, article);
       }
@@ -57,40 +58,11 @@ const matchesConditions = (alert, article) => {
 };
 
 /**
- * Send email notification for an alert
+ * Send email notification for an alert (uses consolidated emailService)
  */
-const sendEmailAlert = async (user, article, alert) => {
+const sendAlertEmailNotification = async (user, article, alert) => {
   try {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    const sentimentEmoji = article.sentiment === 'Positive' ? '🟢' : article.sentiment === 'Negative' ? '🔴' : '🟡';
-
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: user.email,
-      subject: `${sentimentEmoji} News Alert: ${article.title?.slice(0, 60)}...`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">MY News Sentiment Alert</h2>
-          <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
-            <h3 style="margin: 0 0 8px;">${article.title}</h3>
-            <p style="color: #666; margin: 4px 0;">Source: ${article.source || 'Unknown'}</p>
-            <p style="margin: 4px 0;">Sentiment: <strong>${sentimentEmoji} ${article.sentiment}</strong> (${Math.round((article.confidence || 0) * 100)}% confidence)</p>
-            ${article.url ? `<a href="${article.url}" style="color: #2563eb;">Read Article →</a>` : ''}
-          </div>
-          <p style="color: #999; font-size: 12px;">You received this because of your alert settings. Manage alerts in your dashboard.</p>
-        </div>
-      `,
-    });
+    await sendAlertEmail(user, article, alert);
   } catch (err) {
     console.error('Email alert failed:', err.message);
   }
@@ -126,4 +98,4 @@ const sendTelegramAlert = async (chatId, article) => {
   }
 };
 
-module.exports = { checkAlerts, sendEmailAlert, sendTelegramAlert };
+module.exports = { checkAlerts, sendAlertEmailNotification, sendTelegramAlert };
