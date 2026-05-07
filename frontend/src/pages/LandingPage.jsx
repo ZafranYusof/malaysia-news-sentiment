@@ -377,6 +377,7 @@ const Navbar = ({ isDark, toggleTheme, navigate }) => (
       </Link>
       <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
         <a href="#features" className="hover:text-accent transition-colors">Features</a>
+        <Link to="/api" className="hover:text-accent transition-colors">Docs</Link>
         <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
         <Link to="/about" className="hover:text-accent transition-colors">About</Link>
         <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
