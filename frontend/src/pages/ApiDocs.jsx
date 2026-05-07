@@ -1004,7 +1004,7 @@ const Sidebar = ({ categories, activeSection, onNavigate }) => {
   ];
 
   return (
-    <nav className="hidden lg:block w-60 shrink-0 sticky top-[4.5rem] self-start max-h-[calc(100vh-5rem)] overflow-y-auto pr-2">
+    <nav className="hidden md:block w-60 shrink-0 sticky top-[4.5rem] self-start max-h-[calc(100vh-5rem)] overflow-y-auto pr-2">
       <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4 space-y-1">
         {/* Logo/Title */}
         <div className="px-3 pb-3 mb-2 border-b border-[#eee] dark:border-[#2a2a2a]">
