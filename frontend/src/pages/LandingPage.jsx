@@ -749,6 +749,7 @@ const ContinuousAnalysisDemo = () => {
   const [stats, setStats] = useState({ positive: 0, negative: 0, neutral: 0, total: 0 });
   const [showTokens, setShowTokens] = useState(false);
   const [showEntities, setShowEntities] = useState(false);
+  const resultHandled = useRef(false);
 
   const headline = DEMO_HEADLINES[currentIndex];
 
@@ -757,6 +758,7 @@ const ContinuousAnalysisDemo = () => {
     const stepDurations = { fetch: 800, extract: 600, tokenize: 900, nlp: 1400, score: 700, classify: 600 };
 
     if (phase === 'fetch') {
+      resultHandled.current = false;
       setPipelineStep(0);
       setShowTokens(false);
       setShowEntities(false);
@@ -786,13 +788,16 @@ const ContinuousAnalysisDemo = () => {
       setPipelineStep(5);
       timeout = setTimeout(() => setPhase('result'), stepDurations.classify);
     } else if (phase === 'result') {
-      setAnalyzedArticles(prev => [{ ...headline, id: `${currentIndex}-${stats.total}` }, ...prev].slice(0, 4));
-      setStats(prev => ({
-        total: prev.total + 1,
-        positive: prev.positive + (headline.sentiment === 'Positive' ? 1 : 0),
-        negative: prev.negative + (headline.sentiment === 'Negative' ? 1 : 0),
-        neutral: prev.neutral + (headline.sentiment === 'Neutral' ? 1 : 0),
-      }));
+      if (!resultHandled.current) {
+        resultHandled.current = true;
+        setAnalyzedArticles(prev => [{ ...headline, id: `${currentIndex}-${Date.now()}` }, ...prev].slice(0, 4));
+        setStats(prev => ({
+          total: prev.total + 1,
+          positive: prev.positive + (headline.sentiment === 'Positive' ? 1 : 0),
+          negative: prev.negative + (headline.sentiment === 'Negative' ? 1 : 0),
+          neutral: prev.neutral + (headline.sentiment === 'Neutral' ? 1 : 0),
+        }));
+      }
       timeout = setTimeout(() => {
         setPhase('fetch');
         setDisplayText('');
@@ -800,7 +805,7 @@ const ContinuousAnalysisDemo = () => {
       }, 2200);
     }
     return () => clearTimeout(timeout);
-  }, [phase, displayText, currentIndex, headline, stats.total]);
+  }, [phase, displayText, currentIndex, headline]);
 
   const totalAnalyzed = stats.total || 1;
   const posPercent = Math.round((stats.positive / totalAnalyzed) * 100);
