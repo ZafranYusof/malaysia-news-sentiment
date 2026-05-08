@@ -676,6 +676,52 @@ const FloatingTechBadge = ({ tech, index, total }) => {
   );
 };
 
+// ── Tech Stack Marquee ──
+const TECH_ITEMS = [
+  { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', color: '#61DAFB' },
+  { name: 'Express', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg', color: '#ffffff' },
+  { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg', color: '#47A248' },
+  { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg', color: '#339933' },
+  { name: 'Tailwind', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg', color: '#06B6D4' },
+  { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg', color: '#3776AB' },
+  { name: 'Vite', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg', color: '#646CFF' },
+  { name: 'Docker', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', color: '#2496ED' },
+];
+
+const TechStackMarquee = () => {
+  // Duplicate items for seamless loop
+  const items = [...TECH_ITEMS, ...TECH_ITEMS];
+
+  return (
+    <div className="relative overflow-hidden">
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#fafaf9] dark:from-[#0f0f0f] to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#fafaf9] dark:from-[#0f0f0f] to-transparent z-10 pointer-events-none" />
+      
+      <motion.div
+        className="flex gap-5 py-4"
+        animate={{ x: ['0%', '-50%'] }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+      >
+        {items.map((tech, i) => (
+          <div
+            key={`${tech.name}-${i}`}
+            className="flex-shrink-0 flex items-center gap-3 px-5 py-3 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl shadow-sm hover:shadow-md hover:border-accent/50 transition-all cursor-default group"
+          >
+            <img
+              src={tech.icon}
+              alt={tech.name}
+              className="w-7 h-7 group-hover:scale-110 transition-transform"
+              loading="lazy"
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{tech.name}</span>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
 // ── Continuous Analysis Demo ──
 const DEMO_HEADLINES = [
   { text: "Malaysia's GDP grows 5.2% in Q1 2026", sentiment: 'Positive', score: 0.87, color: '#22c55e' },
@@ -1223,20 +1269,10 @@ const LandingPage = () => {
 
       {/* ─── TECH STACK ─── */}
       <AnimatedSection className="py-10 px-6" variants={fadeInUp}>
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-5xl mx-auto text-center">
           <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Tech Stack</p>
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Built with modern tools</h2>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            {['React', 'Express', 'MongoDB', 'Ollama', 'NLP', 'Tailwind', 'Framer Motion'].map((tech, i) => (
-              <FloatingTechBadge key={tech} tech={tech} index={i} total={7} />
-            ))}
-          </div>
-          {/* Connection lines (decorative) */}
-          <motion.div
-            className="mt-6 h-px max-w-xs mx-auto bg-gradient-to-r from-transparent via-accent/30 to-transparent"
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          />
+          <TechStackMarquee />
         </div>
       </AnimatedSection>
 
