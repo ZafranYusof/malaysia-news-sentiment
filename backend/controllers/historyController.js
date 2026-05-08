@@ -358,4 +358,15 @@ const dashboardInit = async (req, res) => {
   }
 };
 
-module.exports = { getHistory, getTrends, getStats, deleteArticle, dashboardInit };
+// Public stats (no auth) - for landing page
+const getPublicStats = async (req, res) => {
+  if (!isDbConnected()) return res.json({ totalArticles: 0 });
+  try {
+    const totalArticles = await Article.countDocuments({});
+    res.json({ totalArticles });
+  } catch (error) {
+    res.json({ totalArticles: 0 });
+  }
+};
+
+module.exports = { getHistory, getTrends, getStats, deleteArticle, dashboardInit, getPublicStats };

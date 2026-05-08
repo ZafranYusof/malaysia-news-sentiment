@@ -1,7 +1,10 @@
 const express = require('express');
 const router  = express.Router();
 const { protect } = require('../middleware/auth');
-const { getHistory, getTrends, getStats, deleteArticle, dashboardInit } = require('../controllers/historyController');
+const { getHistory, getTrends, getStats, deleteArticle, dashboardInit, getPublicStats } = require('../controllers/historyController');
+
+// Public route (no auth) - for landing page
+router.get('/public-stats', getPublicStats);
 
 // All routes protected (#3)
 router.get('/dashboard-init', protect, dashboardInit); // Performance #15: composite endpoint

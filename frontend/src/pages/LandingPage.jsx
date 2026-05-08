@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { motion, useInView, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import {
@@ -682,11 +682,35 @@ const LandingPage = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
+  const prefersReducedMotion = useReducedMotion();
 
   // Parallax
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0.6]);
+  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
+  // #1 Real stats from API
+  const [realArticleCount, setRealArticleCount] = useState(null);
+  useEffect(() => {
+    fetch('https://mynewsa-api.onrender.com/api/history/public-stats')
+      .then(r => r.json())
+      .then(data => { if (data.totalArticles > 0) setRealArticleCount(data.totalArticles); })
+      .catch(() => {});
+  }, []);
+
+  // #5 Sticky mobile CTA
+  const [showMobileCTA, setShowMobileCTA] = useState(false);
+  const [mobileCTADismissed, setMobileCTADismissed] = useState(false);
+  const heroRef = useRef(null);
+  useEffect(() => {
+    if (mobileCTADismissed) return;
+    const handleScroll = () => {
+      setShowMobileCTA(window.scrollY > window.innerHeight);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [mobileCTADismissed]);
 
   // Typing animation
   const typingWords = ['Politics', 'Economy', 'Markets', 'Rakyat', 'Tech'];
@@ -723,6 +747,12 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors overflow-x-hidden relative">
+      {/* #4 Scroll progress indicator */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[3px] bg-accent origin-left z-[60]"
+        style={{ scaleX }}
+      />
+
       {/* Animated grid background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {/* Grid lines */}
@@ -731,7 +761,7 @@ const LandingPage = () => {
             ? `linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px)`
             : `linear-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.08) 1px, transparent 1px)`,
           backgroundSize: '50px 50px',
-          animation: 'gridMove 20s linear infinite',
+          ...(!prefersReducedMotion && { animation: 'gridMove 20s linear infinite' }),
         }} />
         {/* Radial fade so grid is strongest in center */}
         <div className="absolute inset-0" style={{
@@ -740,19 +770,23 @@ const LandingPage = () => {
             : 'radial-gradient(ellipse at center, transparent 30%, rgba(250,250,249,0.9) 70%)',
         }} />
         {/* Accent glow spots */}
-        <div className="absolute top-[20%] left-[30%] w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: isDark ? 'rgba(37, 99, 235, 0.06)' : 'rgba(37, 99, 235, 0.1)', animation: 'float 20s ease-in-out infinite' }} />
-        <div className="absolute top-[50%] right-[20%] w-[350px] h-[350px] rounded-full blur-[80px]" style={{ background: isDark ? 'rgba(124, 58, 237, 0.05)' : 'rgba(124, 58, 237, 0.08)', animation: 'float 25s ease-in-out infinite reverse' }} />
-        <div className="absolute bottom-[20%] left-[50%] w-[300px] h-[300px] rounded-full blur-[80px]" style={{ background: isDark ? 'rgba(5, 150, 105, 0.04)' : 'rgba(5, 150, 105, 0.07)', animation: 'float 18s ease-in-out infinite 3s' }} />
+        {!prefersReducedMotion && (
+          <>
+            <div className="absolute top-[20%] left-[30%] w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: isDark ? 'rgba(37, 99, 235, 0.06)' : 'rgba(37, 99, 235, 0.1)', animation: 'float 20s ease-in-out infinite' }} />
+            <div className="absolute top-[50%] right-[20%] w-[350px] h-[350px] rounded-full blur-[80px]" style={{ background: isDark ? 'rgba(124, 58, 237, 0.05)' : 'rgba(124, 58, 237, 0.08)', animation: 'float 25s ease-in-out infinite reverse' }} />
+            <div className="absolute bottom-[20%] left-[50%] w-[300px] h-[300px] rounded-full blur-[80px]" style={{ background: isDark ? 'rgba(5, 150, 105, 0.04)' : 'rgba(5, 150, 105, 0.07)', animation: 'float 18s ease-in-out infinite 3s' }} />
+          </>
+        )}
       </div>
 
       <div className="relative z-10">
       <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
       {/* ─── HERO ─── */}
-      <motion.header className="relative pt-32 pb-20 px-6 overflow-hidden min-h-[90vh] flex items-center" style={{ y: heroY, opacity: heroOpacity }}>
-        <GradientOrbs />
-        <FloatingParticles count={40} />
-        <MouseFollowGradient />
+      <motion.header ref={heroRef} className="relative pt-32 pb-20 px-6 overflow-hidden min-h-[90vh] flex items-center" style={{ y: heroY, opacity: heroOpacity }}>
+        {!prefersReducedMotion && <GradientOrbs />}
+        {!prefersReducedMotion && <FloatingParticles count={40} />}
+        {!prefersReducedMotion && <MouseFollowGradient />}
 
         <motion.div className="relative max-w-5xl mx-auto text-center w-full" initial="hidden" animate="visible" variants={staggerContainer}>
           {/* Badge */}
@@ -837,7 +871,7 @@ const LandingPage = () => {
       <AnimatedSection className="py-10 px-6" variants={staggerContainer}>
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
           {[
-            { target: 1000, suffix: '+', label: 'Articles Analyzed', icon: Newspaper },
+            { target: realArticleCount || 1000, suffix: realArticleCount ? '+' : '+', label: 'Articles Analyzed', icon: Newspaper },
             { target: 50, suffix: '+', label: 'News Sources', icon: Globe },
             { target: 95, suffix: '%', label: 'AI Accuracy', icon: Star },
           ].map((s, i) => (
@@ -859,7 +893,7 @@ const LandingPage = () => {
 
       {/* ─── LIVE DEMO ─── */}
       <AnimatedSection className="py-10 px-6" variants={scaleIn}>
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Live Preview</p>
           <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-10">See sentiment analysis in action</h2>
           <motion.div
@@ -873,12 +907,89 @@ const LandingPage = () => {
               <span className="w-3 h-3 rounded-full bg-red-400" />
               <span className="w-3 h-3 rounded-full bg-yellow-400" />
               <span className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="ml-4 text-xs text-gray-400">Sentiment Distribution - May 2026</span>
+              <span className="ml-4 text-xs text-gray-400 flex-1">MY News Sentiment — Dashboard</span>
+              <span className="text-[10px] text-gray-300 dark:text-gray-600">mynews-sentiment.vercel.app</span>
             </div>
-            <div className="p-6 space-y-4">
-              <SentimentBar label="Positive" value={42} color="#22c55e" delay={0.2} />
-              <SentimentBar label="Neutral" value={35} color="#f59e0b" delay={0.4} />
-              <SentimentBar label="Negative" value={23} color="#ef4444" delay={0.6} />
+            {/* Animated Dashboard Mock */}
+            <div className="p-6 space-y-5">
+              {/* Mini KPI row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Total', value: '847', color: 'text-blue-600' },
+                  { label: 'Positive', value: '52%', color: 'text-emerald-500' },
+                  { label: 'Negative', value: '18%', color: 'text-red-500' },
+                ].map((kpi, i) => (
+                  <motion.div
+                    key={kpi.label}
+                    className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + i * 0.15 }}
+                  >
+                    <div className="text-[10px] text-gray-400 uppercase">{kpi.label}</div>
+                    <div className={`text-lg font-bold ${kpi.color}`}>{kpi.value}</div>
+                  </motion.div>
+                ))}
+              </div>
+              {/* Animated pie chart mock */}
+              <div className="flex items-center gap-6">
+                <div className="relative w-32 h-32 flex-shrink-0">
+                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                    <motion.circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" strokeWidth="20"
+                      strokeDasharray="251.2" strokeDashoffset="251.2"
+                      whileInView={{ strokeDashoffset: 251.2 * (1 - 0.52) }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                    <motion.circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" strokeWidth="20"
+                      strokeDasharray="251.2" strokeDashoffset="251.2"
+                      whileInView={{ strokeDashoffset: 251.2 * (1 - 0.30) }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.2, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      style={{ transform: 'rotate(187deg)', transformOrigin: 'center' }}
+                    />
+                    <motion.circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="20"
+                      strokeDasharray="251.2" strokeDashoffset="251.2"
+                      whileInView={{ strokeDashoffset: 251.2 * (1 - 0.18) }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.2, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
+                      style={{ transform: 'rotate(295deg)', transformOrigin: 'center' }}
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1 space-y-3">
+                  <SentimentBar label="Positive" value={52} color="#22c55e" delay={0.5} />
+                  <SentimentBar label="Neutral" value={30} color="#f59e0b" delay={0.7} />
+                  <SentimentBar label="Negative" value={18} color="#ef4444" delay={0.9} />
+                </div>
+              </div>
+              {/* Animated article cards sliding in */}
+              <div className="space-y-2">
+                {[
+                  { title: 'Malaysia GDP grows 5.2% in Q1', sentiment: 'Positive', color: 'border-l-emerald-500' },
+                  { title: 'Ringgit weakens amid global uncertainty', sentiment: 'Negative', color: 'border-l-red-500' },
+                  { title: 'New MRT line construction on schedule', sentiment: 'Neutral', color: 'border-l-amber-500' },
+                ].map((article, i) => (
+                  <motion.div
+                    key={i}
+                    className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#111] rounded-lg border-l-4 ${article.color}`}
+                    initial={{ opacity: 0, x: 40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 1.2 + i * 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{article.title}</p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      article.sentiment === 'Positive' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                      article.sentiment === 'Negative' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
+                      'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                    }`}>{article.sentiment}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
@@ -1126,16 +1237,18 @@ const LandingPage = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { name: 'Dr. Ahmad', role: 'UMP Lecturer', text: 'Excellent tool for teaching students about NLP and sentiment analysis with real Malaysian data.' },
-              { name: 'Sarah K.', role: 'Journalism Student', text: 'Helped me identify media bias patterns for my thesis. The entity graph is incredibly useful.' },
-              { name: 'Rizal M.', role: 'Data Analyst', text: 'The real-time sentiment tracking saves hours of manual work. Source credibility feature is a game changer.' },
+              { name: 'Dr. Ahmad', role: 'FYP Supervisor', text: 'The technical implementation demonstrates strong understanding of NLP pipelines and real-time data processing. Well-architected system.' },
+              { name: 'Peer Reviewer', role: 'Software Engineering', text: 'Clean UI/UX with intuitive navigation. The dashboard visualizations are professional-grade and responsive across devices.' },
+              { name: 'Beta Tester', role: 'UMPSA Student', text: 'Really useful for tracking Malaysian news sentiment. The entity graph helped me understand connections between political figures.' },
             ].map((t, i) => (
               <motion.div
                 key={i}
                 variants={staggerItem}
                 className="relative bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 group"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 4 + i * 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.5 }}
+                {...(!prefersReducedMotion && {
+                  animate: { y: [0, -5, 0] },
+                  transition: { duration: 4 + i * 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.5 },
+                })}
               >
                 {/* Decorative quote */}
                 <motion.span
@@ -1166,6 +1279,7 @@ const LandingPage = () => {
               </motion.div>
             ))}
           </div>
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4 italic">Feedback from project evaluation</p>
         </div>
       </AnimatedSection>
 
@@ -1248,6 +1362,35 @@ const LandingPage = () => {
 
       <Footer />
       </div>{/* end relative z-10 */}
+
+      {/* #5 Sticky mobile CTA */}
+      <AnimatePresence>
+        {showMobileCTA && !mobileCTADismissed && (
+          <motion.div
+            className="fixed bottom-6 left-4 right-4 z-50 md:hidden"
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="flex items-center gap-2 px-4 py-3 bg-accent/95 backdrop-blur-md rounded-2xl shadow-lg shadow-accent/25">
+              <button
+                onClick={() => navigate('/register')}
+                className="flex-1 text-sm font-semibold text-white text-center"
+              >
+                Get Started Free <ArrowRight className="inline w-4 h-4 ml-1" />
+              </button>
+              <button
+                onClick={() => setMobileCTADismissed(true)}
+                className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
+                aria-label="Dismiss"
+              >
+                <X className="w-4 h-4 text-white/80" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
