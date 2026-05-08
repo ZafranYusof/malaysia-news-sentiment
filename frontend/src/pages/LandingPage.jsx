@@ -755,7 +755,7 @@ const ContinuousAnalysisDemo = () => {
 
   useEffect(() => {
     let timeout;
-    const stepDurations = { fetch: 800, extract: 600, tokenize: 900, nlp: 1400, score: 700, classify: 600 };
+    const stepDurations = { fetch: 1200, extract: 1500, tokenize: 2000, nlp: 2800, score: 1800, classify: 1200 };
 
     if (phase === 'fetch') {
       resultHandled.current = false;
@@ -765,10 +765,10 @@ const ContinuousAnalysisDemo = () => {
       // Type out the headline during fetch
       if (displayText.length < headline.text.length) {
         timeout = setTimeout(() => {
-          setDisplayText(headline.text.substring(0, displayText.length + 2));
-        }, 20);
+          setDisplayText(headline.text.substring(0, displayText.length + 1));
+        }, 45);
       } else {
-        timeout = setTimeout(() => setPhase('extract'), 300);
+        timeout = setTimeout(() => setPhase('extract'), 600);
       }
     } else if (phase === 'extract') {
       setPipelineStep(1);
@@ -802,7 +802,7 @@ const ContinuousAnalysisDemo = () => {
         setPhase('fetch');
         setDisplayText('');
         setCurrentIndex((prev) => (prev + 1) % DEMO_HEADLINES.length);
-      }, 2200);
+      }, 3000);
     }
     return () => clearTimeout(timeout);
   }, [phase, displayText, currentIndex, headline]);
