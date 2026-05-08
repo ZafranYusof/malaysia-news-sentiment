@@ -32,6 +32,14 @@ const SourceCredibility = lazy(() => import('./pages/SourceCredibility'));
 const ApiDocs = lazy(() => import('./pages/ApiDocs'));
 const SharedArticle = lazy(() => import('./pages/SharedArticle'));
 
+// Use case pages (lazy loaded)
+const ResearchersPage = lazy(() => import('./pages/usecases/ResearchersPage'));
+const JournalistsPage = lazy(() => import('./pages/usecases/JournalistsPage'));
+const AnalystsPage = lazy(() => import('./pages/usecases/AnalystsPage'));
+const PolicyMakersPage = lazy(() => import('./pages/usecases/PolicyMakersPage'));
+const PRPage = lazy(() => import('./pages/usecases/PRPage'));
+const StudentsPage = lazy(() => import('./pages/usecases/StudentsPage'));
+
 // Small/auth pages - eagerly loaded for fast navigation
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
@@ -497,6 +505,14 @@ const AppInner = () => (
     <Route path="/about" element={<AboutPage />} />
     <Route path="/jobs" element={<StaticPage />} />
     <Route path="/privacy" element={<StaticPage />} />
+    
+    {/* Use Case Pages */}
+    <Route path="/use-cases/researchers" element={<ResearchersPage />} />
+    <Route path="/use-cases/journalists" element={<JournalistsPage />} />
+    <Route path="/use-cases/analysts" element={<AnalystsPage />} />
+    <Route path="/use-cases/policy-makers" element={<PolicyMakersPage />} />
+    <Route path="/use-cases/pr" element={<PRPage />} />
+    <Route path="/use-cases/students" element={<StudentsPage />} />
     
     {/* Cinematic 404 Route */}
     <Route path="*" element={<NotFound />} />
