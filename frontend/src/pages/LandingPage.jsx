@@ -676,6 +676,237 @@ const FloatingTechBadge = ({ tech, index, total }) => {
   );
 };
 
+// ── Continuous Analysis Demo ──
+const DEMO_HEADLINES = [
+  { text: "Malaysia's GDP grows 5.2% in Q1 2026", sentiment: 'Positive', score: 0.87, color: '#22c55e' },
+  { text: "Ringgit weakens against USD amid global uncertainty", sentiment: 'Negative', score: 0.72, color: '#ef4444' },
+  { text: "New MRT line construction ahead of schedule", sentiment: 'Neutral', score: 0.51, color: '#f59e0b' },
+  { text: "Tech sector sees record RM4.2B foreign investment", sentiment: 'Positive', score: 0.91, color: '#22c55e' },
+  { text: "Flood warning issued for east coast states", sentiment: 'Negative', score: 0.68, color: '#ef4444' },
+  { text: "PETRONAS reports strong Q1 earnings growth", sentiment: 'Positive', score: 0.84, color: '#22c55e' },
+  { text: "Education ministry reviews UPSR replacement policy", sentiment: 'Neutral', score: 0.53, color: '#f59e0b' },
+  { text: "Healthcare workers demand better working conditions", sentiment: 'Negative', score: 0.76, color: '#ef4444' },
+];
+
+const ContinuousAnalysisDemo = () => {
+  const [analyzedArticles, setAnalyzedArticles] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [phase, setPhase] = useState('typing'); // typing, analyzing, result
+  const [displayText, setDisplayText] = useState('');
+  const [stats, setStats] = useState({ positive: 0, negative: 0, neutral: 0, total: 0 });
+
+  const headline = DEMO_HEADLINES[currentIndex];
+
+  // Typing + analysis cycle
+  useEffect(() => {
+    let timeout;
+    if (phase === 'typing') {
+      if (displayText.length < headline.text.length) {
+        timeout = setTimeout(() => {
+          setDisplayText(headline.text.substring(0, displayText.length + 1));
+        }, 25);
+      } else {
+        timeout = setTimeout(() => setPhase('analyzing'), 400);
+      }
+    } else if (phase === 'analyzing') {
+      timeout = setTimeout(() => setPhase('result'), 1200);
+    } else if (phase === 'result') {
+      // Add to analyzed list
+      setAnalyzedArticles(prev => {
+        const updated = [{ ...headline, id: currentIndex }, ...prev].slice(0, 5);
+        return updated;
+      });
+      setStats(prev => ({
+        total: prev.total + 1,
+        positive: prev.positive + (headline.sentiment === 'Positive' ? 1 : 0),
+        negative: prev.negative + (headline.sentiment === 'Negative' ? 1 : 0),
+        neutral: prev.neutral + (headline.sentiment === 'Neutral' ? 1 : 0),
+      }));
+      timeout = setTimeout(() => {
+        setPhase('typing');
+        setDisplayText('');
+        setCurrentIndex((prev) => (prev + 1) % DEMO_HEADLINES.length);
+      }, 1800);
+    }
+    return () => clearTimeout(timeout);
+  }, [phase, displayText, currentIndex, headline]);
+
+  const totalAnalyzed = stats.total || 1;
+  const posPercent = Math.round((stats.positive / totalAnalyzed) * 100);
+  const negPercent = Math.round((stats.negative / totalAnalyzed) * 100);
+  const neuPercent = 100 - posPercent - negPercent;
+
+  return (
+    <motion.div
+      className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl overflow-hidden shadow-xl shadow-black/5"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+    >
+      {/* Window chrome */}
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#eee] dark:border-[#2a2a2a]">
+        <span className="w-3 h-3 rounded-full bg-red-400" />
+        <span className="w-3 h-3 rounded-full bg-yellow-400" />
+        <span className="w-3 h-3 rounded-full bg-green-400" />
+        <span className="ml-4 text-xs text-gray-400 flex-1">MY News Sentiment — Live Analysis</span>
+        <motion.div
+          className="w-2 h-2 rounded-full bg-green-400"
+          animate={{ opacity: [1, 0.3, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+        <span className="text-[10px] text-gray-400 ml-1">Running</span>
+      </div>
+
+      <div className="p-6">
+        {/* Live stats row */}
+        <div className="grid grid-cols-4 gap-3 mb-5">
+          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
+            <div className="text-[10px] text-gray-400 uppercase">Analyzed</div>
+            <motion.div
+              className="text-lg font-bold text-blue-600"
+              key={stats.total}
+              initial={{ scale: 1.3 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {stats.total}
+            </motion.div>
+          </div>
+          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
+            <div className="text-[10px] text-gray-400 uppercase">Positive</div>
+            <div className="text-lg font-bold text-emerald-500">{posPercent}%</div>
+          </div>
+          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
+            <div className="text-[10px] text-gray-400 uppercase">Negative</div>
+            <div className="text-lg font-bold text-red-500">{negPercent}%</div>
+          </div>
+          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
+            <div className="text-[10px] text-gray-400 uppercase">Neutral</div>
+            <div className="text-lg font-bold text-amber-500">{neuPercent}%</div>
+          </div>
+        </div>
+
+        {/* Current analysis */}
+        <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-4 mb-5 min-h-[100px]">
+          <div className="flex items-center gap-2 mb-2">
+            <Search size={12} className="text-gray-400" />
+            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Analyzing headline</span>
+          </div>
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium min-h-[20px]">
+            {displayText}
+            <motion.span
+              className="inline-block w-0.5 h-4 bg-accent ml-0.5 align-middle"
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+            />
+          </p>
+
+          <AnimatePresence mode="wait">
+            {phase === 'analyzing' && (
+              <motion.div
+                key="analyzing"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 flex items-center gap-2"
+              >
+                <motion.div
+                  className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                />
+                <span className="text-xs text-accent font-medium">Running NLP model...</span>
+                <motion.div
+                  className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.div
+                    className="h-full bg-accent rounded-full"
+                    initial={{ width: '0%' }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 1.1, ease: 'easeInOut' }}
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+            {phase === 'result' && (
+              <motion.div
+                key="result"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="mt-3 flex items-center gap-3"
+              >
+                <motion.span
+                  className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                  style={{ backgroundColor: headline.color }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                >
+                  {headline.sentiment}
+                </motion.span>
+                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                  Confidence: {(headline.score * 100).toFixed(0)}%
+                </span>
+                <motion.div
+                  className="flex-1 h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: headline.color }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${headline.score * 100}%` }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Results feed */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Recent Results</span>
+            <span className="text-[10px] text-gray-400">{stats.total} articles processed</span>
+          </div>
+          <AnimatePresence initial={false}>
+            {analyzedArticles.map((article) => (
+              <motion.div
+                key={`${article.id}-${article.text}`}
+                className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#111] rounded-lg border-l-4`}
+                style={{ borderLeftColor: article.color }}
+                initial={{ opacity: 0, x: -20, height: 0 }}
+                animate={{ opacity: 1, x: 0, height: 'auto' }}
+                exit={{ opacity: 0, x: 20, height: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                layout
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{article.text}</p>
+                </div>
+                <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  article.sentiment === 'Positive' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                  article.sentiment === 'Negative' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
+                  'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                }`}>{article.sentiment}</span>
+                <span className="shrink-0 text-[10px] text-gray-400">{(article.score * 100).toFixed(0)}%</span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {analyzedArticles.length === 0 && (
+            <div className="text-center py-4 text-xs text-gray-400">Waiting for first analysis...</div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const LandingPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -896,102 +1127,7 @@ const LandingPage = () => {
         <div className="max-w-4xl mx-auto">
           <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Live Preview</p>
           <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-10">See sentiment analysis in action</h2>
-          <motion.div
-            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl overflow-hidden shadow-xl shadow-black/5"
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            viewport={{ once: true }}
-          >
-            {/* Window chrome */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-[#eee] dark:border-[#2a2a2a]">
-              <span className="w-3 h-3 rounded-full bg-red-400" />
-              <span className="w-3 h-3 rounded-full bg-yellow-400" />
-              <span className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="ml-4 text-xs text-gray-400 flex-1">MY News Sentiment — Dashboard</span>
-              <span className="text-[10px] text-gray-300 dark:text-gray-600">mynews-sentiment.vercel.app</span>
-            </div>
-            {/* Animated Dashboard Mock */}
-            <div className="p-6 space-y-5">
-              {/* Mini KPI row */}
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: 'Total', value: '847', color: 'text-blue-600' },
-                  { label: 'Positive', value: '52%', color: 'text-emerald-500' },
-                  { label: 'Negative', value: '18%', color: 'text-red-500' },
-                ].map((kpi, i) => (
-                  <motion.div
-                    key={kpi.label}
-                    className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center"
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.3 + i * 0.15 }}
-                  >
-                    <div className="text-[10px] text-gray-400 uppercase">{kpi.label}</div>
-                    <div className={`text-lg font-bold ${kpi.color}`}>{kpi.value}</div>
-                  </motion.div>
-                ))}
-              </div>
-              {/* Animated pie chart mock */}
-              <div className="flex items-center gap-6">
-                <div className="relative w-32 h-32 flex-shrink-0">
-                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                    <motion.circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" strokeWidth="20"
-                      strokeDasharray="251.2" strokeDashoffset="251.2"
-                      whileInView={{ strokeDashoffset: 251.2 * (1 - 0.52) }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    />
-                    <motion.circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" strokeWidth="20"
-                      strokeDasharray="251.2" strokeDashoffset="251.2"
-                      whileInView={{ strokeDashoffset: 251.2 * (1 - 0.30) }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.2, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                      style={{ transform: 'rotate(187deg)', transformOrigin: 'center' }}
-                    />
-                    <motion.circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="20"
-                      strokeDasharray="251.2" strokeDashoffset="251.2"
-                      whileInView={{ strokeDashoffset: 251.2 * (1 - 0.18) }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.2, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
-                      style={{ transform: 'rotate(295deg)', transformOrigin: 'center' }}
-                    />
-                  </svg>
-                </div>
-                <div className="flex-1 space-y-3">
-                  <SentimentBar label="Positive" value={52} color="#22c55e" delay={0.5} />
-                  <SentimentBar label="Neutral" value={30} color="#f59e0b" delay={0.7} />
-                  <SentimentBar label="Negative" value={18} color="#ef4444" delay={0.9} />
-                </div>
-              </div>
-              {/* Animated article cards sliding in */}
-              <div className="space-y-2">
-                {[
-                  { title: 'Malaysia GDP grows 5.2% in Q1', sentiment: 'Positive', color: 'border-l-emerald-500' },
-                  { title: 'Ringgit weakens amid global uncertainty', sentiment: 'Negative', color: 'border-l-red-500' },
-                  { title: 'New MRT line construction on schedule', sentiment: 'Neutral', color: 'border-l-amber-500' },
-                ].map((article, i) => (
-                  <motion.div
-                    key={i}
-                    className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#111] rounded-lg border-l-4 ${article.color}`}
-                    initial={{ opacity: 0, x: 40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 1.2 + i * 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{article.title}</p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      article.sentiment === 'Positive' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                      article.sentiment === 'Negative' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
-                      'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
-                    }`}>{article.sentiment}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+          <ContinuousAnalysisDemo />
         </div>
       </AnimatedSection>
 
