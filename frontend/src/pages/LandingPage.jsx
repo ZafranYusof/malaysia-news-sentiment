@@ -1292,16 +1292,17 @@ const LandingPage = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: '🎓', title: 'Researchers', desc: 'Track media sentiment trends for academic papers and thesis research on Malaysian politics, economy, and social issues.', gradient: 'from-green-500/20 to-emerald-500/5', borderColor: '#22c55e', iconBg: 'bg-green-500/10' },
-              { icon: '📰', title: 'Journalists', desc: 'Monitor how different outlets cover the same story. Identify bias patterns and verify source credibility.', gradient: 'from-blue-500/20 to-cyan-500/5', borderColor: '#3b82f6', iconBg: 'bg-blue-500/10' },
-              { icon: '📊', title: 'Analysts', desc: 'Real-time sentiment tracking for market analysis, brand monitoring, and public opinion research.', gradient: 'from-amber-500/20 to-orange-500/5', borderColor: '#f59e0b', iconBg: 'bg-amber-500/10' },
-              { icon: '🏛️', title: 'Policy Makers', desc: 'Understand public sentiment on policies, track media coverage of government initiatives.', gradient: 'from-purple-500/20 to-violet-500/5', borderColor: '#8b5cf6', iconBg: 'bg-purple-500/10' },
-              { icon: '🎯', title: 'PR & Communications', desc: 'Monitor brand mentions, track crisis sentiment, measure campaign effectiveness across Malaysian media.', gradient: 'from-pink-500/20 to-rose-500/5', borderColor: '#ec4899', iconBg: 'bg-pink-500/10' },
-              { icon: '🧑‍🎓', title: 'Students', desc: 'Learn NLP concepts through real Malaysian news data. Perfect for FYP and coursework projects.', gradient: 'from-teal-500/20 to-cyan-500/5', borderColor: '#14b8a6', iconBg: 'bg-teal-500/10' },
+              { icon: '🎓', title: 'Researchers', desc: 'Track media sentiment trends for academic papers and thesis research on Malaysian politics, economy, and social issues.', gradient: 'from-green-500/20 to-emerald-500/5', borderColor: '#22c55e', iconBg: 'bg-green-500/10', link: '/register?ref=researchers', feature: 'trending' },
+              { icon: '📰', title: 'Journalists', desc: 'Monitor how different outlets cover the same story. Identify bias patterns and verify source credibility.', gradient: 'from-blue-500/20 to-cyan-500/5', borderColor: '#3b82f6', iconBg: 'bg-blue-500/10', link: '/register?ref=journalists', feature: 'credibility' },
+              { icon: '📊', title: 'Analysts', desc: 'Real-time sentiment tracking for market analysis, brand monitoring, and public opinion research.', gradient: 'from-amber-500/20 to-orange-500/5', borderColor: '#f59e0b', iconBg: 'bg-amber-500/10', link: '/register?ref=analysts', feature: 'dashboard' },
+              { icon: '🏛️', title: 'Policy Makers', desc: 'Understand public sentiment on policies, track media coverage of government initiatives.', gradient: 'from-purple-500/20 to-violet-500/5', borderColor: '#8b5cf6', iconBg: 'bg-purple-500/10', link: '/register?ref=policy', feature: 'forecast' },
+              { icon: '🎯', title: 'PR & Communications', desc: 'Monitor brand mentions, track crisis sentiment, measure campaign effectiveness across Malaysian media.', gradient: 'from-pink-500/20 to-rose-500/5', borderColor: '#ec4899', iconBg: 'bg-pink-500/10', link: '/register?ref=pr', feature: 'alerts' },
+              { icon: '🧑‍🎓', title: 'Students', desc: 'Learn NLP concepts through real Malaysian news data. Perfect for FYP and coursework projects.', gradient: 'from-teal-500/20 to-cyan-500/5', borderColor: '#14b8a6', iconBg: 'bg-teal-500/10', link: '/register?ref=students', feature: 'entities' },
             ].map((item, i) => (
               <motion.div
                 key={i}
-                className="relative bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-7 group overflow-hidden cursor-default"
+                className="relative bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-7 group overflow-hidden cursor-pointer"
+                onClick={() => navigate(item.link)}
                 variants={staggerItem}
                 whileHover={{ y: -8, scale: 1.02 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
@@ -1350,10 +1351,10 @@ const LandingPage = () => {
 
                   {/* Arrow indicator */}
                   <motion.div
-                    className="mt-4 flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="mt-4 flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1"
                     style={{ color: item.borderColor }}
                   >
-                    Learn more <ArrowRight size={12} />
+                    Get started <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                   </motion.div>
                 </div>
               </motion.div>
