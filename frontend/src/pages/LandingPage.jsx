@@ -1446,7 +1446,90 @@ const LandingPage = () => {
                   </motion.span>
 
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{step.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4">{step.desc}</p>
+
+                  {/* Mini animated preview */}
+                  {i === 0 && (
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-xl p-3 border border-[#eee] dark:border-[#2a2a2a] text-left">
+                      <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#111] rounded-lg px-3 py-2">
+                        <Search size={12} className="text-gray-400" />
+                        <motion.span
+                          className="text-[11px] text-gray-600 dark:text-gray-300 font-medium"
+                          animate={{ opacity: [0, 1] }}
+                          transition={{ duration: 0.5 }}
+                          key={Math.floor(Date.now() / 4000) % 3}
+                        >
+                          {['malaysia economy', 'ringgit forex', 'election 2026'][Math.floor(Date.now() / 4000) % 3]}
+                        </motion.span>
+                        <motion.span className="inline-block w-0.5 h-3 bg-accent ml-0.5" animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity }} />
+                      </div>
+                      <div className="mt-2 space-y-1.5">
+                        {['The Star', 'Malaysiakini', 'Bernama'].map((src, j) => (
+                          <motion.div
+                            key={src}
+                            className="flex items-center gap-2"
+                            animate={{ opacity: [0.3, 1, 0.3] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: j * 0.4 }}
+                          >
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            <span className="text-[10px] text-gray-400">{src}</span>
+                            <span className="text-[9px] text-gray-300 dark:text-gray-600 ml-auto">fetching...</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {i === 1 && (
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-xl p-3 border border-[#eee] dark:border-[#2a2a2a] text-left">
+                      <div className="space-y-2">
+                        {[
+                          { label: 'Tokenizing', color: 'bg-purple-500' },
+                          { label: 'NLP Model', color: 'bg-accent' },
+                          { label: 'Scoring', color: 'bg-emerald-500' },
+                        ].map((bar, j) => (
+                          <div key={bar.label} className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-gray-400">{bar.label}</span>
+                              <motion.span
+                                className="text-[9px] text-emerald-500"
+                                animate={{ opacity: [0, 0, 1] }}
+                                transition={{ duration: 3, repeat: Infinity, delay: j * 1 }}
+                              >
+                                ✓
+                              </motion.span>
+                            </div>
+                            <div className="h-1.5 bg-gray-100 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
+                              <motion.div
+                                className={`h-full ${bar.color} rounded-full`}
+                                animate={{ width: ['0%', '100%', '100%', '0%'] }}
+                                transition={{ duration: 4, repeat: Infinity, delay: j * 1.2, ease: 'easeInOut' }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {i === 2 && (
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-xl p-3 border border-[#eee] dark:border-[#2a2a2a]">
+                      <div className="flex items-end gap-1 h-12 justify-center mb-2">
+                        {[40, 65, 35, 80, 55, 70, 45].map((h, j) => (
+                          <motion.div
+                            key={j}
+                            className="w-3 rounded-t-sm"
+                            style={{ backgroundColor: h > 60 ? '#22c55e' : h > 45 ? '#f59e0b' : '#ef4444' }}
+                            animate={{ height: [`${h * 0.3}%`, `${h}%`, `${h * 0.6}%`, `${h}%`] }}
+                            transition={{ duration: 3, repeat: Infinity, delay: j * 0.2, ease: 'easeInOut' }}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex justify-between text-[9px] text-gray-400">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Arrow between steps (desktop) */}
