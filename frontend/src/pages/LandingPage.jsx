@@ -1277,42 +1277,86 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── USE CASES ─── */}
-      <AnimatedSection className="py-12 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-8">
-            <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Use Cases</p>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Who is this for?</h2>
+      <AnimatedSection className="py-16 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a] relative overflow-hidden" variants={staggerContainer}>
+        {/* Background decoration */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-purple-500/5 blur-[100px]" />
+        </div>
+
+        <div className="max-w-6xl mx-auto relative">
+          <div className="text-center mb-12">
+            <motion.p variants={staggerItem} className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Use Cases</motion.p>
+            <motion.h2 variants={staggerItem} className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Who is this for?</motion.h2>
+            <motion.p variants={staggerItem} className="text-gray-500 dark:text-gray-400 mt-3 max-w-lg mx-auto">Built for anyone who needs to understand Malaysian media narratives at scale.</motion.p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: '🎓', title: 'Researchers', desc: 'Track media sentiment trends for academic papers and thesis research on Malaysian politics, economy, and social issues.', borderColor: '#22c55e' },
-              { icon: '📰', title: 'Journalists', desc: 'Monitor how different outlets cover the same story. Identify bias patterns and verify source credibility.', borderColor: '#3b82f6' },
-              { icon: '📊', title: 'Analysts', desc: 'Real-time sentiment tracking for market analysis, brand monitoring, and public opinion research.', borderColor: '#f59e0b' },
-              { icon: '🏛️', title: 'Policy Makers', desc: 'Understand public sentiment on policies, track media coverage of government initiatives.', borderColor: '#8b5cf6' },
-              { icon: '🎯', title: 'PR & Communications', desc: 'Monitor brand mentions, track crisis sentiment, measure campaign effectiveness across Malaysian media.', borderColor: '#ec4899' },
-              { icon: '🧑‍🎓', title: 'Students', desc: 'Learn NLP concepts through real Malaysian news data. Perfect for FYP and coursework projects.', borderColor: '#14b8a6' },
+              { icon: '🎓', title: 'Researchers', desc: 'Track media sentiment trends for academic papers and thesis research on Malaysian politics, economy, and social issues.', gradient: 'from-green-500/20 to-emerald-500/5', borderColor: '#22c55e', iconBg: 'bg-green-500/10' },
+              { icon: '📰', title: 'Journalists', desc: 'Monitor how different outlets cover the same story. Identify bias patterns and verify source credibility.', gradient: 'from-blue-500/20 to-cyan-500/5', borderColor: '#3b82f6', iconBg: 'bg-blue-500/10' },
+              { icon: '📊', title: 'Analysts', desc: 'Real-time sentiment tracking for market analysis, brand monitoring, and public opinion research.', gradient: 'from-amber-500/20 to-orange-500/5', borderColor: '#f59e0b', iconBg: 'bg-amber-500/10' },
+              { icon: '🏛️', title: 'Policy Makers', desc: 'Understand public sentiment on policies, track media coverage of government initiatives.', gradient: 'from-purple-500/20 to-violet-500/5', borderColor: '#8b5cf6', iconBg: 'bg-purple-500/10' },
+              { icon: '🎯', title: 'PR & Communications', desc: 'Monitor brand mentions, track crisis sentiment, measure campaign effectiveness across Malaysian media.', gradient: 'from-pink-500/20 to-rose-500/5', borderColor: '#ec4899', iconBg: 'bg-pink-500/10' },
+              { icon: '🧑‍🎓', title: 'Students', desc: 'Learn NLP concepts through real Malaysian news data. Perfect for FYP and coursework projects.', gradient: 'from-teal-500/20 to-cyan-500/5', borderColor: '#14b8a6', iconBg: 'bg-teal-500/10' },
             ].map((item, i) => (
-              <TiltCard
+              <motion.div
                 key={i}
-                className="bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 hover:shadow-lg hover:shadow-black/5 transition-all group relative overflow-hidden"
+                className="relative bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-7 group overflow-hidden cursor-default"
+                variants={staggerItem}
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               >
-                {/* Colored top border that slides in */}
+                {/* Gradient overlay on hover */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl`} />
+                
+                {/* Animated border */}
                 <motion.div
-                  className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ backgroundColor: item.borderColor }}
-                  initial={{ scaleX: 0 }}
-                  whileHover={{ scaleX: 1 }}
+                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ border: `2px solid ${item.borderColor}20` }}
                 />
-                <motion.span
-                  className="text-3xl mb-3 block"
-                  whileHover={{ scale: 1.3 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                >
-                  {item.icon}
-                </motion.span>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{item.desc}</p>
-              </TiltCard>
+                
+                {/* Top accent line */}
+                <motion.div
+                  className="absolute top-0 left-0 h-1 rounded-t-2xl"
+                  style={{ backgroundColor: item.borderColor }}
+                  initial={{ width: '0%' }}
+                  whileInView={{ width: '30%' }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                />
+                <motion.div
+                  className="absolute top-0 left-0 h-1 rounded-t-2xl group-hover:!w-full transition-all duration-500"
+                  style={{ backgroundColor: item.borderColor, width: '0%' }}
+                />
+
+                {/* Glow effect */}
+                <div
+                  className="absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500"
+                  style={{ backgroundColor: item.borderColor }}
+                />
+
+                <div className="relative">
+                  {/* Icon with background */}
+                  <motion.div
+                    className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${item.iconBg} mb-4`}
+                    whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <span className="text-3xl">{item.icon}</span>
+                  </motion.div>
+
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{item.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{item.desc}</p>
+
+                  {/* Arrow indicator */}
+                  <motion.div
+                    className="mt-4 flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ color: item.borderColor }}
+                  >
+                    Learn more <ArrowRight size={12} />
+                  </motion.div>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
