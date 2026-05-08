@@ -755,7 +755,7 @@ const ContinuousAnalysisDemo = () => {
 
   useEffect(() => {
     let timeout;
-    const stepDurations = { fetch: 1200, extract: 1500, tokenize: 2000, nlp: 2800, score: 1800, classify: 1200 };
+    const stepDurations = { fetch: 1800, extract: 2200, tokenize: 2800, nlp: 4000, score: 2500, classify: 1800 };
 
     if (phase === 'fetch') {
       resultHandled.current = false;
@@ -766,9 +766,9 @@ const ContinuousAnalysisDemo = () => {
       if (displayText.length < headline.text.length) {
         timeout = setTimeout(() => {
           setDisplayText(headline.text.substring(0, displayText.length + 1));
-        }, 45);
+        }, 60);
       } else {
-        timeout = setTimeout(() => setPhase('extract'), 600);
+        timeout = setTimeout(() => setPhase('extract'), 1000);
       }
     } else if (phase === 'extract') {
       setPipelineStep(1);
@@ -802,7 +802,7 @@ const ContinuousAnalysisDemo = () => {
         setPhase('fetch');
         setDisplayText('');
         setCurrentIndex((prev) => (prev + 1) % DEMO_HEADLINES.length);
-      }, 3000);
+      }, 4000);
     }
     return () => clearTimeout(timeout);
   }, [phase, displayText, currentIndex, headline]);
@@ -876,24 +876,48 @@ const ContinuousAnalysisDemo = () => {
           {/* Pipeline detail view */}
           <AnimatePresence mode="wait">
             {phase === 'extract' && (
-              <motion.div key="extract" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+              <motion.div key="extract" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2.5">
                 <div className="flex items-center gap-2">
                   <motion.div className="w-3 h-3 border-2 border-accent border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 0.6, repeat: Infinity, ease: 'linear' }} />
                   <span className="text-xs text-accent font-medium">Extracting text content from HTML...</span>
                 </div>
-                <div className="flex gap-1">
-                  {['title', 'body', 'meta'].map((tag, i) => (
-                    <motion.span key={tag} className="text-[10px] px-2 py-0.5 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded font-mono" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}>
-                      &lt;{tag}&gt;
+                <div className="flex flex-wrap gap-1.5">
+                  {['<html>', '<head>', '<title>', '<meta>', '<body>', '<article>', '<p>'].map((tag, i) => (
+                    <motion.span key={tag} className="text-[10px] px-2 py-0.5 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded font-mono" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.2 }}>
+                      {tag}
                     </motion.span>
                   ))}
+                </div>
+                <div className="space-y-1">
+                  <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                    <span className="text-[10px] text-gray-400">Removing ads & nav...</span>
+                    <motion.span className="text-[10px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>✓ Clean</motion.span>
+                  </motion.div>
+                  <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+                    <span className="text-[10px] text-gray-400">Extracting article body...</span>
+                    <motion.span className="text-[10px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}>✓ {headline.text.split(' ').length * 12} chars</motion.span>
+                  </motion.div>
                 </div>
               </motion.div>
             )}
 
             {phase === 'tokenize' && showTokens && (
-              <motion.div key="tokenize" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
-                <span className="text-xs text-accent font-medium">✂️ Tokenizing into words...</span>
+              <motion.div key="tokenize" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2.5">
+                <span className="text-xs text-accent font-medium">✂️ Tokenizing & preprocessing...</span>
+                <div className="space-y-2">
+                  <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <span className="text-[10px] text-gray-400">Lowercasing...</span>
+                    <motion.span className="text-[10px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>✓</motion.span>
+                  </motion.div>
+                  <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                    <span className="text-[10px] text-gray-400">Removing stopwords...</span>
+                    <motion.span className="text-[10px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>✓ Removed {Math.floor(Math.random() * 3) + 2} words</motion.span>
+                  </motion.div>
+                  <motion.div className="flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}>
+                    <span className="text-[10px] text-gray-400">Word segmentation...</span>
+                    <motion.span className="text-[10px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>✓ {headline.tokens.length} tokens</motion.span>
+                  </motion.div>
+                </div>
                 <div className="flex flex-wrap gap-1.5">
                   {headline.tokens.map((token, i) => (
                     <motion.span
@@ -901,7 +925,7 @@ const ContinuousAnalysisDemo = () => {
                       className="text-[11px] px-2 py-1 bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 rounded-md font-mono border border-purple-200 dark:border-purple-500/20"
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.1, type: 'spring', stiffness: 300 }}
+                      transition={{ delay: 1.5 + i * 0.15, type: 'spring', stiffness: 300 }}
                     >
                       {token}
                     </motion.span>
@@ -911,56 +935,82 @@ const ContinuousAnalysisDemo = () => {
             )}
 
             {phase === 'nlp' && (
-              <motion.div key="nlp" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+              <motion.div key="nlp" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2.5">
                 <div className="flex items-center gap-2">
                   <motion.div className="w-3 h-3 border-2 border-purple-500 border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }} />
-                  <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">🧠 Running transformer model...</span>
+                  <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">🧠 Running sentiment transformer model...</span>
                 </div>
-                <div className="space-y-1.5">
+                <motion.div className="text-[10px] text-gray-400 font-mono bg-gray-100 dark:bg-[#0a0a0a] rounded px-2 py-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                  Model: nlp-sentiment-v2 | Params: 110M | Device: GPU
+                </motion.div>
+                <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-20">Embedding</span>
-                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
-                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.5 }} />
+                    <span className="text-[10px] text-gray-400 w-24">1. Embedding</span>
+                    <div className="flex-1 h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.8 }} />
                     </div>
+                    <motion.span className="text-[9px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>✓</motion.span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-20">Attention</span>
-                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
-                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.6, delay: 0.3 }} />
+                    <span className="text-[10px] text-gray-400 w-24">2. Self-Attention</span>
+                    <div className="flex-1 h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 1.0, delay: 0.8 }} />
                     </div>
+                    <motion.span className="text-[9px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.9 }}>✓</motion.span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-20">Inference</span>
-                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
-                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.8, delay: 0.6 }} />
+                    <span className="text-[10px] text-gray-400 w-24">3. Feed-Forward</span>
+                    <div className="flex-1 h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.8, delay: 1.8 }} />
                     </div>
+                    <motion.span className="text-[9px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.7 }}>✓</motion.span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400 w-24">4. Softmax</span>
+                    <div className="flex-1 h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.6, delay: 2.7 }} />
+                    </div>
+                    <motion.span className="text-[9px] text-emerald-500" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.4 }}>✓</motion.span>
                   </div>
                 </div>
+                <motion.div className="text-[10px] text-gray-400" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.2 }}>
+                  Inference time: ~{(Math.random() * 50 + 80).toFixed(0)}ms
+                </motion.div>
               </motion.div>
             )}
 
             {phase === 'score' && (
-              <motion.div key="score" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+              <motion.div key="score" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2.5">
                 <span className="text-xs text-accent font-medium">📊 Calculating confidence scores...</span>
+                <motion.div className="text-[10px] text-gray-400" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                  Applying softmax normalization to logits...
+                </motion.div>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { label: 'Positive', val: headline.sentiment === 'Positive' ? headline.score : (Math.random() * 0.3).toFixed(2), color: 'text-emerald-600' },
-                    { label: 'Negative', val: headline.sentiment === 'Negative' ? headline.score : (Math.random() * 0.3).toFixed(2), color: 'text-red-500' },
-                    { label: 'Neutral', val: headline.sentiment === 'Neutral' ? headline.score : (Math.random() * 0.3).toFixed(2), color: 'text-amber-500' },
+                    { label: 'Positive', val: headline.sentiment === 'Positive' ? headline.score : (Math.random() * 0.2 + 0.05).toFixed(2), color: 'text-emerald-600', barColor: '#22c55e' },
+                    { label: 'Negative', val: headline.sentiment === 'Negative' ? headline.score : (Math.random() * 0.2 + 0.05).toFixed(2), color: 'text-red-500', barColor: '#ef4444' },
+                    { label: 'Neutral', val: headline.sentiment === 'Neutral' ? headline.score : (Math.random() * 0.2 + 0.05).toFixed(2), color: 'text-amber-500', barColor: '#f59e0b' },
                   ].map((s, i) => (
-                    <motion.div key={s.label} className="text-center p-2 bg-white dark:bg-[#1a1a1a] rounded-lg border border-[#eee] dark:border-[#2a2a2a]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}>
-                      <div className="text-[10px] text-gray-400">{s.label}</div>
-                      <div className={`text-sm font-bold ${s.color}`}>{s.val}</div>
+                    <motion.div key={s.label} className="text-center p-2.5 bg-white dark:bg-[#1a1a1a] rounded-lg border border-[#eee] dark:border-[#2a2a2a]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + i * 0.25 }}>
+                      <div className="text-[10px] text-gray-400 mb-1">{s.label}</div>
+                      <div className={`text-base font-bold ${s.color}`}>{s.val}</div>
+                      <div className="h-1 bg-gray-100 dark:bg-[#2a2a2a] rounded-full mt-1.5 overflow-hidden">
+                        <motion.div className="h-full rounded-full" style={{ backgroundColor: s.barColor }} initial={{ width: '0%' }} animate={{ width: `${s.val * 100}%` }} transition={{ duration: 0.6, delay: 0.8 + i * 0.2 }} />
+                      </div>
                     </motion.div>
                   ))}
                 </div>
                 {showEntities && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-gray-400">Entities:</span>
-                    {headline.entities.map((e, i) => (
-                      <motion.span key={e} className="text-[10px] px-2 py-0.5 bg-teal-100 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400 rounded font-medium" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 + i * 0.1 }}>{e}</motion.span>
-                    ))}
-                  </div>
+                  <motion.div className="space-y-1.5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-gray-400">Named Entities (NER):</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {headline.entities.map((e, i) => (
+                        <motion.span key={e} className="text-[10px] px-2 py-0.5 bg-teal-100 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400 rounded-md font-medium border border-teal-200 dark:border-teal-500/20" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.7 + i * 0.15, type: 'spring' }}>{e}</motion.span>
+                      ))}
+                    </div>
+                  </motion.div>
                 )}
               </motion.div>
             )}
