@@ -16,6 +16,8 @@ import useSwipeTabs from '../hooks/useSwipeTabs';
 import { hapticImpact } from '../utils/haptics';
 import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download, Settings2 } from 'lucide-react';
 import DashboardCustomizer from '../components/DashboardCustomizer';
+import EmptyState from '../components/EmptyState';
+import DashboardSummary from '../components/DashboardSummary';
 
 // Lazy load chart components
 const SentimentBarChart = lazy(() => import('../components/SentimentBarChart'));
@@ -389,11 +391,32 @@ const Dashboard = () => {
   };
 
   const KPI = [
-    { label: t('totalArticles'), value: counts.total,    color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10', sub: 'articles analyzed' },
+    { label: t('totalArticles'), value: counts.total,    color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10', sub: 'articles analyzed', hero: true },
     { label: t('positive'),       value: counts.positive, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10', sub: `${counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total` },
     { label: t('negative'),       value: counts.negative, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10', sub: `${counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total` },
     { label: t('neutral'),        value: counts.neutral,  color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10', sub: `${counts.total ? Math.round(counts.neutral  / counts.total * 100) : 0}% of total` },
   ];
+
+  // Track previous tab index for slide direction
+  const prevTabIndex = useRef(0);
+  const MOBILE_TAB_KEYS = ['overview', 'charts', 'ai'];
+  const currentTabIndex = MOBILE_TAB_KEYS.indexOf(mobileTab);
+  const slideDirection = currentTabIndex > prevTabIndex.current ? 1 : -1;
+  
+  useEffect(() => {
+    prevTabIndex.current = currentTabIndex;
+  }, [currentTabIndex]);
+
+  const slideVariants = {
+    enter: (direction) => ({ x: direction > 0 ? 80 : -80, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (direction) => ({ x: direction > 0 ? -80 : 80, opacity: 0 }),
+  };
+
+  // Click-to-filter on pie chart
+  const handlePieSegmentClick = (sentimentName) => {
+    setFilter(sentimentName);
+  };
 
   const isLoading = initLoading || searchLoading;
 
@@ -466,6 +489,9 @@ const Dashboard = () => {
 
       <SearchBar onSearch={handleSearch} loading={searchLoading} />
 
+      {/* Dashboard Summary Banner */}
+      <DashboardSummary distribution={distribution} keywords={keywords} articles={articles} />
+
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -5 }}
@@ -483,6 +509,11 @@ const Dashboard = () => {
         {/* Full-page skeleton for initial load with no cached data */}
         {initLoading && articles.length === 0 && !error && (
           <DashboardSkeleton />
+        )}
+
+        {/* Empty State */}
+        {!error && !isLoading && articles.length === 0 && !initLoading && (
+          <EmptyState />
         )}
 
         {!error && (articles.length > 0 || (isLoading && !initLoading)) && (
@@ -572,16 +603,17 @@ const Dashboard = () => {
                   ))}
                 </div>
 
-                {/* Tab switch skeleton */}
-                {tabSwitching && (
-                  <div className="space-y-3 animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5" />
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/5" />
-                    <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl" />
-                  </div>
-                )}
-
-                {!tabSwitching && mobileTab === 'overview' && (
+                <AnimatePresence mode="wait" custom={slideDirection}>
+                {mobileTab === 'overview' && (
+                  <motion.div
+                    key="overview"
+                    custom={slideDirection}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  >
                   <div className="space-y-4">
                     {/* KPI Cards */}
                     <Skeleton name="kpi-row" loading={isLoading}>
@@ -594,13 +626,15 @@ const Dashboard = () => {
                         {KPI.map(c => (
                           <motion.div 
                             key={c.label} 
-                            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4"
+                            className={`bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl dark:shadow-[0_0_15px_rgba(59,130,246,0.05)] ${
+                              c.hero ? 'col-span-2 p-5' : 'p-4'
+                            }`}
                             variants={kpiItemVariants}
                             whileHover={{ y: -2 }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
                           >
                             <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
-                            <div className={`text-2xl font-bold mt-1 ${c.color}`}>{c.value}</div>
+                            <div className={`${c.hero ? 'text-4xl' : 'text-2xl'} font-bold mt-1 ${c.color}`}>{c.value}</div>
                             <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{c.sub}</div>
                           </motion.div>
                         ))}
@@ -610,13 +644,13 @@ const Dashboard = () => {
                     {/* Pie Chart */}
                     <Skeleton name="charts-grid" loading={isLoading}>
                       <motion.div 
-                        className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4"
+                        className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]"
                         variants={chartVariants}
                         initial="hidden"
                         animate="visible"
                       >
                         <InlineErrorBoundary name="Pie Chart">
-                          <SentimentPieChart distribution={distribution} />
+                          <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} />
                         </InlineErrorBoundary>
                       </motion.div>
                     </Skeleton>
@@ -692,9 +726,19 @@ const Dashboard = () => {
                       )}
                     </div>
                   </div>
+                  </motion.div>
                 )}
 
-                {!tabSwitching && mobileTab === 'charts' && (
+                {mobileTab === 'charts' && (
+                  <motion.div
+                    key="charts"
+                    custom={slideDirection}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  >
                   <div className="space-y-4">
                     {articles.length === 0 && !isLoading ? (
                       <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
@@ -742,9 +786,19 @@ const Dashboard = () => {
                       </Skeleton>
                     )}
                   </div>
+                  </motion.div>
                 )}
 
-                {!tabSwitching && mobileTab === 'ai' && (
+                {mobileTab === 'ai' && (
+                  <motion.div
+                    key="ai"
+                    custom={slideDirection}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  >
                   <div className="space-y-4">
                     {(digest || digestLoading) && (
                       <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
@@ -761,7 +815,9 @@ const Dashboard = () => {
                       <SourceCredibility />
                     </InlineErrorBoundary>
                   </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </>
             ) : (
               /* Desktop Layout */
@@ -775,7 +831,7 @@ const Dashboard = () => {
                     {/* KPI Row */}
                     <Skeleton name="kpi-row" loading={isLoading}>
                       <motion.div 
-                        className="grid grid-cols-4 gap-4"
+                        className="grid grid-cols-5 gap-4"
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
@@ -783,14 +839,16 @@ const Dashboard = () => {
                         {KPI.map(c => (
                           <motion.div 
                             key={c.label} 
-                            className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-md transition-shadow"
+                            className={`bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl hover:shadow-md transition-shadow dark:shadow-[0_0_15px_rgba(59,130,246,0.05)] ${
+                              c.hero ? 'col-span-2 p-6' : 'p-5'
+                            }`}
                             variants={kpiItemVariants}
                             whileHover={{ y: -2 }}
                             transition={{ duration: 0.15, ease: 'easeOut' }}
                           >
                             <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
-                            <div className={`text-3xl font-bold mt-1.5 ${c.color}`}>{c.value}</div>
-                            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">{c.sub}</div>
+                            <div className={`${c.hero ? 'text-4xl' : 'text-3xl'} font-bold mt-1.5 ${c.color}`}>{c.value}</div>
+                            <div className={`text-[11px] text-gray-400 dark:text-gray-500 mt-1 ${c.hero ? 'text-sm' : ''}`}>{c.sub}</div>
                           </motion.div>
                         ))}
                       </motion.div>
@@ -804,33 +862,33 @@ const Dashboard = () => {
                         initial="hidden"
                         animate="visible"
                       >
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
                           <InlineErrorBoundary name="Pie Chart">
-                            <SentimentPieChart distribution={distribution} />
+                            <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} />
                           </InlineErrorBoundary>
                         </div>
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
                           <Suspense fallback={<ChartFallback />}>
                             <InlineErrorBoundary name="Bar Chart">
                               <SentimentBarChart distribution={distribution} />
                             </InlineErrorBoundary>
                           </Suspense>
                         </div>
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
                           <Suspense fallback={<ChartFallback />}>
                             <InlineErrorBoundary name="Sentiment Map">
                               <SentimentMap data={regionalData} loading={isLoading} />
                             </InlineErrorBoundary>
                           </Suspense>
                         </div>
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
                           <Suspense fallback={<ChartFallback />}>
                             <InlineErrorBoundary name="Trend Chart">
                               <TrendLineChart trendsData={trends} />
                             </InlineErrorBoundary>
                           </Suspense>
                         </div>
-                        <div className="col-span-2 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                        <div className="col-span-2 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
                           <Suspense fallback={<ChartFallback />}>
                             <InlineErrorBoundary name="Sources Chart">
                               <TopSourcesChart sourcesData={sources} />

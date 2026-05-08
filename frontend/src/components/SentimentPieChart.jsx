@@ -28,7 +28,7 @@ const CustomTooltip = ({ active, payload }) => {
   );
 };
 
-const SentimentPieChart = ({ distribution }) => {
+const SentimentPieChart = ({ distribution, onSegmentClick }) => {
   const data = Object.entries(distribution).filter(([, v]) => v > 0).map(([name, value]) => ({ name, value }));
 
   return (
@@ -68,7 +68,7 @@ const SentimentPieChart = ({ distribution }) => {
               paddingAngle={5} dataKey="value" labelLine={false} label={renderLabel}
               isAnimationActive={true} animationDuration={1400} animationEasing="ease-out" animationBegin={200}
               stroke="none">
-              {data.map(e => <Cell key={e.name} fill={`url(#pie${e.name.substring(0,3)})`} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.1))' }} />)}
+              {data.map(e => <Cell key={e.name} fill={`url(#pie${e.name.substring(0,3)})`} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.1))', cursor: onSegmentClick ? 'pointer' : 'default' }} onClick={() => onSegmentClick && onSegmentClick(e.name)} />)}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
             <Legend formatter={v => <span style={{ color: 'var(--text-500)', fontSize: 12, fontFamily: 'Inter,sans-serif' }}>{v}</span>} />

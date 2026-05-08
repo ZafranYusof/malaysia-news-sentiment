@@ -1,0 +1,9 @@
+node_modules
+backend
+nlp-service
+e2e
+test-results
+.cocoindex_code
+.qodo
+.verdent
+*.log

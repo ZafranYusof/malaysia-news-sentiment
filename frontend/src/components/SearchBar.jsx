@@ -12,6 +12,14 @@ const QUICK_TOPICS = [
   'Malaysia flood',
 ];
 
+const SUGGESTED_TOPICS = [
+  { label: 'Economy', query: 'Malaysia economy' },
+  { label: 'Politics', query: 'Malaysia politics' },
+  { label: 'Crime', query: 'Malaysia crime' },
+  { label: 'Education', query: 'Malaysia education' },
+  { label: 'Health', query: 'Malaysia health' },
+];
+
 const RECENT_KEY = 'recent-searches';
 const getRecentSearches = () => {
   try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; }
@@ -140,6 +148,37 @@ const SearchBar = ({ onSearch, loading }) => {
                   <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>{t('analyzeBtn')}</>
                 )}
               </button>
+            </div>
+            {/* Recent searches + suggested topics */}
+            <div className="search-suggestions-row" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+              {recentSearches.length > 0 && (
+                <>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted, #999)', fontWeight: 500 }}>Recent:</span>
+                  {recentSearches.map((s) => (
+                    <button
+                      key={s}
+                      className="recent-chip"
+                      onClick={() => { setQuery(s); onSearch(s, pageSize); }}
+                      disabled={loading}
+                      style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, border: '1px solid var(--border, #eee)', background: 'var(--surface, white)', color: 'var(--text-600, #555)', cursor: 'pointer', transition: 'all 0.15s' }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                  <span style={{ width: 1, height: 14, background: 'var(--border, #eee)', margin: '0 4px' }} />
+                </>
+              )}
+              <span style={{ fontSize: 11, color: 'var(--text-muted, #999)', fontWeight: 500 }}>Suggested:</span>
+              {SUGGESTED_TOPICS.map((t) => (
+                <button
+                  key={t.label}
+                  onClick={() => { setQuery(t.query); onSearch(t.query, pageSize); }}
+                  disabled={loading}
+                  style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, border: '1px solid transparent', background: 'var(--brand-bg, #f0f7ff)', color: 'var(--brand, #3b82f6)', cursor: 'pointer', fontWeight: 500, transition: 'all 0.15s' }}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
             <div className="topic-strips" role="list">
               <span className="topic-strip-label">{t('quickKeywords')}</span>

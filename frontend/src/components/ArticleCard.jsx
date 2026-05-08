@@ -14,6 +14,43 @@ const formatDate = (dateStr) => {
   });
 };
 
+const formatRelativeTime = (dateStr) => {
+  if (!dateStr) return '';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  const diffWeeks = Math.floor(diffDays / 7);
+  
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffWeeks < 4) return `${diffWeeks}w ago`;
+  return formatDate(dateStr);
+};
+
+const getSentimentBorderColor = (sentiment) => {
+  switch (sentiment) {
+    case 'Positive': return '#30CF79';
+    case 'Negative': return '#F54E4E';
+    case 'Neutral': return '#F7A501';
+    default: return 'transparent';
+  }
+};
+
+const getFaviconUrl = (url) => {
+  if (!url) return null;
+  try {
+    const domain = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
+  } catch {
+    return null;
+  }
+};
+
 const deriveSourceLabel = (source, url) => {
   if (source && source !== 'Unknown' && source !== 'Source' && source !== 'Media Source') {
     return source;
@@ -112,13 +149,16 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
     }
   };
 
+  const faviconUrl = getFaviconUrl(url);
+  const borderColor = getSentimentBorderColor(sentiment);
+
   return (
     <div
       onClick={handlePreview}
       className={`article-card ${isAlert ? 'article-card--alert' : 'article-card--interactive'}`}
       data-sentiment={sentiment}
       aria-label={`${title} — ${sentiment} sentiment${isAlert ? ' — Alert' : ''}`}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', borderLeft: `3px solid ${borderColor}` }}
     >
       {/* Thumbnail - #6 lazy loading with blur placeholder */}
       <div className="art-thumb-container">
@@ -152,9 +192,12 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
       {/* Body */}
       <div className="art-body">
         <div className="art-meta">
+          {faviconUrl && (
+            <img src={faviconUrl} alt="" width="14" height="14" style={{ borderRadius: 2, marginRight: 2 }} loading="lazy" />
+          )}
           <span className="art-source">{sourceLabel}</span>
           <span className="art-sep">·</span>
-          <span className="art-date">{formatDate(publishedAt)}</span>
+          <span className="art-date" title={formatDate(publishedAt)}>{formatRelativeTime(publishedAt)}</span>
           {topic && <span className="art-topic">#{topic}</span>}
           {isAlert && <AlertBadge />}
         </div>
