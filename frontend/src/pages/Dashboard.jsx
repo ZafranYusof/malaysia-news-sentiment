@@ -42,7 +42,7 @@ const ChartFallback = () => (
 );
 
 const DashboardSkeleton = () => (
-  <div className="space-y-6 animate-pulse">
+  <div className="space-y-8 animate-pulse">
     {/* Header skeleton */}
     <div className="space-y-2">
       <div className="h-7 w-48 rounded-lg bg-gray-200 dark:bg-gray-700" />
@@ -61,7 +61,7 @@ const DashboardSkeleton = () => (
       ))}
     </div>
     {/* Charts skeleton */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
       {[1,2].map(i => (
         <div key={i} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 space-y-3">
           <div className="flex items-center gap-2">
@@ -122,6 +122,9 @@ const TIME_OPTIONS = [
   { key: '7d',  label: 'Last 7D' },
   { key: '30d', label: 'Last 30D' },
 ];
+
+// Consistent card style
+const CARD = 'bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl dark:shadow-[0_0_15px_rgba(59,130,246,0.03)]';
 
 const Dashboard = () => {
   const { user, toggleBookmark } = useAuth();
@@ -420,17 +423,17 @@ const Dashboard = () => {
 
   const isLoading = initLoading || searchLoading;
 
-  // Animation variants
+  // Animation variants - subtle
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.06, delayChildren: 0.02 }
+      transition: { staggerChildren: 0.04, delayChildren: 0.02 }
     }
   };
 
   const kpiItemVariants = {
-    hidden: { opacity: 0, y: 8 },
+    hidden: { opacity: 0, y: 6 },
     visible: { 
       opacity: 1, y: 0,
       transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
@@ -446,12 +449,25 @@ const Dashboard = () => {
   };
 
   const articleVariants = {
-    hidden: { opacity: 0, y: 12 },
+    hidden: { opacity: 0, y: 8 },
     visible: { 
       opacity: 1, y: 0,
       transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
     }
   };
+
+  // Section header component
+  const SectionHeader = ({ title, badge, children }) => (
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
+        {title}
+        {badge !== undefined && (
+          <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full normal-case tracking-normal">{badge}</span>
+        )}
+      </h2>
+      {children}
+    </div>
+  );
 
   return (
     <div
@@ -496,7 +512,7 @@ const Dashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400 text-sm"
+          className="mt-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm"
           role="alert"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -505,7 +521,7 @@ const Dashboard = () => {
       )}
 
       {/* Content */}
-      <div className="mt-6 transition-opacity">
+      <div className="mt-8 transition-opacity">
         {/* Full-page skeleton for initial load with no cached data */}
         {initLoading && articles.length === 0 && !error && (
           <DashboardSkeleton />
@@ -518,21 +534,21 @@ const Dashboard = () => {
 
         {!error && (articles.length > 0 || (isLoading && !initLoading)) && (
           <>
-            {/* View Banner */}
+            {/* View Banner - Compact toolbar */}
             <Skeleton name="dash-banner" loading={isLoading}>
               <motion.div 
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-wrap items-center gap-3 px-4 py-3 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl mb-6"
+                className={`${CARD} flex flex-wrap items-center gap-3 px-4 py-2.5 mb-8`}
               >
                 {isHistoryView ? (
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                    <Clock size={16} className="text-gray-400" />
-                    <span>Showing <strong className="text-gray-900 dark:text-white">{articles.length}</strong> previous analyses</span>
+                    <Clock size={14} className="text-gray-400" />
+                    <span>Showing <strong className="text-gray-900 dark:text-white">{articles.length}</strong> analyses</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                    <Search size={16} className="text-gray-400" />
+                    <Search size={14} className="text-gray-400" />
                     <span>Results for <strong className="text-gray-900 dark:text-white">"{currentQuery}"</strong></span>
                     <button 
                       onClick={() => { setIsHistoryView(true); setManualError(''); }}
@@ -544,7 +560,7 @@ const Dashboard = () => {
                 )}
                 <div className="flex items-center gap-2 ml-auto flex-wrap">
                   {isHistoryView && (
-                    <div className="flex gap-1 bg-gray-50 dark:bg-white/5 rounded-lg p-0.5">
+                    <div className="flex gap-0.5 bg-gray-50 dark:bg-white/5 rounded-lg p-0.5">
                       {TIME_OPTIONS.map(opt => (
                         <button
                           key={opt.key}
@@ -560,22 +576,31 @@ const Dashboard = () => {
                       ))}
                     </div>
                   )}
-                  <button onClick={() => setShowCustomizer(true)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
-                    <Settings2 size={12} /> Customize
-                  </button>
-                  <button onClick={handleManualForecast} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors">
-                    <Sparkles size={12} /> AI Forecast
-                  </button>
-                  <ExportPPT articles={articles} distribution={distribution} sources={sources} query={currentQuery} />
-                  <button onClick={handleDownloadPDF} className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors">
-                    <FileDown size={12} /> PDF
-                  </button>
-                  <button onClick={handlePrint} className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
-                    Report
-                  </button>
-                  <button onClick={handleExport} className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
-                    CSV
-                  </button>
+                  {/* Desktop action buttons - icon-only for cleanliness */}
+                  <div className="hidden md:flex items-center gap-1 border-l border-gray-200 dark:border-[#2a2a2a] pl-2 ml-1">
+                    <button onClick={() => setShowCustomizer(true)} className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors" title="Customize">
+                      <Settings2 size={14} />
+                    </button>
+                    <button onClick={handleManualForecast} className="p-1.5 text-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors" title="AI Forecast">
+                      <Sparkles size={14} />
+                    </button>
+                    <ExportPPT articles={articles} distribution={distribution} sources={sources} query={currentQuery} />
+                    <button onClick={handleDownloadPDF} className="p-1.5 text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Download PDF">
+                      <FileDown size={14} />
+                    </button>
+                    <button onClick={handlePrint} className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors" title="Print Report">
+                      <Printer size={14} />
+                    </button>
+                    <button onClick={handleExport} className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors" title="Export CSV">
+                      <Download size={14} />
+                    </button>
+                  </div>
+                  {/* Mobile: only customize + AI forecast inline, rest in FAB */}
+                  <div className="flex md:hidden items-center gap-1">
+                    <button onClick={() => setShowCustomizer(true)} className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors">
+                      <Settings2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             </Skeleton>
@@ -583,7 +608,7 @@ const Dashboard = () => {
             {/* Mobile Tab Layout */}
             {isMobile ? (
               <>
-                <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-1 mb-4">
+                <div className={`${CARD} flex gap-1 p-1 mb-5`}>
                   {[
                     { key: 'overview', label: 'Overview', icon: <BarChart3 size={14} /> },
                     { key: 'charts', label: 'Charts', icon: <TrendingUp size={14} /> },
@@ -591,7 +616,7 @@ const Dashboard = () => {
                   ].map(tab => (
                     <button
                       key={tab.key}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
                         mobileTab === tab.key
                           ? 'bg-blue-600 text-white shadow-sm'
                           : 'text-gray-500 dark:text-gray-400'
@@ -614,37 +639,40 @@ const Dashboard = () => {
                     exit="exit"
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                   >
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {/* KPI Cards */}
-                    <Skeleton name="kpi-row" loading={isLoading}>
-                      <motion.div 
-                        className="grid grid-cols-2 gap-3"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        {KPI.map(c => (
-                          <motion.div 
-                            key={c.label} 
-                            className={`bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl dark:shadow-[0_0_15px_rgba(59,130,246,0.05)] ${
-                              c.hero ? 'col-span-2 p-5' : 'p-4'
-                            }`}
-                            variants={kpiItemVariants}
-                            whileHover={{ y: -2 }}
-                            transition={{ duration: 0.15, ease: 'easeOut' }}
-                          >
-                            <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
-                            <div className={`${c.hero ? 'text-4xl' : 'text-2xl'} font-bold mt-1 ${c.color}`}>{c.value}</div>
-                            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{c.sub}</div>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </Skeleton>
+                    <div>
+                      <SectionHeader title="Key Metrics" />
+                      <Skeleton name="kpi-row" loading={isLoading}>
+                        <motion.div 
+                          className="grid grid-cols-2 gap-3"
+                          variants={containerVariants}
+                          initial="hidden"
+                          animate="visible"
+                        >
+                          {KPI.map(c => (
+                            <motion.div 
+                              key={c.label} 
+                              className={`${CARD} ${
+                                c.hero ? 'col-span-2 p-5 bg-gradient-to-br from-blue-50 to-white dark:from-blue-500/5 dark:to-[#1a1a1a]' : 'p-4'
+                              }`}
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -2 }}
+                              transition={{ duration: 0.15, ease: 'easeOut' }}
+                            >
+                              <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
+                              <div className={`${c.hero ? 'text-4xl' : 'text-2xl'} font-bold mt-1 ${c.color}`}>{c.value}</div>
+                              <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{c.sub}</div>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      </Skeleton>
+                    </div>
 
                     {/* Pie Chart */}
                     <Skeleton name="charts-grid" loading={isLoading}>
                       <motion.div 
-                        className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]"
+                        className={`${CARD} p-4`}
                         variants={chartVariants}
                         initial="hidden"
                         animate="visible"
@@ -657,22 +685,15 @@ const Dashboard = () => {
 
                     {/* Articles */}
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                          {t('analysisResults')} 
-                          <Skeleton name="article-count" loading={isLoading} inline>
-                            <span className="text-xs font-medium text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">{filteredArticles.length}</span>
-                          </Skeleton>
-                        </h2>
-                      </div>
-                      <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+                      <SectionHeader title="Recent Articles" badge={filteredArticles.length} />
+                      <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide -mx-1 px-1">
                         {FILTER_OPTIONS.map(opt => (
                           <button 
                             key={opt.key} 
-                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                            className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
                               filter === opt.key 
                                 ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400'
                             }`}
                             onClick={() => setFilter(opt.key)}
                           >
@@ -704,21 +725,21 @@ const Dashboard = () => {
                       </motion.div>
 
                       {isHistoryView && stats.total > LIMIT && (
-                        <div className="flex items-center justify-between mt-4 px-2">
+                        <div className="flex items-center justify-center gap-4 mt-6">
                           <button 
                             disabled={page === 1 || isLoading} 
                             onClick={() => handlePageChange(page - 1)}
-                            className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                            className={`${CARD} flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 disabled:opacity-40 transition-colors`}
                           >
                             <ChevronLeft size={14} /> Prev
                           </button>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            Page <strong className="text-gray-900 dark:text-white">{page}</strong> of {Math.ceil(stats.total / LIMIT)}
+                            <strong className="text-gray-900 dark:text-white">{page}</strong> / {Math.ceil(stats.total / LIMIT)}
                           </span>
                           <button 
                             disabled={page >= Math.ceil(stats.total / LIMIT) || isLoading} 
                             onClick={() => handlePageChange(page + 1)}
-                            className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-lg disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                            className={`${CARD} flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 disabled:opacity-40 transition-colors`}
                           >
                             Next <ChevronRight size={14} />
                           </button>
@@ -739,7 +760,7 @@ const Dashboard = () => {
                     exit="exit"
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                   >
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     {articles.length === 0 && !isLoading ? (
                       <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-gray-500">
                         <BarChart3 size={48} strokeWidth={1.5} />
@@ -754,28 +775,29 @@ const Dashboard = () => {
                           initial="hidden"
                           animate="visible"
                         >
-                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                          <SectionHeader title="Charts" />
+                          <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Bar Chart">
                                 <SentimentBarChart distribution={distribution} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
-                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                          <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Trend Chart">
                                 <TrendLineChart trendsData={trends} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
-                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                          <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sentiment Map">
                                 <SentimentMap data={regionalData} loading={isLoading} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
-                          <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                          <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sources Chart">
                                 <TopSourcesChart sourcesData={sources} />
@@ -799,7 +821,8 @@ const Dashboard = () => {
                     exit="exit"
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                   >
-                  <div className="space-y-4">
+                  <div className="space-y-5">
+                    <SectionHeader title="AI Insights" />
                     {(digest || digestLoading) && (
                       <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
                     )}
@@ -807,13 +830,17 @@ const Dashboard = () => {
                       <ForecastCard forecast={forecast} loading={forecastLoading} topic={currentQuery} />
                     </InlineErrorBoundary>
                     <Skeleton name="word-cloud" loading={isLoading}>
-                      <InlineErrorBoundary name="Word Cloud">
-                        <WordCloud words={keywords} />
-                      </InlineErrorBoundary>
+                      <div className={`${CARD} p-4`}>
+                        <InlineErrorBoundary name="Word Cloud">
+                          <WordCloud words={keywords} />
+                        </InlineErrorBoundary>
+                      </div>
                     </Skeleton>
-                    <InlineErrorBoundary name="Source Credibility">
-                      <SourceCredibility />
-                    </InlineErrorBoundary>
+                    <div className={`${CARD} p-4`}>
+                      <InlineErrorBoundary name="Source Credibility">
+                        <SourceCredibility />
+                      </InlineErrorBoundary>
+                    </div>
                   </div>
                   </motion.div>
                 )}
@@ -822,81 +849,87 @@ const Dashboard = () => {
             ) : (
               /* Desktop Layout */
               <>
-                <div className="grid grid-cols-[1fr_300px] gap-6">
-                  <div className="space-y-6">
+                <div className="grid grid-cols-[1fr_300px] gap-8">
+                  <div className="space-y-8">
                     {(digest || digestLoading) && !isHistoryView && (
                       <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
                     )}
                     
                     {/* KPI Row */}
-                    <Skeleton name="kpi-row" loading={isLoading}>
-                      <motion.div 
-                        className="grid grid-cols-5 gap-4"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        {KPI.map(c => (
-                          <motion.div 
-                            key={c.label} 
-                            className={`bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl hover:shadow-md transition-shadow dark:shadow-[0_0_15px_rgba(59,130,246,0.05)] ${
-                              c.hero ? 'col-span-2 p-6' : 'p-5'
-                            }`}
-                            variants={kpiItemVariants}
-                            whileHover={{ y: -2 }}
-                            transition={{ duration: 0.15, ease: 'easeOut' }}
-                          >
-                            <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
-                            <div className={`${c.hero ? 'text-4xl' : 'text-3xl'} font-bold mt-1.5 ${c.color}`}>{c.value}</div>
-                            <div className={`text-[11px] text-gray-400 dark:text-gray-500 mt-1 ${c.hero ? 'text-sm' : ''}`}>{c.sub}</div>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </Skeleton>
+                    <div>
+                      <SectionHeader title="Key Metrics" />
+                      <Skeleton name="kpi-row" loading={isLoading}>
+                        <motion.div 
+                          className="grid grid-cols-4 gap-4"
+                          variants={containerVariants}
+                          initial="hidden"
+                          animate="visible"
+                        >
+                          {KPI.map(c => (
+                            <motion.div 
+                              key={c.label} 
+                              className={`${CARD} p-5 ${
+                                c.hero ? 'bg-gradient-to-br from-blue-50 to-white dark:from-blue-500/5 dark:to-[#1a1a1a]' : ''
+                              }`}
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -2 }}
+                              transition={{ duration: 0.15, ease: 'easeOut' }}
+                            >
+                              <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
+                              <div className={`text-3xl font-bold mt-1.5 ${c.color}`}>{c.value}</div>
+                              <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">{c.sub}</div>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      </Skeleton>
+                    </div>
 
                     {/* Charts Grid */}
-                    <Skeleton name="charts-grid" loading={isLoading}>
-                      <motion.div 
-                        className="grid grid-cols-2 gap-4"
-                        variants={chartVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
-                          <InlineErrorBoundary name="Pie Chart">
-                            <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} />
-                          </InlineErrorBoundary>
-                        </div>
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Bar Chart">
-                              <SentimentBarChart distribution={distribution} />
+                    <div>
+                      <SectionHeader title="Charts" />
+                      <Skeleton name="charts-grid" loading={isLoading}>
+                        <motion.div 
+                          className="grid grid-cols-2 gap-5"
+                          variants={chartVariants}
+                          initial="hidden"
+                          animate="visible"
+                        >
+                          <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
+                            <InlineErrorBoundary name="Pie Chart">
+                              <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} />
                             </InlineErrorBoundary>
-                          </Suspense>
-                        </div>
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Sentiment Map">
-                              <SentimentMap data={regionalData} loading={isLoading} />
-                            </InlineErrorBoundary>
-                          </Suspense>
-                        </div>
-                        <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Trend Chart">
-                              <TrendLineChart trendsData={trends} />
-                            </InlineErrorBoundary>
-                          </Suspense>
-                        </div>
-                        <div className="col-span-2 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 dark:shadow-[0_0_15px_rgba(59,130,246,0.05)]">
-                          <Suspense fallback={<ChartFallback />}>
-                            <InlineErrorBoundary name="Sources Chart">
-                              <TopSourcesChart sourcesData={sources} />
-                            </InlineErrorBoundary>
-                          </Suspense>
-                        </div>
-                      </motion.div>
-                    </Skeleton>
+                          </div>
+                          <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Bar Chart">
+                                <SentimentBarChart distribution={distribution} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
+                          <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Sentiment Map">
+                                <SentimentMap data={regionalData} loading={isLoading} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
+                          <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Trend Chart">
+                                <TrendLineChart trendsData={trends} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
+                          <div className={`col-span-2 ${CARD} p-5`}>
+                            <Suspense fallback={<ChartFallback />}>
+                              <InlineErrorBoundary name="Sources Chart">
+                                <TopSourcesChart sourcesData={sources} />
+                              </InlineErrorBoundary>
+                            </Suspense>
+                          </div>
+                        </motion.div>
+                      </Skeleton>
+                    </div>
                     
                     {/* Forecast */}
                     <InlineErrorBoundary name="AI Forecast">
@@ -905,31 +938,27 @@ const Dashboard = () => {
                   </div>
                   
                   {/* Sidebar */}
-                  <aside className="space-y-4">
-                    <Skeleton name="word-cloud" loading={isLoading}>
-                      <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
-                        <InlineErrorBoundary name="Word Cloud">
-                          <WordCloud words={keywords} />
+                  <aside className="space-y-5">
+                    <div className="sticky top-6 space-y-5">
+                      <Skeleton name="word-cloud" loading={isLoading}>
+                        <div className={`${CARD} p-5`}>
+                          <InlineErrorBoundary name="Word Cloud">
+                            <WordCloud words={keywords} />
+                          </InlineErrorBoundary>
+                        </div>
+                      </Skeleton>
+                      <div className={`${CARD} p-5`}>
+                        <InlineErrorBoundary name="Source Credibility">
+                          <SourceCredibility />
                         </InlineErrorBoundary>
                       </div>
-                    </Skeleton>
-                    <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
-                      <InlineErrorBoundary name="Source Credibility">
-                        <SourceCredibility />
-                      </InlineErrorBoundary>
                     </div>
                   </aside>
                 </div>
 
                 {/* Articles Section */}
-                <div className="mt-8" id="analysis-results">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                      {t('analysisResults')} 
-                      <Skeleton name="article-count" loading={isLoading} inline>
-                        <span className="text-xs font-medium text-gray-400 bg-gray-100 dark:bg-white/5 px-2.5 py-0.5 rounded-full">{filteredArticles.length}</span>
-                      </Skeleton>
-                    </h2>
+                <div className="mt-10" id="analysis-results">
+                  <SectionHeader title="Recent Articles" badge={filteredArticles.length}>
                     <div className="flex gap-1.5">
                       {FILTER_OPTIONS.map(opt => (
                         <button 
@@ -945,7 +974,7 @@ const Dashboard = () => {
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </SectionHeader>
 
                   <motion.div 
                     className="space-y-3"
@@ -992,13 +1021,13 @@ const Dashboard = () => {
                     </Skeleton>
                   </motion.div>
 
-                  {/* Pagination */}
+                  {/* Pagination - Centered */}
                   {isHistoryView && stats.total > LIMIT && (
-                    <div className="flex items-center justify-between mt-6 px-2">
+                    <div className="flex items-center justify-center gap-4 mt-8">
                       <button 
                         disabled={page === 1 || isLoading} 
                         onClick={() => handlePageChange(page - 1)}
-                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                        className={`${CARD} flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-white/5 transition-colors`}
                       >
                         <ChevronLeft size={16} /> Previous
                       </button>
@@ -1009,7 +1038,7 @@ const Dashboard = () => {
                       <button 
                         disabled={page >= Math.ceil(stats.total / LIMIT) || isLoading} 
                         onClick={() => handlePageChange(page + 1)}
-                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                        className={`${CARD} flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-white/5 transition-colors`}
                       >
                         Next <ChevronRight size={16} />
                       </button>
@@ -1035,10 +1064,10 @@ const Dashboard = () => {
           )}
         </AnimatePresence>
         <motion.button
-          className="w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300"
+          className={`w-11 h-11 rounded-full ${CARD} shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300`}
           onClick={() => { hapticImpact('Light'); setShowExportSheet(true); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           aria-label="Export options"
         >
           <Download size={18} />
@@ -1053,11 +1082,12 @@ const Dashboard = () => {
             >AI Forecast</motion.div>
           )}
         </AnimatePresence>
+
         <motion.button
-          className="w-12 h-12 rounded-full bg-blue-600 shadow-lg shadow-blue-600/30 flex items-center justify-center text-white"
+          className="w-12 h-12 rounded-full bg-blue-600 shadow-lg shadow-blue-600/20 flex items-center justify-center text-white"
           onClick={() => { hapticImpact('Medium'); handleManualForecast(); }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           aria-label="AI Forecast"
         >
           <Sparkles size={20} />
@@ -1091,26 +1121,26 @@ const Dashboard = () => {
               <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4" />
               <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Export Options</h3>
               <div className="space-y-2">
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { document.querySelector('.export-ppt-trigger')?.click(); setShowExportSheet(false); }}>
-                  <div className="w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-500">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { document.querySelector('.export-ppt-trigger')?.click(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-500">
                     <Printer size={18} />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Export PPTX</span>
                 </button>
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handlePrint(); setShowExportSheet(false); }}>
-                  <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-500">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handlePrint(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-500">
                     <Printer size={18} />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Print Report</span>
                 </button>
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handleExport(); setShowExportSheet(false); }}>
-                  <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handleExport(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                     <FileDown size={18} />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Export CSV</span>
                 </button>
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handleDownloadPDF(); setShowExportSheet(false); }}>
-                  <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left" onClick={() => { handleDownloadPDF(); setShowExportSheet(false); }}>
+                  <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500">
                     <FileDown size={18} />
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Download PDF Report</span>
