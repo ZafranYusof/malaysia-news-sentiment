@@ -1324,44 +1324,159 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── FEATURES ─── */}
-      <AnimatedSection className="py-12 px-6" id="features" variants={staggerContainer}>
-        <div className="max-w-6xl mx-auto">
-          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Features</p>
-          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-4">Everything you need to understand Malaysian news</h2>
-          <p className="text-center text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-12">Powerful AI tools designed for researchers, analysts, and anyone tracking Malaysian media sentiment.</p>
+      <AnimatedSection className="py-16 px-6 relative overflow-hidden" id="features" variants={staggerContainer}>
+        {/* Background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-accent/3 blur-[150px]" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-purple-500/3 blur-[120px]" />
+        </div>
+
+        <div className="max-w-6xl mx-auto relative">
+          <motion.p variants={staggerItem} className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Features</motion.p>
+          <motion.h2 variants={staggerItem} className="text-center text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">Everything you need to understand Malaysian news</motion.h2>
+          <motion.p variants={staggerItem} className="text-center text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-14">Powerful AI tools designed for researchers, analysts, and anyone tracking Malaysian media sentiment.</motion.p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) => (
               <motion.div
                 key={i}
-                className="relative p-6 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl group overflow-hidden"
+                className="relative p-7 bg-white dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl group overflow-hidden"
                 variants={staggerItem}
-                whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                style={{ willChange: 'transform' }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               >
-                {/* Gradient border on hover */}
+                {/* Hover gradient overlay */}
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `linear-gradient(135deg, ${f.glowColor}, transparent)` }} />
+
+                {/* Corner glow */}
+                <div className="absolute -top-10 -left-10 w-32 h-32 rounded-full opacity-0 group-hover:opacity-60 transition-opacity duration-500 blur-3xl" style={{ backgroundColor: f.glowColor }} />
+
+                {/* Top accent line */}
                 <motion.div
-                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: `linear-gradient(135deg, ${f.glowColor}, transparent, ${f.glowColor})`, padding: '1px' }}
+                  className="absolute top-0 left-0 h-[3px] rounded-t-2xl"
+                  style={{ backgroundColor: f.glowColor.replace('0.2', '0.8') }}
+                  initial={{ width: '0%' }}
+                  whileInView={{ width: '25%' }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2 + i * 0.1 }}
                 />
-                {/* Glow behind icon */}
-                <motion.div
-                  className="absolute top-4 left-4 w-14 h-14 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
-                  style={{ backgroundColor: f.glowColor }}
-                />
+                <div className="absolute top-0 left-0 h-[3px] rounded-t-2xl group-hover:!w-full transition-all duration-500" style={{ backgroundColor: f.glowColor.replace('0.2', '0.8'), width: '0%' }} />
+
                 <div className="relative">
-                  <motion.div
-                    className="inline-block"
-                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.2 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <f.icon className={`w-10 h-10 ${f.color} mb-4`} />
-                  </motion.div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{f.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
+                  {/* Icon with glow container */}
+                  <div className="relative inline-block mb-5">
+                    <motion.div
+                      className="w-14 h-14 flex items-center justify-center rounded-xl border"
+                      style={{ backgroundColor: f.glowColor, borderColor: f.glowColor.replace('0.2', '0.3') }}
+                      whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <f.icon className={`w-7 h-7 ${f.color}`} />
+                    </motion.div>
+                    <motion.div
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: f.glowColor.replace('0.2', '1') }}
+                      animate={{ scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] }}
+                      transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.3 }}
+                    />
+                  </div>
+
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{f.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4">{f.desc}</p>
+
+                  {/* Mini preview per feature */}
+                  {i === 0 && (
+                    <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-lg p-2.5 border border-[#eee] dark:border-[#222]">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        {[{ l: 'Pos', c: '#22c55e', w: 52 }, { l: 'Neg', c: '#ef4444', w: 23 }, { l: 'Neu', c: '#f59e0b', w: 25 }].map((s) => (
+                          <div key={s.l} className="flex-1">
+                            <div className="text-[9px] text-gray-400 mb-0.5">{s.l}</div>
+                            <div className="h-1.5 bg-gray-200 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
+                              <motion.div className="h-full rounded-full" style={{ backgroundColor: s.c }} animate={{ width: [`${s.w * 0.3}%`, `${s.w}%`] }} transition={{ duration: 1.5, repeat: Infinity, repeatType: 'reverse', delay: 0.5 }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {i === 1 && (
+                    <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-lg p-2.5 border border-[#eee] dark:border-[#222]">
+                      <div className="flex items-center gap-3">
+                        {[1, 2, 3, 4].map((n) => (
+                          <motion.div
+                            key={n}
+                            className="w-3 h-3 rounded-full bg-blue-500/30 border border-blue-500/50"
+                            animate={{ scale: [1, 1.3, 1], opacity: [0.4, 1, 0.4] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: n * 0.3 }}
+                          />
+                        ))}
+                        <motion.div className="flex-1 h-[1px] bg-blue-500/30" animate={{ scaleX: [0, 1, 0] }} transition={{ duration: 3, repeat: Infinity }} style={{ transformOrigin: 'left' }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {i === 2 && (
+                    <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-lg p-2.5 border border-[#eee] dark:border-[#222]">
+                      <div className="flex items-center gap-1">
+                        <motion.span className="text-[10px] px-1.5 py-0.5 bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }}>#Economy</motion.span>
+                        <motion.span className="text-[10px] px-1.5 py-0.5 bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}>#Politics</motion.span>
+                        <motion.span className="text-[10px] px-1.5 py-0.5 bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity, delay: 1 }}>#Tech</motion.span>
+                      </div>
+                    </div>
+                  )}
+
+                  {i === 3 && (
+                    <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-lg p-2.5 border border-[#eee] dark:border-[#222]">
+                      <div className="flex items-center gap-2">
+                        <motion.div className="flex items-center gap-1" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity }}>
+                          <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                          <span className="text-[9px] text-gray-400">Reliable</span>
+                        </motion.div>
+                        <motion.div className="flex items-center gap-1" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, delay: 0.8 }}>
+                          <div className="w-2 h-2 rounded-full bg-amber-400" />
+                          <span className="text-[9px] text-gray-400">Mixed</span>
+                        </motion.div>
+                        <motion.div className="flex items-center gap-1" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 2.5, repeat: Infinity, delay: 1.6 }}>
+                          <div className="w-2 h-2 rounded-full bg-red-400" />
+                          <span className="text-[9px] text-gray-400">Low</span>
+                        </motion.div>
+                      </div>
+                    </div>
+                  )}
+
+                  {i === 4 && (
+                    <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-lg p-2.5 border border-[#eee] dark:border-[#222]">
+                      <motion.div className="flex items-center gap-1.5" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 3, repeat: Infinity }}>
+                        <Brain size={10} className="text-pink-500" />
+                        <span className="text-[9px] text-gray-400">Generating summary...</span>
+                        <motion.span className="text-[9px] text-pink-500" animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>█</motion.span>
+                      </motion.div>
+                    </div>
+                  )}
+
+                  {i === 5 && (
+                    <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-lg p-2.5 border border-[#eee] dark:border-[#222]">
+                      <div className="flex items-center gap-2">
+                        <motion.div className="flex items-center gap-1" animate={{ x: [0, 3, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+                          <FileDown size={10} className="text-teal-500" />
+                          <span className="text-[9px] text-gray-400">.pptx</span>
+                        </motion.div>
+                        <motion.div className="flex items-center gap-1" animate={{ x: [0, 3, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}>
+                          <FileDown size={10} className="text-teal-500" />
+                          <span className="text-[9px] text-gray-400">.csv</span>
+                        </motion.div>
+                        <motion.div className="flex items-center gap-1" animate={{ x: [0, 3, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 1 }}>
+                          <FileDown size={10} className="text-teal-500" />
+                          <span className="text-[9px] text-gray-400">.pdf</span>
+                        </motion.div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {/* Gradient border overlay */}
-                <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-accent/30 transition-colors duration-300 pointer-events-none" />
+
+                {/* Border glow on hover */}
+                <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-accent/20 transition-colors duration-300 pointer-events-none" />
               </motion.div>
             ))}
           </div>
