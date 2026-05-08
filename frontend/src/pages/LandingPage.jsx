@@ -722,46 +722,71 @@ const TechStackMarquee = () => {
   );
 };
 
-// ── Continuous Analysis Demo ──
+// ── Continuous Analysis Demo (Detailed Pipeline) ──
 const DEMO_HEADLINES = [
-  { text: "Malaysia's GDP grows 5.2% in Q1 2026", sentiment: 'Positive', score: 0.87, color: '#22c55e' },
-  { text: "Ringgit weakens against USD amid global uncertainty", sentiment: 'Negative', score: 0.72, color: '#ef4444' },
-  { text: "New MRT line construction ahead of schedule", sentiment: 'Neutral', score: 0.51, color: '#f59e0b' },
-  { text: "Tech sector sees record RM4.2B foreign investment", sentiment: 'Positive', score: 0.91, color: '#22c55e' },
-  { text: "Flood warning issued for east coast states", sentiment: 'Negative', score: 0.68, color: '#ef4444' },
-  { text: "PETRONAS reports strong Q1 earnings growth", sentiment: 'Positive', score: 0.84, color: '#22c55e' },
-  { text: "Education ministry reviews UPSR replacement policy", sentiment: 'Neutral', score: 0.53, color: '#f59e0b' },
-  { text: "Healthcare workers demand better working conditions", sentiment: 'Negative', score: 0.76, color: '#ef4444' },
+  { text: "Malaysia's GDP grows 5.2% in Q1 2026", source: 'The Star', sentiment: 'Positive', score: 0.87, color: '#22c55e', tokens: ['malaysia', 'gdp', 'grows', '5.2%', 'q1', '2026'], entities: ['Malaysia', 'GDP'], keywords: ['grows', 'economic growth'] },
+  { text: "Ringgit weakens against USD amid global uncertainty", source: 'Malaysiakini', sentiment: 'Negative', score: 0.72, color: '#ef4444', tokens: ['ringgit', 'weakens', 'usd', 'global', 'uncertainty'], entities: ['Ringgit', 'USD'], keywords: ['weakens', 'uncertainty'] },
+  { text: "New MRT line construction ahead of schedule", source: 'Bernama', sentiment: 'Neutral', score: 0.51, color: '#f59e0b', tokens: ['new', 'mrt', 'line', 'construction', 'ahead', 'schedule'], entities: ['MRT'], keywords: ['construction', 'schedule'] },
+  { text: "Tech sector sees record RM4.2B foreign investment", source: 'FMT', sentiment: 'Positive', score: 0.91, color: '#22c55e', tokens: ['tech', 'sector', 'record', 'rm4.2b', 'foreign', 'investment'], entities: ['Tech Sector', 'RM4.2B'], keywords: ['record', 'investment'] },
+  { text: "Flood warning issued for east coast states", source: 'Astro Awani', sentiment: 'Negative', score: 0.68, color: '#ef4444', tokens: ['flood', 'warning', 'issued', 'east', 'coast', 'states'], entities: ['East Coast'], keywords: ['flood', 'warning'] },
+];
+
+const PIPELINE_STEPS = [
+  { id: 'fetch', label: 'Fetching Article', icon: '🌐', detail: 'GET /api/news' },
+  { id: 'extract', label: 'Extracting Text', icon: '📄', detail: 'Parsing HTML content' },
+  { id: 'tokenize', label: 'Tokenizing', icon: '✂️', detail: 'Word segmentation' },
+  { id: 'nlp', label: 'NLP Model', icon: '🧠', detail: 'Running transformer' },
+  { id: 'score', label: 'Scoring', icon: '📊', detail: 'Calculating confidence' },
+  { id: 'classify', label: 'Classifying', icon: '🏷️', detail: 'Assigning sentiment' },
 ];
 
 const ContinuousAnalysisDemo = () => {
   const [analyzedArticles, setAnalyzedArticles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [phase, setPhase] = useState('typing'); // typing, analyzing, result
+  const [phase, setPhase] = useState('fetch'); // fetch, extract, tokenize, nlp, score, classify, result
+  const [pipelineStep, setPipelineStep] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [stats, setStats] = useState({ positive: 0, negative: 0, neutral: 0, total: 0 });
+  const [showTokens, setShowTokens] = useState(false);
+  const [showEntities, setShowEntities] = useState(false);
 
   const headline = DEMO_HEADLINES[currentIndex];
 
-  // Typing + analysis cycle
   useEffect(() => {
     let timeout;
-    if (phase === 'typing') {
+    const stepDurations = { fetch: 800, extract: 600, tokenize: 900, nlp: 1400, score: 700, classify: 600 };
+
+    if (phase === 'fetch') {
+      setPipelineStep(0);
+      setShowTokens(false);
+      setShowEntities(false);
+      // Type out the headline during fetch
       if (displayText.length < headline.text.length) {
         timeout = setTimeout(() => {
-          setDisplayText(headline.text.substring(0, displayText.length + 1));
-        }, 25);
+          setDisplayText(headline.text.substring(0, displayText.length + 2));
+        }, 20);
       } else {
-        timeout = setTimeout(() => setPhase('analyzing'), 400);
+        timeout = setTimeout(() => setPhase('extract'), 300);
       }
-    } else if (phase === 'analyzing') {
-      timeout = setTimeout(() => setPhase('result'), 1200);
+    } else if (phase === 'extract') {
+      setPipelineStep(1);
+      timeout = setTimeout(() => setPhase('tokenize'), stepDurations.extract);
+    } else if (phase === 'tokenize') {
+      setPipelineStep(2);
+      setShowTokens(true);
+      timeout = setTimeout(() => setPhase('nlp'), stepDurations.tokenize);
+    } else if (phase === 'nlp') {
+      setPipelineStep(3);
+      timeout = setTimeout(() => setPhase('score'), stepDurations.nlp);
+    } else if (phase === 'score') {
+      setPipelineStep(4);
+      setShowEntities(true);
+      timeout = setTimeout(() => setPhase('classify'), stepDurations.score);
+    } else if (phase === 'classify') {
+      setPipelineStep(5);
+      timeout = setTimeout(() => setPhase('result'), stepDurations.classify);
     } else if (phase === 'result') {
-      // Add to analyzed list
-      setAnalyzedArticles(prev => {
-        const updated = [{ ...headline, id: currentIndex }, ...prev].slice(0, 5);
-        return updated;
-      });
+      setAnalyzedArticles(prev => [{ ...headline, id: `${currentIndex}-${stats.total}` }, ...prev].slice(0, 4));
       setStats(prev => ({
         total: prev.total + 1,
         positive: prev.positive + (headline.sentiment === 'Positive' ? 1 : 0),
@@ -769,13 +794,13 @@ const ContinuousAnalysisDemo = () => {
         neutral: prev.neutral + (headline.sentiment === 'Neutral' ? 1 : 0),
       }));
       timeout = setTimeout(() => {
-        setPhase('typing');
+        setPhase('fetch');
         setDisplayText('');
         setCurrentIndex((prev) => (prev + 1) % DEMO_HEADLINES.length);
-      }, 1800);
+      }, 2200);
     }
     return () => clearTimeout(timeout);
-  }, [phase, displayText, currentIndex, headline]);
+  }, [phase, displayText, currentIndex, headline, stats.total]);
 
   const totalAnalyzed = stats.total || 1;
   const posPercent = Math.round((stats.positive / totalAnalyzed) * 100);
@@ -794,160 +819,226 @@ const ContinuousAnalysisDemo = () => {
         <span className="w-3 h-3 rounded-full bg-red-400" />
         <span className="w-3 h-3 rounded-full bg-yellow-400" />
         <span className="w-3 h-3 rounded-full bg-green-400" />
-        <span className="ml-4 text-xs text-gray-400 flex-1">MY News Sentiment — Live Analysis</span>
-        <motion.div
-          className="w-2 h-2 rounded-full bg-green-400"
-          animate={{ opacity: [1, 0.3, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        />
-        <span className="text-[10px] text-gray-400 ml-1">Running</span>
+        <span className="ml-4 text-xs text-gray-400 flex-1">MY News Sentiment — Analysis Pipeline</span>
+        <motion.div className="w-2 h-2 rounded-full bg-green-400" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+        <span className="text-[10px] text-gray-400 ml-1">Live</span>
       </div>
 
-      <div className="p-6">
-        {/* Live stats row */}
-        <div className="grid grid-cols-4 gap-3 mb-5">
-          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
-            <div className="text-[10px] text-gray-400 uppercase">Analyzed</div>
-            <motion.div
-              className="text-lg font-bold text-blue-600"
-              key={stats.total}
-              initial={{ scale: 1.3 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              {stats.total}
-            </motion.div>
-          </div>
-          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
-            <div className="text-[10px] text-gray-400 uppercase">Positive</div>
-            <div className="text-lg font-bold text-emerald-500">{posPercent}%</div>
-          </div>
-          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
-            <div className="text-[10px] text-gray-400 uppercase">Negative</div>
-            <div className="text-lg font-bold text-red-500">{negPercent}%</div>
-          </div>
-          <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-3 text-center">
-            <div className="text-[10px] text-gray-400 uppercase">Neutral</div>
-            <div className="text-lg font-bold text-amber-500">{neuPercent}%</div>
-          </div>
+      <div className="p-5 sm:p-6">
+        {/* Pipeline steps indicator */}
+        <div className="flex items-center gap-1 mb-5 overflow-x-auto pb-1">
+          {PIPELINE_STEPS.map((step, i) => (
+            <div key={step.id} className="flex items-center">
+              <motion.div
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium whitespace-nowrap transition-all ${
+                  i < pipelineStep ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' :
+                  i === pipelineStep && phase !== 'result' ? 'bg-accent/10 text-accent ring-1 ring-accent/30' :
+                  i === pipelineStep && phase === 'result' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' :
+                  'bg-gray-100 dark:bg-[#222] text-gray-400'
+                }`}
+                animate={i === pipelineStep && phase !== 'result' ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ duration: 0.8, repeat: Infinity }}
+              >
+                <span>{step.icon}</span>
+                <span className="hidden sm:inline">{step.label}</span>
+              </motion.div>
+              {i < PIPELINE_STEPS.length - 1 && (
+                <motion.div
+                  className={`w-3 h-0.5 mx-0.5 rounded-full ${
+                    i < pipelineStep ? 'bg-emerald-400' : 'bg-gray-200 dark:bg-[#333]'
+                  }`}
+                  animate={i === pipelineStep - 1 ? { backgroundColor: '#22c55e' } : {}}
+                />
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* Current analysis */}
-        <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-4 mb-5 min-h-[100px]">
+        {/* Main analysis area */}
+        <div className="bg-gray-50 dark:bg-[#111] rounded-xl p-4 mb-4 min-h-[160px]">
+          {/* Source + headline */}
           <div className="flex items-center gap-2 mb-2">
-            <Search size={12} className="text-gray-400" />
-            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Analyzing headline</span>
+            <span className="text-[10px] px-2 py-0.5 bg-accent/10 text-accent rounded font-medium">{headline.source}</span>
+            <span className="text-[10px] text-gray-400">Article #{stats.total + 1}</span>
           </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium min-h-[20px]">
-            {displayText}
-            <motion.span
-              className="inline-block w-0.5 h-4 bg-accent ml-0.5 align-middle"
-              animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity }}
-            />
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-3">
+            {displayText || headline.text}
+            {phase === 'fetch' && displayText.length < headline.text.length && (
+              <motion.span className="inline-block w-0.5 h-4 bg-accent ml-0.5 align-middle" animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }} />
+            )}
           </p>
 
+          {/* Pipeline detail view */}
           <AnimatePresence mode="wait">
-            {phase === 'analyzing' && (
-              <motion.div
-                key="analyzing"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-3 flex items-center gap-2"
-              >
-                <motion.div
-                  className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                />
-                <span className="text-xs text-accent font-medium">Running NLP model...</span>
-                <motion.div
-                  className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <motion.div
-                    className="h-full bg-accent rounded-full"
-                    initial={{ width: '0%' }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 1.1, ease: 'easeInOut' }}
-                  />
-                </motion.div>
+            {phase === 'extract' && (
+              <motion.div key="extract" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <motion.div className="w-3 h-3 border-2 border-accent border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 0.6, repeat: Infinity, ease: 'linear' }} />
+                  <span className="text-xs text-accent font-medium">Extracting text content from HTML...</span>
+                </div>
+                <div className="flex gap-1">
+                  {['title', 'body', 'meta'].map((tag, i) => (
+                    <motion.span key={tag} className="text-[10px] px-2 py-0.5 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded font-mono" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}>
+                      &lt;{tag}&gt;
+                    </motion.span>
+                  ))}
+                </div>
               </motion.div>
             )}
+
+            {phase === 'tokenize' && showTokens && (
+              <motion.div key="tokenize" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+                <span className="text-xs text-accent font-medium">✂️ Tokenizing into words...</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {headline.tokens.map((token, i) => (
+                    <motion.span
+                      key={token}
+                      className="text-[11px] px-2 py-1 bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 rounded-md font-mono border border-purple-200 dark:border-purple-500/20"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.1, type: 'spring', stiffness: 300 }}
+                    >
+                      {token}
+                    </motion.span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {phase === 'nlp' && (
+              <motion.div key="nlp" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <motion.div className="w-3 h-3 border-2 border-purple-500 border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }} />
+                  <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">🧠 Running transformer model...</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400 w-20">Embedding</span>
+                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.5 }} />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400 w-20">Attention</span>
+                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.6, delay: 0.3 }} />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400 w-20">Inference</span>
+                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                      <motion.div className="h-full bg-purple-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.8, delay: 0.6 }} />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {phase === 'score' && (
+              <motion.div key="score" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+                <span className="text-xs text-accent font-medium">📊 Calculating confidence scores...</span>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Positive', val: headline.sentiment === 'Positive' ? headline.score : (Math.random() * 0.3).toFixed(2), color: 'text-emerald-600' },
+                    { label: 'Negative', val: headline.sentiment === 'Negative' ? headline.score : (Math.random() * 0.3).toFixed(2), color: 'text-red-500' },
+                    { label: 'Neutral', val: headline.sentiment === 'Neutral' ? headline.score : (Math.random() * 0.3).toFixed(2), color: 'text-amber-500' },
+                  ].map((s, i) => (
+                    <motion.div key={s.label} className="text-center p-2 bg-white dark:bg-[#1a1a1a] rounded-lg border border-[#eee] dark:border-[#2a2a2a]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}>
+                      <div className="text-[10px] text-gray-400">{s.label}</div>
+                      <div className={`text-sm font-bold ${s.color}`}>{s.val}</div>
+                    </motion.div>
+                  ))}
+                </div>
+                {showEntities && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] text-gray-400">Entities:</span>
+                    {headline.entities.map((e, i) => (
+                      <motion.span key={e} className="text-[10px] px-2 py-0.5 bg-teal-100 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400 rounded font-medium" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 + i * 0.1 }}>{e}</motion.span>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {phase === 'classify' && (
+              <motion.div key="classify" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-3">
+                <motion.div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full" animate={{ rotate: 360 }} transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }} />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">🏷️ Assigning final classification...</span>
+              </motion.div>
+            )}
+
             {phase === 'result' && (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="mt-3 flex items-center gap-3"
-              >
-                <motion.span
-                  className="px-3 py-1 rounded-full text-xs font-bold text-white"
-                  style={{ backgroundColor: headline.color }}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                >
-                  {headline.sentiment}
-                </motion.span>
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                  Confidence: {(headline.score * 100).toFixed(0)}%
-                </span>
-                <motion.div
-                  className="flex-1 h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <motion.div
-                    className="h-full rounded-full"
+              <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <motion.span
+                    className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
                     style={{ backgroundColor: headline.color }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${headline.score * 100}%` }}
-                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  />
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                  >
+                    ✓ {headline.sentiment}
+                  </motion.span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Confidence: {(headline.score * 100).toFixed(0)}%</span>
+                </div>
+                <motion.div className="h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <motion.div className="h-full rounded-full" style={{ backgroundColor: headline.color }} initial={{ width: 0 }} animate={{ width: `${headline.score * 100}%` }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} />
                 </motion.div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-gray-400">Keywords:</span>
+                  {headline.keywords.map(k => (
+                    <span key={k} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-[#222] text-gray-600 dark:text-gray-400 rounded">{k}</span>
+                  ))}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Results feed */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Recent Results</span>
-            <span className="text-[10px] text-gray-400">{stats.total} articles processed</span>
+        {/* Stats + Results */}
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-2 text-center">
+            <div className="text-[9px] text-gray-400 uppercase">Total</div>
+            <motion.div className="text-base font-bold text-blue-600" key={stats.total} initial={{ scale: 1.2 }} animate={{ scale: 1 }}>{stats.total}</motion.div>
           </div>
-          <AnimatePresence initial={false}>
-            {analyzedArticles.map((article) => (
-              <motion.div
-                key={`${article.id}-${article.text}`}
-                className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#111] rounded-lg border-l-4`}
-                style={{ borderLeftColor: article.color }}
-                initial={{ opacity: 0, x: -20, height: 0 }}
-                animate={{ opacity: 1, x: 0, height: 'auto' }}
-                exit={{ opacity: 0, x: 20, height: 0 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                layout
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{article.text}</p>
-                </div>
-                <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  article.sentiment === 'Positive' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                  article.sentiment === 'Negative' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
-                  'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
-                }`}>{article.sentiment}</span>
-                <span className="shrink-0 text-[10px] text-gray-400">{(article.score * 100).toFixed(0)}%</span>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          {analyzedArticles.length === 0 && (
-            <div className="text-center py-4 text-xs text-gray-400">Waiting for first analysis...</div>
-          )}
+          <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-2 text-center">
+            <div className="text-[9px] text-gray-400 uppercase">Pos</div>
+            <div className="text-base font-bold text-emerald-500">{posPercent}%</div>
+          </div>
+          <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-2 text-center">
+            <div className="text-[9px] text-gray-400 uppercase">Neg</div>
+            <div className="text-base font-bold text-red-500">{negPercent}%</div>
+          </div>
+          <div className="bg-gray-50 dark:bg-[#111] rounded-lg p-2 text-center">
+            <div className="text-[9px] text-gray-400 uppercase">Neu</div>
+            <div className="text-base font-bold text-amber-500">{neuPercent}%</div>
+          </div>
         </div>
+
+        {/* Recent results */}
+        <AnimatePresence initial={false}>
+          {analyzedArticles.map((article) => (
+            <motion.div
+              key={article.id}
+              className="flex items-center gap-3 p-2.5 mb-1.5 bg-gray-50 dark:bg-[#111] rounded-lg border-l-4"
+              style={{ borderLeftColor: article.color }}
+              initial={{ opacity: 0, x: -20, height: 0 }}
+              animate={{ opacity: 1, x: 0, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              layout
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-medium text-gray-700 dark:text-gray-300 truncate">{article.text}</p>
+              </div>
+              <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                article.sentiment === 'Positive' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                article.sentiment === 'Negative' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
+                'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+              }`}>{article.sentiment}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
