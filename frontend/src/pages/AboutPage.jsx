@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import {
-  Newspaper, Sun, Moon, Code2, Database, Server, Brain, Palette, Globe,
+  Newspaper, Sun, Moon, Brain, Globe,
   Users, GraduationCap, Building2, Calendar, ArrowRight
 } from 'lucide-react';
 
@@ -30,6 +30,101 @@ const AnimatedSection = ({ children, className, variants = fadeInUp }) => {
     </motion.section>
   );
 };
+
+// ── Scroll Progress Indicator ──
+const ScrollProgress = () => {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-[3px] bg-accent origin-left z-[60]"
+      style={{ scaleX }}
+    />
+  );
+};
+
+// ── Gradient Orbs ──
+const GradientOrbs = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <motion.div
+      className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-blue-400/20 to-purple-500/10 blur-3xl"
+      animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+      transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+    />
+    <motion.div
+      className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-accent/15 to-teal-400/10 blur-3xl"
+      animate={{ scale: [1.1, 1, 1.1], opacity: [0.4, 0.2, 0.4] }}
+      transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+    />
+    <motion.div
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-pink-400/10 to-orange-400/5 blur-3xl"
+      animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+      transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
+    />
+  </div>
+);
+
+// ── Floating Particles ──
+const FloatingParticles = ({ count = 18 }) => {
+  const particles = useMemo(() =>
+    Array.from({ length: count }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 20 + 15,
+      delay: Math.random() * 5,
+    })), [count]);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-accent/20 dark:bg-accent/10"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
+          animate={{
+            y: [0, -30, 0, 20, 0],
+            x: [0, 15, -10, 5, 0],
+            opacity: [0.3, 0.7, 0.4, 0.8, 0.3],
+          }}
+          transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// ── Animated Grid Background ──
+const AnimatedGrid = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.3) 1px, transparent 1px)`,
+        backgroundSize: '60px 60px',
+        maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+        WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+      }}
+    />
+    {/* Accent glow spots */}
+    <motion.div
+      className="absolute top-1/4 left-1/3 w-2 h-2 rounded-full bg-accent/40"
+      animate={{ opacity: [0, 0.8, 0], scale: [0.5, 1.5, 0.5] }}
+      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+    />
+    <motion.div
+      className="absolute top-2/3 right-1/4 w-2 h-2 rounded-full bg-accent/30"
+      animate={{ opacity: [0, 0.6, 0], scale: [0.5, 1.2, 0.5] }}
+      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+    />
+    <motion.div
+      className="absolute bottom-1/4 left-1/2 w-1.5 h-1.5 rounded-full bg-purple-400/30"
+      animate={{ opacity: [0, 0.5, 0], scale: [0.5, 1.3, 0.5] }}
+      transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+    />
+  </div>
+);
 
 // ── Navbar ──
 const Navbar = ({ isDark, toggleTheme, navigate }) => (
@@ -109,11 +204,60 @@ const Footer = () => (
   </footer>
 );
 
+// ── Timeline with animated line ──
+const AnimatedTimeline = ({ milestones }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const currentMilestoneIndex = 4; // May 2026 is index 4
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Animated vertical line */}
+      <motion.div
+        className="absolute left-6 top-0 bottom-0 w-0.5 bg-accent/30"
+        initial={{ scaleY: 0 }}
+        animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+        style={{ originY: 0 }}
+      />
+      {/* Static background line */}
+      <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-[#eee] dark:bg-[#2a2a2a]" />
+
+      <div className="space-y-8">
+        {milestones.map((ms, i) => (
+          <motion.div
+            key={i}
+            className="relative pl-16"
+            initial={{ opacity: 0, y: 28 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.15 }}
+          >
+            {/* Dot */}
+            <div className="absolute left-4 top-1 w-4 h-4 rounded-full bg-accent border-4 border-white dark:border-[#1a1a1a]" />
+            {/* Pulsing ring on current milestone */}
+            {i === currentMilestoneIndex && (
+              <motion.div
+                className="absolute left-3 top-0 w-6 h-6 rounded-full border-2 border-accent"
+                animate={{ scale: [1, 1.8, 1], opacity: [0.8, 0, 0.8] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            )}
+            <span className="text-xs font-bold text-accent uppercase tracking-wider">{ms.date}</span>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mt-1">{ms.title}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{ms.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const AboutPage = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
+  const prefersReducedMotion = useReducedMotion();
 
   // Animated counters
   const [statsVisible, setStatsVisible] = useState(false);
@@ -132,7 +276,7 @@ const AboutPage = () => {
 
   useEffect(() => {
     if (!statsVisible) return;
-    const targets = { articles: 10000, accuracy: 95, sources: 5 };
+    const targets = { articles: 10000, accuracy: 95, sources: 50 };
     const duration = 2000, steps = 60, interval = duration / steps;
     let step = 0;
     const timer = setInterval(() => {
@@ -149,12 +293,12 @@ const AboutPage = () => {
   }, [statsVisible]);
 
   const techStack = [
-    { name: 'React', icon: Code2, desc: 'Frontend UI framework', color: 'text-cyan-500' },
-    { name: 'Node.js', icon: Server, desc: 'Backend runtime', color: 'text-green-500' },
-    { name: 'MongoDB', icon: Database, desc: 'NoSQL database', color: 'text-emerald-500' },
-    { name: 'Express', icon: Globe, desc: 'Backend framework', color: 'text-gray-500' },
-    { name: 'Ollama', icon: Brain, desc: 'AI inference engine', color: 'text-orange-500' },
-    { name: 'Framer Motion', icon: Palette, desc: 'Animation library', color: 'text-purple-500' },
+    { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', desc: 'Frontend UI framework' },
+    { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg', desc: 'Backend runtime' },
+    { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg', desc: 'NoSQL database' },
+    { name: 'Express', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg', desc: 'Backend framework' },
+    { name: 'Tailwind CSS', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg', desc: 'Utility-first CSS' },
+    { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg', desc: 'AI & data processing' },
   ];
 
   const team = [
@@ -175,11 +319,16 @@ const AboutPage = () => {
 
   return (
     <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors">
+      <ScrollProgress />
       <Navbar isDark={isDark} toggleTheme={toggleTheme} navigate={navigate} />
 
       {/* ─── HERO ─── */}
-      <motion.header className="relative pt-32 pb-16 px-6 text-center" initial="hidden" animate="visible" variants={staggerContainer}>
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-50/50 to-transparent dark:from-purple-950/20 dark:to-transparent" />
+      <motion.header className="relative pt-32 pb-16 px-6 text-center overflow-hidden" initial="hidden" animate="visible" variants={staggerContainer}>
+        {/* Background effects */}
+        {!prefersReducedMotion && <GradientOrbs />}
+        {!prefersReducedMotion && <FloatingParticles count={18} />}
+        <AnimatedGrid />
+
         <div className="relative max-w-4xl mx-auto">
           <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-medium mb-6">
             About Us
@@ -200,7 +349,7 @@ const AboutPage = () => {
           {[
             { num: `${counters.articles.toLocaleString()}+`, label: 'Articles Analyzed', icon: Newspaper },
             { num: `${counters.accuracy}%`, label: 'AI Accuracy', icon: Brain },
-            { num: counters.sources, label: 'News Sources', icon: Globe },
+            { num: `${counters.sources}+`, label: 'News Sources', icon: Globe },
           ].map((s, i) => (
             <motion.div
               key={i}
@@ -241,7 +390,7 @@ const AboutPage = () => {
                 variants={staggerItem}
                 whileHover={{ y: -4 }}
               >
-                <tech.icon className={`w-8 h-8 ${tech.color} mb-3`} />
+                <img src={tech.icon} alt={tech.name} className="w-8 h-8 mb-3" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{tech.name}</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{tech.desc}</p>
               </motion.div>
@@ -261,13 +410,19 @@ const AboutPage = () => {
             {team.map((member) => (
               <motion.div
                 key={member.name}
-                className="text-center p-8 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+                className="group text-center p-8 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl transition-all hover:shadow-lg hover:shadow-accent/5"
                 variants={staggerItem}
                 whileHover={{ y: -4 }}
               >
-                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-accent/10 text-accent font-bold text-xl rounded-full">
-                  {member.initials}
+                {/* Avatar with gradient ring on hover */}
+                <div className="relative w-16 h-16 mx-auto mb-4">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-accent to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-110" />
+                  <div className="relative w-16 h-16 flex items-center justify-center bg-accent/10 text-accent font-bold text-xl rounded-full border-2 border-transparent group-hover:border-white dark:group-hover:border-[#1a1a1a]">
+                    {member.initials}
+                  </div>
                 </div>
+                {/* Hover glow */}
+                <div className="absolute inset-0 rounded-2xl bg-accent/0 group-hover:bg-accent/[0.02] transition-colors duration-300 pointer-events-none" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{member.name}</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{member.role}</p>
               </motion.div>
@@ -282,21 +437,7 @@ const AboutPage = () => {
           <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">Milestones</p>
           <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-10">Our journey so far</h2>
 
-          <AnimatedSection className="relative" variants={staggerContainer}>
-            {/* Vertical line */}
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-[#eee] dark:bg-[#2a2a2a]" />
-
-            <div className="space-y-8">
-              {milestones.map((ms, i) => (
-                <motion.div key={i} className="relative pl-16" variants={staggerItem}>
-                  <div className="absolute left-4 top-1 w-4 h-4 rounded-full bg-accent border-4 border-white dark:border-[#1a1a1a]" />
-                  <span className="text-xs font-bold text-accent uppercase tracking-wider">{ms.date}</span>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mt-1">{ms.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{ms.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </AnimatedSection>
+          <AnimatedTimeline milestones={milestones} />
         </div>
       </section>
 
