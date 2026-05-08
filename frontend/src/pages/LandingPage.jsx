@@ -1369,42 +1369,107 @@ const LandingPage = () => {
       </AnimatedSection>
 
       {/* ─── HOW IT WORKS ─── */}
-      <AnimatedSection className="py-12 px-6 bg-white dark:bg-[#1a1a1a]" variants={staggerContainer}>
-        <div className="max-w-5xl mx-auto">
-          <p className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">How it works</p>
-          <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-white mb-12">From search to insight in seconds</h2>
+      <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#0a0a0a] border-t border-[#eee] dark:border-[#1a1a1a] relative overflow-hidden" variants={staggerContainer}>
+        {/* Background glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-accent/3 blur-[150px]" />
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Animated connecting line */}
-            <AnimatedLine />
+        <div className="max-w-5xl mx-auto relative">
+          <motion.p variants={staggerItem} className="text-center text-sm font-medium text-accent uppercase tracking-wider mb-2">How it works</motion.p>
+          <motion.h2 variants={staggerItem} className="text-center text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">From search to insight in seconds</motion.h2>
+          <motion.p variants={staggerItem} className="text-center text-gray-500 dark:text-gray-400 max-w-lg mx-auto mb-16">Three simple steps to understand Malaysian news sentiment at scale.</motion.p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4 relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden md:block absolute top-[72px] left-[20%] right-[20%] h-[2px] z-0">
+              <motion.div
+                className="h-full bg-gradient-to-r from-accent/50 via-accent to-accent/50 rounded-full"
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                style={{ transformOrigin: 'left' }}
+              />
+              {/* Animated dot traveling along line */}
+              <motion.div
+                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-accent shadow-[0_0_12px_rgba(37,99,235,0.6)]"
+                animate={{ left: ['0%', '100%', '0%'] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            </div>
 
             {[
-              { num: '01', title: 'Search', desc: 'Enter any topic or keyword. Our crawler fetches the latest articles from major Malaysian news outlets.', icon: Search },
-              { num: '02', title: 'Analyze', desc: 'AI models classify sentiment, extract entities, and score relevance in real time.', icon: Zap },
-              { num: '03', title: 'Insights', desc: 'Explore interactive dashboards with sentiment trends, entity networks, and heatmaps.', icon: LineChart },
+              { num: '01', title: 'Search', desc: 'Enter any topic or keyword. Our crawler fetches the latest articles from major Malaysian news outlets.', icon: Search, gradient: 'from-blue-500/20 to-cyan-500/10' },
+              { num: '02', title: 'Analyze', desc: 'AI models classify sentiment, extract entities, and score relevance in real time.', icon: Zap, gradient: 'from-purple-500/20 to-violet-500/10' },
+              { num: '03', title: 'Insights', desc: 'Explore interactive dashboards with sentiment trends, entity networks, and heatmaps.', icon: LineChart, gradient: 'from-emerald-500/20 to-teal-500/10' },
             ].map((step, i) => (
               <motion.div
                 key={step.num}
-                className="relative text-center p-8 bg-[#fafaf9] dark:bg-[#0f0f0f] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl"
+                className="relative text-center p-8 bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl group overflow-hidden z-10"
                 variants={staggerItem}
-                whileHover={{ y: -6 }}
+                whileHover={{ y: -10, scale: 1.03 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               >
-                <div className="relative w-12 h-12 mx-auto mb-4 flex items-center justify-center bg-accent/10 rounded-xl">
-                  <PulseRing />
-                  <step.icon className="w-6 h-6 text-accent" />
-                </div>
-                <span className="text-xs font-bold text-accent uppercase tracking-wider">{step.num}</span>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-2 mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{step.desc}</p>
+                {/* Hover gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${step.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl`} />
 
-                {/* Arrow between steps */}
+                {/* Top glow */}
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-accent/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative">
+                  {/* Icon container with glow ring */}
+                  <div className="relative w-16 h-16 mx-auto mb-5">
+                    <motion.div
+                      className="absolute inset-0 rounded-2xl bg-accent/10 dark:bg-accent/5"
+                      animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
+                      transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
+                    />
+                    <div className="relative w-full h-full flex items-center justify-center bg-accent/10 dark:bg-accent/10 rounded-2xl border border-accent/20">
+                      <step.icon className="w-7 h-7 text-accent" />
+                    </div>
+                    {/* Glow dot */}
+                    <motion.div
+                      className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-accent shadow-[0_0_8px_rgba(37,99,235,0.6)]"
+                      animate={{ scale: [1, 1.3, 1], opacity: [0.8, 1, 0.8] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                    />
+                  </div>
+
+                  {/* Step number */}
+                  <motion.span
+                    className="inline-block text-xs font-bold text-accent uppercase tracking-wider mb-2"
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.4 }}
+                  >
+                    {step.num}
+                  </motion.span>
+
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{step.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
+                </div>
+
+                {/* Arrow between steps (desktop) */}
                 {i < 2 && (
                   <motion.div
-                    className="hidden md:block absolute -right-6 top-1/2 -translate-y-1/2 text-accent/50"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 w-8 h-8 items-center justify-center bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-full shadow-sm z-20"
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-4 h-4 text-accent" />
+                  </motion.div>
+                )}
+
+                {/* Mobile step connector */}
+                {i < 2 && (
+                  <motion.div
+                    className="md:hidden absolute -bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5 z-20"
+                    animate={{ y: [0, 3, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <div className="w-0.5 h-2 bg-accent/30 rounded-full" />
+                    <div className="w-0.5 h-2 bg-accent/50 rounded-full" />
+                    <div className="w-0.5 h-2 bg-accent/30 rounded-full" />
                   </motion.div>
                 )}
               </motion.div>
