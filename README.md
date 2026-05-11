@@ -1,6 +1,4 @@
-# 🇲🇾 Malaysian News Sentiment Analysis Dashboard
-
-A **Final Year Project (FYP)** — Real-time Malaysian news sentiment analysis using **NewsAPI** and **OpenAI GPT-4o-mini**, displayed in an interactive React dashboard.
+.
 
 ---
 
