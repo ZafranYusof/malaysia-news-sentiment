@@ -78,7 +78,7 @@ malaysia-news-sentiment/
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 | Method | URL                    | Description                        |
 |--------|------------------------|------------------------------------|
@@ -89,7 +89,7 @@ malaysia-news-sentiment/
 
 ---
 
-## 📚 Libraries Used
+## Libraries Used
 
 | Library      | Purpose                              |
 |--------------|--------------------------------------|
