@@ -4,7 +4,7 @@ A **Final Year Project (FYP)** — Real-time Malaysian news sentiment analysis u
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Step 1: Clone & Setup API Keys
 
@@ -48,7 +48,7 @@ App opens at `http://localhost:5173`
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 malaysia-news-sentiment/
@@ -58,8 +58,8 @@ malaysia-news-sentiment/
 │   ├── models/Article.js     ← Mongoose schema
 │   ├── routes/               ← Express route definitions
 │   ├── services/
-│   │   ├── newsService.js    ← NewsAPI integration ⭐
-│   │   └── openaiService.js  ← OpenAI GPT integration ⭐
+│   │   ├── newsService.js    ← NewsAPI integration 
+│   │   └── openaiService.js  ← OpenAI GPT integration 
 │   └── server.js             ← Express app entry point
 │
 └── frontend/
@@ -72,7 +72,7 @@ malaysia-news-sentiment/
         │   ├── SentimentBarChart.jsx ← Recharts bar chart
         │   └── TrendLineChart.jsx    ← Recharts line chart
         ├── pages/
-        │   ├── Dashboard.jsx         ← Main dashboard page ⭐
+        │   ├── Dashboard.jsx         ← Main dashboard page 
         │   └── History.jsx           ← Article history page
         ├── services/api.js           ← Axios API calls
         └── App.jsx                   ← Router + Navbar
@@ -106,19 +106,19 @@ malaysia-news-sentiment/
 
 ---
 
-## ✨ Features
+## Features
 
-- 🔍 **Search** any Malaysian news topic
-- 🤖 **AI Sentiment Classification** (Positive / Negative / Neutral) via GPT-4o-mini
-- 📊 **Pie & Bar Charts** for sentiment distribution
-- 📈 **Trend Line Chart** showing sentiment over time
-- 💾 **MongoDB Storage** — no duplicate analyses (saves API costs)
-- 📂 **History Page** — view and delete past analyses
-- 🎨 **Dark Mode UI** — premium glassmorphism design
+- **Search** any Malaysian news topic
+- **AI Sentiment Classification** (Positive / Negative / Neutral) via GPT-4o-mini
+- **Pie & Bar Charts** for sentiment distribution
+- **Trend Line Chart** showing sentiment over time
+- **MongoDB Storage** — no duplicate analyses (saves API costs)
+- **History Page** — view and delete past analyses
+- **Dark Mode UI** — premium glassmorphism design
 
 ---
 
-## 🎓 FYP Notes
+##  FYP Notes
 
 - The system uses **GPT-4o-mini** — the cheapest OpenAI model (~$0.15/million tokens)
 - NewsAPI free plan allows **500 requests/day**
@@ -127,4 +127,3 @@ malaysia-news-sentiment/
 
 ---
 
-Made with ❤️ for FYP at Universiti Malaysia Pahang Al-Sultan Abdullah (UMPSA)
