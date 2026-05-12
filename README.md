@@ -1,127 +1,129 @@
-.
+<div align="center">
+
+# Malaysia News Sentiment Analysis
+
+**Real-Time Sentiment Analysis for Malaysian News**
+
+A final year project dashboard that aggregates Malaysian news articles, classifies sentiment using large language models, and visualizes public discourse across topics, entities, and sources.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)](https://expressjs.com)
+[![MongoDB](https://img.shields.io/badge/MongoDB-6.0-47A248?logo=mongodb&logoColor=white)](https://mongodb.com)
+
+[Live Demo](https://malaysia-news-sentiment.vercel.app) · [API](https://mynewsa-api.onrender.com) · [Report Issue](https://github.com/Vexccz/malaysia-news-sentiment/issues)
+
+</div>
 
 ---
 
-## Quick Start
+## Overview
 
-### Step 1: Clone & Setup API Keys
+Malaysian public discourse moves fast across dozens of news outlets and multiple languages. This project builds an end-to-end sentiment intelligence platform that retrieves articles, classifies them through an LLM pipeline, extracts named entities, and surfaces trends through an interactive dashboard.
 
-Copy the environment template and fill in your API keys:
+The goal is to give researchers, journalists, and analysts a single view of how topics and entities are framed across the Malaysian news landscape.
 
-```bash
-cd backend
-copy .env.example .env
-```
+## Core Features
 
-Open `.env` and fill in:
-```
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/malaysia_news_sentiment
-NEWS_API_KEY=your_newsapi_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-```
+- Sentiment classification (positive, negative, neutral) with confidence scores
+- Named entity extraction and relationship graph view
+- Source credibility scoring across 20+ Malaysian outlets
+- State-level sentiment heatmap covering all 16 states
+- Trending topics and forecasting via LLM-based AI insights
+- Entity comparison, source comparison, and topic comparison
+- PDF, PowerPoint, and CSV export
+- Guest mode, email and password auth, admin dashboard
+- Progressive Web App with responsive mobile layout
+- Rate limiting, CORS for Capacitor, full error handling
 
-### Step 2: Get Your Free API Keys
-- **NewsAPI** (free): https://newsapi.org — sign up and copy your API key
-- **OpenAI**: https://platform.openai.com/api-keys — requires a paid account (very cheap, ~$0.001/article)
-- **MongoDB**: Install locally or use MongoDB Atlas (free tier)
+## Tech Stack
 
-### Step 3: Start the Backend
+| Layer        | Technologies                                                        |
+| ------------ | ------------------------------------------------------------------- |
+| Frontend     | React 19, Vite, TailwindCSS, Recharts, Framer Motion                |
+| Backend      | Node.js, Express 5, MongoDB Atlas, JWT                              |
+| AI Pipeline  | Ollama (gpt-oss:120b) with NLP fallback                             |
+| Mobile       | Capacitor 6 (Android APK)                                           |
+| Deployment   | Vercel (frontend), Render (backend)                                 |
+| Testing      | Playwright (40 end-to-end tests)                                    |
 
-```bash
-cd backend
-npm run dev
-```
+## Dashboard Modules
 
-Server runs at `http://localhost:5000`
-
-### Step 4: Start the Frontend
-
-```bash
-cd frontend
-npm run dev
-```
-
-App opens at `http://localhost:5173`
-
----
+- Overview KPIs and recent sentiment breakdown
+- Search with recent history and suggested topics
+- Trending topics and live feed via server-sent events
+- Entity graph (card and graph dual view)
+- Source credibility and bias indicators
+- State heatmap with per-state summary table
+- Admin panel with API metrics, user management, and system health
+- AI insights, forecasting, and report generation
 
 ## Project Structure
 
 ```
 malaysia-news-sentiment/
-├── backend/
-│   ├── config/db.js          ← MongoDB connection
-│   ├── controllers/          ← Route handler logic
-│   ├── models/Article.js     ← Mongoose schema
-│   ├── routes/               ← Express route definitions
-│   ├── services/
-│   │   ├── newsService.js    ← NewsAPI integration 
-│   │   └── openaiService.js  ← OpenAI GPT integration 
-│   └── server.js             ← Express app entry point
-│
-└── frontend/
-    └── src/
-        ├── components/
-        │   ├── SearchBar.jsx         ← Search input + topic pills
-        │   ├── ArticleCard.jsx       ← News article display card
-        │   ├── SentimentBadge.jsx    ← Coloured sentiment pill
-        │   ├── SentimentPieChart.jsx ← Recharts donut chart
-        │   ├── SentimentBarChart.jsx ← Recharts bar chart
-        │   └── TrendLineChart.jsx    ← Recharts line chart
-        ├── pages/
-        │   ├── Dashboard.jsx         ← Main dashboard page 
-        │   └── History.jsx           ← Article history page
-        ├── services/api.js           ← Axios API calls
-        └── App.jsx                   ← Router + Navbar
+├── frontend/           React SPA (Vite + Tailwind)
+│   ├── src/pages/      Dashboard, Search, Trending, Entities, Admin
+│   ├── src/components/ Charts, Cards, Heatmap, Entity graph
+│   └── src/services/   API client, auth context, offline support
+├── backend/            Express REST API
+│   ├── controllers/    Auth, Articles, Sentiment, Admin
+│   ├── services/       LLM pipeline, scraper, entity extractor
+│   ├── middleware/     Rate limiter, auth, error handler
+│   └── models/         Article, User, ApiMetric
+└── docs/               API documentation (70+ endpoints, 14 categories)
 ```
 
----
+## Getting Started
 
-## API Endpoints
+### Prerequisites
 
-| Method | URL                    | Description                        |
-|--------|------------------------|------------------------------------|
-| GET    | `/api/news?q=Malaysia` | Fetch & analyze news (main action) |
-| GET    | `/api/history`         | View all stored articles           |
-| GET    | `/api/history/trends`  | Trend data for line chart          |
-| DELETE | `/api/history/:id`     | Delete an article                  |
+- Node.js 18 or newer
+- MongoDB (local or Atlas)
+- Ollama with access to `gpt-oss:120b` (or compatible endpoint)
 
----
+### Backend
 
-## Libraries Used
+```bash
+cd backend
+npm install
+cp .env.example .env      # set MONGODB_URI, JWT_SECRET, OPENAI_API_KEY, OPENAI_BASE_URL, QWEN_MODEL
+npm run dev
+```
 
-| Library      | Purpose                              |
-|--------------|--------------------------------------|
-| Express      | Backend REST API framework           |
-| Mongoose     | MongoDB object modeling              |
-| Axios        | HTTP client (both frontend/backend)  |
-| OpenAI SDK   | GPT-4o-mini sentiment analysis       |
-| React        | UI framework                         |
-| Vite         | Fast frontend build tool             |
-| Recharts     | Charts (Pie, Bar, Line)              |
-| React Router | Page navigation                      |
+### Frontend
 
----
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## Features
+Open `http://localhost:5173` to view the dashboard.
 
-- **Search** any Malaysian news topic
-- **AI Sentiment Classification** (Positive / Negative / Neutral) via GPT-4o-mini
-- **Pie & Bar Charts** for sentiment distribution
-- **Trend Line Chart** showing sentiment over time
-- **MongoDB Storage** — no duplicate analyses (saves API costs)
-- **History Page** — view and delete past analyses
-- **Dark Mode UI** — premium glassmorphism design
+### Default Admin Account
 
----
+```
+Email:    admin@mynews.my
+Password: Admin@123
+```
 
-##  FYP Notes
+## Architecture Highlights
 
-- The system uses **GPT-4o-mini** — the cheapest OpenAI model (~$0.15/million tokens)
-- NewsAPI free plan allows **500 requests/day**
-- Articles are **cached in MongoDB** to avoid re-analyzing the same article
-- The confidence score (0.0–1.0) shows how certain the AI is about its classification
+- LLM requests route through Ollama (`OPENAI_BASE_URL=https://ollama.com/api`) with an NLP fallback for reliability
+- Articles deduplicated in MongoDB to minimize re-analysis cost
+- Rate limits: 100 requests per 15 minutes (general), 10 per 15 minutes (auth), 30 per minute (analysis)
+- Code-splitting across 20 lazy-loaded pages and React.memo on heavy components
+- Main bundle reduced from 446KB to 207KB after performance pass
 
----
+## Roadmap
 
+- Real-time ingestion pipeline for live feed
+- Multi-language expansion (Chinese, Tamil)
+- Custom fine-tuning on Malaysian corpus
+- Academic report export with citation formatting
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for details.
