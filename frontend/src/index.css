@@ -58,6 +58,7 @@ h3 { font-weight: 600; }
   text-transform: uppercase;
   color: #8B1A1A;
 }
+.dark .editorial-kicker { color: #E8A478; }
 
 .editorial-dropcap::first-letter {
   font-family: 'Playfair Display', Georgia, serif;
@@ -68,6 +69,7 @@ h3 { font-weight: 600; }
   padding: 0.35rem 0.6rem 0 0;
   color: #8B1A1A;
 }
+.dark .editorial-dropcap::first-letter { color: #E8A478; }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
@@ -96,6 +98,7 @@ h3 { font-weight: 600; }
 
 /* Legacy CSS variable bridge for components that still use them */
 :root {
+  --accent-rgb: 139 26 26;
   --pos: #2f7d4f;
   --neg: #8B1A1A;
   --neu: #b08900;
@@ -113,6 +116,7 @@ h3 { font-weight: 600; }
 }
 
 .dark {
+  --accent-rgb: 232 164 120;
   --text-primary: #F5F3EE;
   --text-secondary: #B8B3A7;
   --text-muted: #6B6A65;
@@ -120,6 +124,9 @@ h3 { font-weight: 600; }
   --border: #2A2824;
   --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.4);
   --paper: #12110F;
+  --accent: #E8A478;
+  --neg: #E8A478;
+  --neg-bg: rgba(232, 164, 120, 0.1);
 }
 
 /* Gradient mesh float animation */

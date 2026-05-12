@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        accent: '#8B1A1A',
+        accent: 'rgb(var(--accent-rgb) / <alpha-value>)',
         secondary: '#7c3aed',
         ink: {
           DEFAULT: '#1A1A1A',
