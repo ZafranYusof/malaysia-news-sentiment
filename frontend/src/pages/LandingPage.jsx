@@ -1212,16 +1212,6 @@ const LandingPage = () => {
         {!prefersReducedMotion && <MouseFollowGradient />}
 
         <motion.div className="relative max-w-5xl mx-auto text-center w-full" initial="hidden" animate="visible" variants={staggerContainer}>
-          {/* Badge */}
-          <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-8">
-            <motion.span
-              className="w-2 h-2 rounded-full bg-accent"
-              animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            AI-Powered News Intelligence
-          </motion.div>
-
           {/* Title */}
           <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
             Malaysia News Sentiment{' '}
