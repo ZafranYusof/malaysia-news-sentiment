@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
 
 /* Legacy styles for components not yet migrated to Tailwind */
 @import './styles/legacy.css';
@@ -9,8 +9,64 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #FAF8F3;
+  color: #1A1A1A;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+.dark body {
+  background-color: #12110F;
+  color: #F5F3EE;
+}
+
+/* Editorial headings */
+h1, h2, h3, .font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-weight: 700; }
+h2 { font-weight: 600; }
+h3 { font-weight: 600; }
+
+/* Long-form prose accent */
+.prose-editorial {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #1A1A1A;
+}
+
+.dark .prose-editorial {
+  color: #E8E4DB;
+}
+
+/* Editorial utility classes */
+.editorial-rule {
+  border-top: 3px double #1A1A1A;
+  height: 0;
+}
+.dark .editorial-rule { border-top-color: #E8E4DB; }
+
+.editorial-kicker {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8B1A1A;
+}
+
+.editorial-dropcap::first-letter {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 800;
+  font-size: 4rem;
+  line-height: 0.85;
+  float: left;
+  padding: 0.35rem 0.6rem 0 0;
+  color: #8B1A1A;
 }
 
 /* Scrollbar styling */
@@ -22,11 +78,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #d6d1c4;
   border-radius: 3px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: #2A2824;
 }
 
 /* Utility for hiding scrollbar */
@@ -40,27 +96,30 @@ body {
 
 /* Legacy CSS variable bridge for components that still use them */
 :root {
-  --pos: #22c55e;
-  --neg: #ef4444;
-  --neu: #f59e0b;
-  --pos-bg: rgba(34, 197, 94, 0.08);
-  --neg-bg: rgba(239, 68, 68, 0.08);
-  --neu-bg: rgba(245, 158, 11, 0.08);
-  --text-primary: #151515;
-  --text-secondary: #5A5A5A;
-  --text-muted: #8c8d8f;
-  --card: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --pos: #2f7d4f;
+  --neg: #8B1A1A;
+  --neu: #b08900;
+  --pos-bg: rgba(47, 125, 79, 0.08);
+  --neg-bg: rgba(139, 26, 26, 0.08);
+  --neu-bg: rgba(176, 137, 0, 0.08);
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B6A65;
+  --text-muted: #A8A59E;
+  --card: #FFFFFF;
+  --border: #E8E4DB;
+  --shadow-md: 0 1px 3px rgba(26, 24, 20, 0.08);
+  --paper: #FAF8F3;
+  --accent: #8B1A1A;
 }
 
 .dark {
-  --text-primary: #f5f5f5;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --card: #1a1a1a;
-  --border: rgba(255, 255, 255, 0.08);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --text-primary: #F5F3EE;
+  --text-secondary: #B8B3A7;
+  --text-muted: #6B6A65;
+  --card: #1A1917;
+  --border: #2A2824;
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --paper: #12110F;
 }
 
 /* Gradient mesh float animation */

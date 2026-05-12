@@ -126,7 +126,7 @@ const Layout = ({ children }) => {
   const initials = (user?.name || user?.email || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <div className="flex h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] overflow-hidden">
+    <div className="flex h-screen bg-paper dark:bg-paper-dark overflow-hidden">
       {/* Mobile overlay */}
       <AnimatePresence>
         {sidebarOpen && isMobile && (
@@ -143,25 +143,25 @@ const Layout = ({ children }) => {
       {/* Sidebar */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-64 bg-white dark:bg-[#111] border-r border-[#eee] dark:border-[#222]
+        w-64 bg-paper-card dark:bg-paper-dark-card border-r border-paper-line dark:border-paper-dark-line
         flex flex-col
         transform transition-transform duration-200 ease-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        {/* Logo */}
-        <div className="px-5 py-5 border-b border-[#eee] dark:border-[#222]">
-          <Link to="/dashboard" className="flex items-center gap-2.5 no-underline">
-            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
-              </svg>
-            </div>
-            <span className="font-semibold text-sm text-gray-900 dark:text-white">MY News <span className="text-accent">Sentiment</span></span>
+        {/* Masthead */}
+        <div className="px-5 py-5 border-b-2 border-ink dark:border-paper">
+          <Link to="/dashboard" className="block no-underline">
+            <p className="editorial-kicker mb-1">The Sentiment</p>
+            <h1 className="font-display font-bold text-xl leading-none text-ink dark:text-paper">
+              MY News <span className="italic text-accent">Sentiment</span>
+            </h1>
+            <p className="text-[10px] text-ink-muted dark:text-ink-faint mt-1 tracking-wide">VOL. I · KUALA LUMPUR</p>
           </Link>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
+          <p className="editorial-kicker px-3 pb-2 pt-1">Sections</p>
           {navItems.map(item => {
             const active = location.pathname === item.path;
             return (
@@ -169,10 +169,10 @@ const Layout = ({ children }) => {
                 key={item.path}
                 to={item.path}
                 className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium no-underline transition-all
+                  flex items-center gap-3 px-3 py-2 text-[13px] no-underline transition-colors border-l-2
                   ${active
-                    ? 'bg-accent/10 text-accent dark:bg-accent/15'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
+                    ? 'border-accent text-accent font-semibold bg-accent/5'
+                    : 'border-transparent text-ink-muted dark:text-ink-faint hover:text-ink dark:hover:text-paper hover:border-ink/30 dark:hover:border-paper/30'
                   }
                 `}
               >
@@ -187,10 +187,10 @@ const Layout = ({ children }) => {
             <Link
               to="/admin"
               className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium no-underline transition-all
+                flex items-center gap-3 px-3 py-2 text-[13px] no-underline transition-colors border-l-2 mt-2
                 ${location.pathname === '/admin'
-                  ? 'bg-accent/10 text-accent dark:bg-accent/15'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
+                  ? 'border-accent text-accent font-semibold bg-accent/5'
+                  : 'border-transparent text-ink-muted dark:text-ink-faint hover:text-ink dark:hover:text-paper hover:border-ink/30 dark:hover:border-paper/30'
                 }
               `}
             >
@@ -203,26 +203,26 @@ const Layout = ({ children }) => {
         </nav>
 
         {/* Bottom section */}
-        <div className="border-t border-[#eee] dark:border-[#222] p-3 space-y-2">
+        <div className="border-t border-paper-line dark:border-paper-dark-line p-3 space-y-2">
           <div className="flex items-center justify-between px-2">
             <ThemeToggle />
           </div>
           {user && (
-            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+            <div className="flex items-center gap-3 p-2 rounded-sm hover:bg-paper dark:hover:bg-white/5 transition-colors">
               {user.avatar ? (
                 <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center text-xs font-bold font-display">
                   {initials}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-gray-900 dark:text-white truncate">{user.name}</p>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{user.email || user.phone || ''}</p>
+                <p className="text-xs font-semibold text-ink dark:text-paper truncate">{user.name}</p>
+                <p className="text-[11px] text-ink-muted dark:text-ink-faint truncate">{user.email || user.phone || ''}</p>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-colors"
+                className="p-1.5 rounded-sm hover:bg-accent/10 text-ink-muted hover:text-accent transition-colors"
                 title="Logout"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -237,16 +237,16 @@ const Layout = ({ children }) => {
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar (mobile) */}
-        <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-[#111] border-b border-[#eee] dark:border-[#222]">
+        <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-paper-card dark:bg-paper-dark-card border-b-2 border-ink dark:border-paper">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5"
+            className="p-2 rounded-sm hover:bg-paper dark:hover:bg-white/5"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
-          <span className="font-semibold text-sm text-gray-900 dark:text-white">MY News Sentiment</span>
+          <span className="font-display font-bold text-sm text-ink dark:text-paper">MY News <span className="italic text-accent">Sentiment</span></span>
           <ThemeToggle />
         </header>
 

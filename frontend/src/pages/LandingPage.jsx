@@ -371,15 +371,15 @@ const Navbar = ({ isDark, toggleTheme, navigate }) => {
   return (
     <>
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0f0f0f]/80 border-b border-[#eee] dark:border-[#2a2a2a]"
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-paper/90 dark:bg-paper-dark/90 border-b-2 border-ink dark:border-paper"
         initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
-            <Newspaper className="w-5 h-5 text-accent" />
-            <span>MY News <span className="text-accent">Sentiment</span></span>
+          <Link to="/" className="flex items-baseline gap-2 no-underline">
+            <span className="font-display font-bold text-lg text-ink dark:text-paper leading-none">MY News <span className="italic text-accent">Sentiment</span></span>
+            <span className="hidden sm:inline text-[10px] tracking-[0.18em] text-ink-muted dark:text-ink-faint uppercase">· Est. 2026</span>
           </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+          <div className="hidden md:flex items-center gap-8 text-[13px] tracking-wider uppercase text-ink-muted dark:text-ink-faint">
             <a href="#features" className="hover:text-accent transition-colors">Features</a>
             <Link to="/api" className="hover:text-accent transition-colors">Docs</Link>
             <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
@@ -387,18 +387,18 @@ const Navbar = ({ isDark, toggleTheme, navigate }) => {
             <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors">
-              {isDark ? <Sun className="w-4 h-4 text-gray-400" /> : <Moon className="w-4 h-4 text-gray-600" />}
+            <button onClick={toggleTheme} className="p-2 rounded-sm hover:bg-ink/5 dark:hover:bg-paper/10 transition-colors">
+              {isDark ? <Sun className="w-4 h-4 text-ink-faint" /> : <Moon className="w-4 h-4 text-ink-muted" />}
             </button>
-            <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent transition-colors">
+            <Link to="/login" className="hidden sm:inline-flex text-sm font-medium text-ink dark:text-paper hover:text-accent transition-colors">
               Log in
             </Link>
             <motion.button
               onClick={() => navigate('/register')}
-              className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-blue-700 transition-colors"
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+              className="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-paper bg-ink dark:bg-paper dark:text-ink hover:bg-accent dark:hover:bg-accent dark:hover:text-paper transition-colors"
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             >
-              Get Started
+              Subscribe
             </motion.button>
             {/* Hamburger button - mobile only */}
             <button
@@ -1212,49 +1212,50 @@ const LandingPage = () => {
         {!prefersReducedMotion && <MouseFollowGradient />}
 
         <motion.div className="relative max-w-5xl mx-auto text-center w-full" initial="hidden" animate="visible" variants={staggerContainer}>
+          {/* Masthead bar */}
+          <motion.div variants={staggerItem} className="flex items-center justify-center gap-4 mb-8">
+            <span className="flex-1 max-w-[80px] h-px bg-ink/30 dark:bg-paper/30"/>
+            <span className="editorial-kicker">Vol. I · No. 01 · Kuala Lumpur</span>
+            <span className="flex-1 max-w-[80px] h-px bg-ink/30 dark:bg-paper/30"/>
+          </motion.div>
+
           {/* Title */}
-          <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
-            Malaysia News Sentiment{' '}
-            <span className="text-accent relative">
-              Dashboard
-              <motion.span
-                className="absolute -bottom-2 left-0 right-0 h-1 bg-accent/30 rounded-full"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              />
+          <motion.h1 variants={staggerItem} className="font-display text-5xl sm:text-6xl md:text-7xl font-bold text-ink dark:text-paper leading-[1.05] mb-6 tracking-tight">
+            Malaysia News Sentiment,{' '}
+            <span className="italic text-accent">
+              Reported Plainly.
             </span>
             <br />
-            <span className="text-3xl sm:text-4xl md:text-5xl text-gray-500 dark:text-gray-400">
-              Tracking{' '}
-              <span className="text-accent">{typingText}</span>
+            <span className="block mt-4 text-2xl sm:text-3xl md:text-4xl font-normal italic text-ink-muted dark:text-ink-faint">
+              Tracking <span className="not-italic text-accent font-semibold">{typingText}</span>
               <span className="animate-pulse text-accent">|</span>
             </span>
           </motion.h1>
 
+          {/* Double rule */}
+          <motion.div variants={staggerItem} className="editorial-rule max-w-md mx-auto mb-8"/>
+
           {/* Subtitle */}
-          <motion.p variants={staggerItem} className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
-            Real-time AI that monitors, classifies, and visualizes sentiment across Malaysia's top news sources. Never miss a narrative shift.
+          <motion.p variants={staggerItem} className="text-lg text-ink-muted dark:text-ink-faint max-w-2xl mx-auto mb-10 font-serif italic">
+            Real-time AI that monitors, classifies, and visualises sentiment across Malaysia's top news sources. Never miss a narrative shift.
           </motion.p>
 
           {/* CTA */}
           <motion.div variants={staggerItem} className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <motion.button
               onClick={() => navigate('/register')}
-              className="relative px-8 py-3.5 text-base font-semibold text-white bg-accent rounded-xl shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-all"
-              whileHover={{ scale: 1.05 }}
+              className="relative px-8 py-3.5 text-sm font-semibold tracking-wider uppercase text-paper bg-ink dark:bg-paper dark:text-ink hover:bg-accent dark:hover:bg-accent dark:hover:text-paper transition-colors"
+              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              animate={{ boxShadow: ['0 10px 40px rgba(37,99,235,0.2)', '0 10px 60px rgba(37,99,235,0.4)', '0 10px 40px rgba(37,99,235,0.2)'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
             >
-              Get Started Free <ArrowRight className="inline w-4 h-4 ml-1" />
+              Start Reading · <ArrowRight className="inline w-4 h-4 ml-1" />
             </motion.button>
             <motion.button
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-3.5 text-base font-semibold text-gray-700 dark:text-gray-300 border border-[#eee] dark:border-[#2a2a2a] rounded-xl hover:border-accent hover:text-accent transition-all"
+              className="px-8 py-3.5 text-sm font-semibold tracking-wider uppercase text-ink dark:text-paper border-2 border-ink dark:border-paper hover:bg-ink hover:text-paper dark:hover:bg-paper dark:hover:text-ink transition-all"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             >
-              <Play className="inline w-4 h-4 mr-2" /> Learn More
+              <Play className="inline w-4 h-4 mr-2" /> The Method
             </motion.button>
           </motion.div>
 
