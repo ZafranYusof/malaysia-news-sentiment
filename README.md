@@ -102,12 +102,6 @@ npm run dev
 
 Open `http://localhost:5173` to view the dashboard.
 
-### Default Admin Account
-
-```
-Email:    admin@mynews.my
-Password: Admin@123
-```
 
 ## Architecture Highlights
 
