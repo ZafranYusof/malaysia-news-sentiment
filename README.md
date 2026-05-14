@@ -61,35 +61,31 @@ The goal is to give researchers, journalists, and analysts a single view of how 
 
 ## Project Structure
 
-`	ext
+`
 malaysia-news-sentiment/
-+-- frontend/               React SPA (Vite + Tailwind)
-|   +-- src/
-|   |   +-- pages/          Dashboard, Search, Trending, Entities, Admin
-|   |   +-- components/     Charts, Cards, Heatmap, Entity graph
-|   |   +-- services/       API client, auth helpers
-|   |   +-- context/        React context providers (Auth, Theme)
-|   |   +-- hooks/          Custom React hooks
-|   |   +-- utils/          Helper functions
-|   |   +-- scss/           SCSS stylesheets
-|   |   +-- styles/         Additional style modules
-|   |   +-- config/         App configuration
-|   |   +-- assets/         Static assets (images, icons)
-|   |   +-- bones/          Layout and skeleton components
-|   +-- public/             Static files (manifest, icons)
-|   +-- dist/               Production build output
-+-- backend/                Express REST API
-|   +-- controllers/        Auth, News, Entities, Admin, Sources, Alerts
-|   +-- services/           LLM pipeline, scraper, entity extractor
-|   +-- middleware/         Auth (JWT, role-based access)
-|   +-- models/             Mongoose schemas (Article, User, Entity, Source)
-|   +-- routes/             API route definitions (14 route files)
-|   +-- config/             Database and app configuration
-|   +-- scripts/            Dev utilities and migration scripts
-|   +-- __tests__/          Unit tests
-+-- nlp-service/            Python NLP service (fallback classifier)
-+-- e2e/                    Playwright end-to-end tests (40 tests)
-+-- docs/                   API documentation (70+ endpoints, 14 categories)
+├── frontend/               React SPA (Vite + Tailwind)
+│   ├── src/pages/          Dashboard, Search, Trending, Entities, Admin
+│   ├── src/components/     Charts, Cards, Heatmap, Entity graph
+│   ├── src/services/       API client, auth helpers
+│   ├── src/context/        React context providers (Auth, Theme)
+│   ├── src/hooks/          Custom React hooks
+│   ├── src/utils/          Helper functions
+│   ├── src/scss/           SCSS stylesheets
+│   ├── src/config/         App configuration
+│   ├── src/assets/         Static assets (images, icons)
+│   └── src/bones/          Layout and skeleton components
+├── backend/                Express REST API
+│   ├── controllers/        Auth, News, Entities, Admin, Sources, Alerts
+│   ├── services/           LLM pipeline, scraper, entity extractor
+│   ├── middleware/         Auth (JWT, role-based access)
+│   ├── models/             Mongoose schemas (Article, User, Entity, Source)
+│   ├── routes/             API route definitions (14 route files)
+│   ├── config/             Database and app configuration
+│   ├── scripts/            Dev utilities and migration scripts
+│   └── __tests__/          Unit tests
+├── nlp-service/            Python NLP service (fallback classifier)
+├── e2e/                    Playwright end-to-end tests (40 tests)
+└── docs/                   API documentation (70+ endpoints, 14 categories)
 `
 
 ## Getting Started
