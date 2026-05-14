@@ -61,7 +61,7 @@ The goal is to give researchers, journalists, and analysts a single view of how 
 
 ## Project Structure
 
-`
+```
 malaysia-news-sentiment/
 ├── frontend/               React SPA (Vite + Tailwind)
 │   ├── src/pages/          Dashboard, Search, Trending, Entities, Admin
@@ -86,7 +86,7 @@ malaysia-news-sentiment/
 ├── nlp-service/            Python NLP service (fallback classifier)
 ├── e2e/                    Playwright end-to-end tests (40 tests)
 └── docs/                   API documentation (70+ endpoints, 14 categories)
-`
+```
 
 ## Getting Started
 
