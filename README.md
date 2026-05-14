@@ -2,7 +2,7 @@
 
 # Malaysia News Sentiment Analysis
 
-**Real-Time Sentiment Analysis for Malaysian News**
+**Real-Time Sentiment Analysis for Malaysian News by using API integration**
 
 A final year project dashboard that aggregates Malaysian news articles, classifies sentiment using large language models, and visualizes public discourse across topics, entities, and sources.
 
