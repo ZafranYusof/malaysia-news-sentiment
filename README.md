@@ -44,7 +44,6 @@ The goal is to give researchers, journalists, and analysts a single view of how 
 | Frontend     | React 19, Vite, TailwindCSS, Recharts, Framer Motion                |
 | Backend      | Node.js, Express 5, MongoDB Atlas, JWT                              |
 | AI Pipeline  | Ollama (gpt-oss:120b) with NLP fallback                             |
-| Mobile       | Capacitor 6 (Android APK)                                           |
 | Deployment   | Vercel (frontend), Render (backend)                                 |
 | Testing      | Playwright (40 end-to-end tests)                                    |
 
