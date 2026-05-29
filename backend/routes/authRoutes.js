@@ -7,12 +7,15 @@ const {
   updatePreferences, updateProfile, resendVerification,
 } = require('../controllers/authController');
 const { signGuestToken } = require('../middleware/auth');
+// [UPDATED] Imported auditLog middleware to record authentication events
+const auditLog = require('../middleware/auditLog');
 
 // Public
-router.post('/register',            register);
-router.post('/login',               login);
-router.post('/google',              googleLogin);
-router.post('/google-firebase',     googleFirebaseLogin);
+// [UPDATED] Added auditLog middleware to track register and login events
+router.post('/register',            auditLog('user_register'), register);
+router.post('/login',               auditLog('user_login'), login);
+router.post('/google',              auditLog('google_login'), googleLogin);
+router.post('/google-firebase',     auditLog('firebase_login'), googleFirebaseLogin);
 router.get('/verify-email/:token',  verifyEmail);
 router.post('/forgot-password',     forgotPassword);
 router.post('/reset-password/:token', resetPassword);

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+// [UPDATED] Imported auditLog middleware to record admin actions
+const auditLog = require('../middleware/auditLog');
 const { sendTestEmail, isRealSmtp } = require('../services/emailService');
 
 /**
@@ -10,7 +12,8 @@ const { sendTestEmail, isRealSmtp } = require('../services/emailService');
  * Query params:
  *   - to (optional): recipient email. Defaults to EMAIL_USER.
  */
-router.get('/test-email', protect, authorize('admin'), async (req, res) => {
+// [UPDATED] Added auditLog middleware to track admin test-email action
+router.get('/test-email', protect, authorize('admin'), auditLog('admin_test_email'), async (req, res) => {
   try {
     const to = req.query.to || process.env.EMAIL_USER;
 

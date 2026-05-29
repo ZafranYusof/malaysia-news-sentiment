@@ -161,6 +161,8 @@ app.use('/api/v1/forecast', require('./routes/forecastRoutes'));
 app.use('/api/v1', require('./routes/shareRoutes'));
 app.use('/api/v1/user', require('./routes/userRoutes'));
 app.use('/api/v1/admin', require('./routes/adminRoutes'));
+// [UPDATED] Registered audit log route for admin access to view logs
+app.use('/api/v1/audit', require('./routes/auditRoutes'));
 
 // ── Backward compatibility — old routes redirect to v1 ───────
 app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
