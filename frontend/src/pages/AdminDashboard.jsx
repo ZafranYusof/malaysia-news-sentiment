@@ -4,7 +4,7 @@ import { getAdminStats } from '../services/api';
 import toast from 'react-hot-toast';
 import ScrollToTop from '../components/ScrollToTop';
 import { useSocket } from '../context/SocketContext';
-import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap } from 'lucide-react';
+import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap, ClipboardList } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -14,6 +14,9 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [metrics, setMetrics] = useState(null);
   const [metricsLoading, setMetricsLoading] = useState(false);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditFilter, setAuditFilter] = useState('');
   const socket = useSocket();
 
   const loadData = useCallback(async () => {
@@ -39,6 +42,24 @@ const AdminDashboard = () => {
       else setMetrics({ totalCalls: 0, methods: {}, statusCodes: {}, avgResponseTime: 0, topEndpoints: [], errors: 0, errorRate: '0', uptime: '0h 0m', startedAt: new Date().toISOString(), requestsPerMinute: '0', hourlyDistribution: {} });
     } catch { setMetrics({ totalCalls: 0, methods: {}, statusCodes: {}, avgResponseTime: 0, topEndpoints: [], errors: 0, errorRate: '0', uptime: '0h 0m', startedAt: new Date().toISOString(), requestsPerMinute: '0', hourlyDistribution: {} }); }
     finally { setMetricsLoading(false); }
+  };
+
+  const loadAuditLogs = async (action = '') => {
+    setAuditLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const API = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api/v1';
+      const query = action ? `?action=${action}&limit=50` : '?limit=50';
+      const res = await fetch(`${API}/audit${query}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        setAuditLogs(data.logs || []);
+      }
+    } catch {
+      toast.error('Failed to load audit logs');
+    } finally {
+      setAuditLoading(false);
+    }
   };
 
   const loadInsights = async () => {
@@ -99,7 +120,7 @@ const AdminDashboard = () => {
   const sentimentData = stats.sentiment || { Positive: 0, Negative: 0, Neutral: 0 };
   const totalSentiment = sentimentData.Positive + sentimentData.Negative + sentimentData.Neutral || 1;
 
-  const TABS = ['overview', 'users', 'content', 'api', 'insights'];
+  const TABS = ['overview', 'users', 'content', 'api', 'insights', 'audit'];
 
   return (
     <div className="relative">
@@ -137,9 +158,9 @@ const AdminDashboard = () => {
                 ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
-            onClick={() => { setActiveTab(tab); if (tab === 'insights' && !insights) loadInsights(); if (tab === 'api') loadMetrics(); }}
+            onClick={() => { setActiveTab(tab); if (tab === 'insights' && !insights) loadInsights(); if (tab === 'api') loadMetrics(); if (tab === 'audit') loadAuditLogs(); }}
           >
-            {tab === 'api' ? 'API Metrics' : tab}
+            {tab === 'api' ? 'API Metrics' : tab === 'audit' ? 'Audit Log' : tab}
           </button>
         ))}
       </div>
@@ -486,6 +507,91 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
         )}
+        {activeTab === 'audit' && (
+          <motion.div key="audit" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <ClipboardList size={16} className="text-indigo-600" />
+                  Audit Log
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 uppercase">{auditLogs.length} records</span>
+                </h3>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={auditFilter}
+                    onChange={(e) => { setAuditFilter(e.target.value); loadAuditLogs(e.target.value); }}
+                    className="text-xs border border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 rounded-lg px-2 py-1.5 outline-none"
+                  >
+                    <option value="">All Actions</option>
+                    <option value="user_login">Login</option>
+                    <option value="user_register">Register</option>
+                    <option value="google_login">Google Login</option>
+                    <option value="firebase_login">Firebase Login</option>
+                    <option value="admin_test_email">Admin Email Test</option>
+                  </select>
+                  <button onClick={() => loadAuditLogs(auditFilter)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors">
+                    <RefreshCw size={12} /> Refresh
+                  </button>
+                </div>
+              </div>
+
+              {auditLoading ? (
+                <div className="py-10 text-center">
+                  <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">Loading audit logs...</p>
+                </div>
+              ) : auditLogs.length === 0 ? (
+                <div className="py-10 text-center">
+                  <ClipboardList size={32} className="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">No audit logs found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[#eee] dark:border-[#2a2a2a]">
+                        <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Action</th>
+                        <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">User</th>
+                        <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">IP Address</th>
+                        <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Status</th>
+                        <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.map((log, i) => (
+                        <tr key={i} className="border-b border-[#eee] dark:border-[#2a2a2a] last:border-0 hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                          <td className="py-3 px-3">
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
+                              log.action.includes('login') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600' :
+                              log.action.includes('register') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600' :
+                              'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600'
+                            }`}>{log.action.replace(/_/g, ' ')}</span>
+                          </td>
+                          <td className="py-3 px-3">
+                            <div className="text-xs font-semibold text-gray-900 dark:text-white">{log.userEmail || log.userId || 'anonymous'}</div>
+                            <div className="text-[10px] text-gray-400">{log.role}</div>
+                          </td>
+                          <td className="py-3 px-3 text-[11px] text-gray-500 dark:text-gray-400 font-mono">{log.ip || '—'}</td>
+                          <td className="py-3 px-3">
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
+                              log.status === 'success'
+                                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'
+                                : 'bg-red-50 dark:bg-red-500/10 text-red-500'
+                            }`}>{log.status}</span>
+                          </td>
+                          <td className="py-3 px-3 text-[11px] text-gray-400">
+                            {new Date(log.createdAt).toLocaleString('en-MY', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
       </AnimatePresence>
 
       <ScrollToTop />
