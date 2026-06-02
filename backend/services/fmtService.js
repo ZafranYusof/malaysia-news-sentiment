@@ -1,15 +1,10 @@
-const { fetchRSS } = require('./rssService');
+const { fetchSource } = require('./rssService');
 
 /**
- * Dedicated Fetcher for Free Malaysia Today (FMT)
- * (#25) Direct RSS Integration — now uses shared RSS fetcher
+ * Dedicated fetcher for Free Malaysia Today (FMT).
+ * Thin wrapper kept for backward compatibility — all config now lives in
+ * backend/config/newsSources.js (key: 'fmt').
  */
-const fetchFMTNews = () =>
-  fetchRSS({
-    url:           'https://www.freemalaysiatoday.com/feed/',
-    sourceName:    'Free Malaysia Today (Direct)',
-    provider:      'fmt_direct',
-    fallbackImage: 'https://www.freemalaysiatoday.com/wp-content/uploads/2018/10/fmt-logo-new.png',
-  });
+const fetchFMTNews = () => fetchSource('fmt');
 
 module.exports = { fetchFMTNews };

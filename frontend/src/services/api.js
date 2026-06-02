@@ -302,6 +302,15 @@ export const getAdminInsights = async () => {
 };
 
 /**
+ * Get news-vendor feed health (adaptive-maintenance monitor).
+ * @param {boolean} probe - if true, re-fetch every feed live before returning.
+ */
+export const getSourceHealth = async (probe = false) => {
+  const response = await api.get('/admin/source-health', { params: probe ? { probe: 'true' } : {} });
+  return response.data;
+};
+
+/**
  * Performance #15: Composite dashboard init — replaces 4 parallel calls on mount.
  * Returns { history, stats, trends, keywords } in one round-trip.
  */

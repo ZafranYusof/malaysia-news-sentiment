@@ -2,9 +2,10 @@ const mongoose   = require('mongoose');
 const NodeCache  = require('node-cache');
 const pLimit     = require('p-limit'); 
 
-const { fetchFMTNews }      = require('../services/fmtService');
-const { fetchAstroAwaniNews } = require('../services/astroAwaniService');
-const { fetchMalaysiakiniNews } = require('../services/malaysiakiniService');
+// Source feeds are config-driven: fetchAllSources() reads every enabled vendor
+// from backend/config/newsSources.js. Adding a new source there requires NO
+// change here. See backend/docs/ADAPTIVE_MAINTENANCE.md.
+const { fetchAllSources } = require('../services/rssService');
 const { analyzeSentiment, analyseArticle, getClient } = require('../services/openaiService');
 const Article = require('../models/Article');
 
@@ -132,17 +133,15 @@ const getAndAnalyzeNews = async (req, res) => {
 
     if (!rawArticles) {
       if (refresh) console.log(`🔄 Cache bypass triggered for: ${cacheKey}`);
-      const [fmtDirectArts, astroAwaniArts, mkiniArts] = await Promise.all([
-        fetchFMTNews().catch(() => []), 
-        fetchAstroAwaniNews().catch(() => []),
-        fetchMalaysiakiniNews().catch(() => []),
-      ]);
+      // Pull every enabled vendor feed (config-driven). One bad vendor → [] and
+      // never breaks the batch; adding a source needs no change here.
+      const allArts = await fetchAllSources().catch(() => []);
 
       const queryWords = q.toLowerCase().split(/\s+/).filter(w => {
         const forbidden = ['malaysia', 'breaking', 'news', 'latest', 'today', 'headline'];
         return w.length > 3 && !forbidden.includes(w);
       });
-      
+
       const filterByQuery = (arts) => {
         if (queryWords.length === 0) return arts;
         return arts.filter(a => {
@@ -151,10 +150,7 @@ const getAndAnalyzeNews = async (req, res) => {
         });
       };
 
-      const filteredAstro = filterByQuery(astroAwaniArts);
-      const filteredFMT   = filterByQuery(fmtDirectArts);
-      const filteredMKini = filterByQuery(mkiniArts);
-      const mergedRaw = [...filteredAstro, ...filteredFMT, ...filteredMKini]
+      const mergedRaw = filterByQuery(allArts)
         .filter(art => art && art.url)
         .sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
       

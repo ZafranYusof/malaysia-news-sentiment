@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
 const { sendTestEmail, isRealSmtp } = require('../services/emailService');
+const { getSourcesHealth, probeAllSources } = require('../services/rssService');
 
 /**
  * GET /api/v1/admin/test-email
@@ -57,6 +58,33 @@ router.get('/email-status', protect, authorize('admin'), (req, res) => {
       ? 'SMTP credentials configured. Emails will be delivered.'
       : 'No SMTP credentials. Using Ethereal test account (emails not delivered).',
   });
+});
+
+/**
+ * GET /api/v1/admin/source-health
+ * Last-known health of every enabled news vendor feed (adaptive-maintenance
+ * monitor). Reflects runtime results recorded since the last server start.
+ * Admin only.
+ *
+ * Query params:
+ *   - probe=true : actively re-fetch all feeds now before returning (slower).
+ */
+router.get('/source-health', protect, authorize('admin'), async (req, res) => {
+  try {
+    const result = req.query.probe === 'true'
+      ? await probeAllSources()
+      : getSourcesHealth();
+
+    // 200 always — this endpoint reports health, it isn't itself unhealthy.
+    res.json({
+      success: true,
+      checkedLive: req.query.probe === 'true',
+      ...result,
+    });
+  } catch (err) {
+    console.error('[Admin] source-health failed:', err.message);
+    res.status(500).json({ error: 'Failed to read source health', details: err.message });
+  }
 });
 
 module.exports = router;
