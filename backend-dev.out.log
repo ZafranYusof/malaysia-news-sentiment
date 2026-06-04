@@ -1,0 +1,33 @@
+
+> malaysia-news-sentiment-backend@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+◇ injected env (7) from .env // tip: ⌘ suppress logs { quiet: true }
+✅ Server running on http://localhost:5001
+   Environment: development
+   Real-time: Socket.io Enabled
+📧 Newsletter scheduler active — daily digest at 8:00 AM MYT
+✅ MongoDB Connected
+📧 Using Ethereal test email (no real SMTP configured)
+   Preview at: https://ethereal.email
+📧 Email preview: https://ethereal.email/message/aiBw3qvWyagGkmmpaiBw4kaRd.PIqpDIAAAAAbC-cvboVEYz.fpO4-p8ewA
+🔌 Guest connected: XjbvI6VQWjDSeeQQAAAB
+📧 Email preview: https://ethereal.email/message/aiBw3qvWyagGkmmpaiByI0aRd.PIqpRhAAAAAiJLmybr3MtvjmlQB9TDgrY
+❌ Guest disconnected: XjbvI6VQWjDSeeQQAAAB
+🔌 Guest connected: 097YfSL3xZ7kxeW2AAAE
+❌ Guest disconnected: 097YfSL3xZ7kxeW2AAAE
+🔌 Guest connected: qJu0lykuTdCJzC1KAAAH
+❌ Guest disconnected: qJu0lykuTdCJzC1KAAAH
+🔌 Guest connected: aODLXYj0ongExi8VAAAJ
+❌ Guest disconnected: aODLXYj0ongExi8VAAAJ
+🔌 Guest connected: bNqC_cwsUuXRbZjnAAAM
+❌ Guest disconnected: bNqC_cwsUuXRbZjnAAAM
+🔌 Guest connected: 4KKNQzfuVj3bwwZSAAAO
+❌ Guest disconnected: 4KKNQzfuVj3bwwZSAAAO
+🔌 Guest connected: UXSjxBlQC0z0D-XHAAAR
+❌ Guest disconnected: UXSjxBlQC0z0D-XHAAAR

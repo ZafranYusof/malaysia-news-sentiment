@@ -1,5 +1,59 @@
 const Article = require('../models/Article');
 
+const CREDIBILITY_WEIGHTS = {
+  balance: 0.4,
+  confidence: 0.4,
+  reliability: 0.2,
+};
+
+const calculateCredibilityMetrics = (source) => {
+  const { _id: name, total, positive, negative, neutral, avgConfidence, alerts } = source;
+
+  const posRatio = positive / total;
+  const negRatio = negative / total;
+  const neuRatio = neutral / total;
+
+  const expectedRatio = 1 / 3;
+  const biasDeviation = Math.sqrt(
+    Math.pow(posRatio - expectedRatio, 2) +
+    Math.pow(negRatio - expectedRatio, 2) +
+    Math.pow(neuRatio - expectedRatio, 2)
+  );
+
+  const biasDirection = posRatio > negRatio ? 'positive' : negRatio > posRatio ? 'negative' : 'balanced';
+  const biasStrength = Math.abs(posRatio - negRatio);
+
+  const sentimentValues = source.sentiments.map(s => s === 'Positive' ? 1 : s === 'Negative' ? -1 : 0);
+  const mean = sentimentValues.reduce((a, b) => a + b, 0) / sentimentValues.length;
+  const variance = sentimentValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / sentimentValues.length;
+
+  const balanceScore = Math.max(0, 100 - biasDeviation * 200);
+  const confidenceScore = (avgConfidence || 0.5) * 100;
+  const alertPenalty = (alerts / total) * 30;
+  const reliabilityScore = Math.max(0, 100 - alertPenalty);
+
+  const credibilityScore = Math.round(
+    Math.max(0, Math.min(100,
+      balanceScore * CREDIBILITY_WEIGHTS.balance +
+      confidenceScore * CREDIBILITY_WEIGHTS.confidence +
+      reliabilityScore * CREDIBILITY_WEIGHTS.reliability
+    ))
+  );
+
+  return {
+    source: name,
+    credibilityScore,
+    volume: total,
+    sentimentBreakdown: { positive, negative, neutral },
+    biasDirection,
+    biasStrength: Math.round(biasStrength * 100),
+    consistencyScore: Math.round((1 - variance) * 100),
+    avgConfidence: Math.round((avgConfidence || 0.5) * 100),
+    alertRatio: Math.round((alerts / total) * 100),
+    reliabilityScore: Math.round(reliabilityScore),
+  };
+};
+
 /**
  * GET /api/sources/credibility
  * Calculate credibility scores for news sources based on sentiment patterns
@@ -35,59 +89,7 @@ const getSourceCredibility = async (req, res) => {
     }
 
     // Calculate credibility metrics for each source
-    const results = sourceStats.map((source) => {
-      const { _id: name, total, positive, negative, neutral, avgConfidence, alerts } = source;
-
-      // Bias calculation: how skewed is the sentiment distribution?
-      const posRatio = positive / total;
-      const negRatio = negative / total;
-      const neuRatio = neutral / total;
-
-      // Ideal distribution would be balanced - calculate deviation
-      const expectedRatio = 1 / 3;
-      const biasDeviation = Math.sqrt(
-        Math.pow(posRatio - expectedRatio, 2) +
-        Math.pow(negRatio - expectedRatio, 2) +
-        Math.pow(neuRatio - expectedRatio, 2)
-      );
-
-      // Bias direction: positive bias (+), negative bias (-), or balanced (0)
-      const biasDirection = posRatio > negRatio ? 'positive' : negRatio > posRatio ? 'negative' : 'balanced';
-      const biasStrength = Math.abs(posRatio - negRatio);
-
-      // Sentiment variance (how consistent are they?)
-      const sentimentValues = source.sentiments.map(s => s === 'Positive' ? 1 : s === 'Negative' ? -1 : 0);
-      const mean = sentimentValues.reduce((a, b) => a + b, 0) / sentimentValues.length;
-      const variance = sentimentValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / sentimentValues.length;
-
-      // Credibility score (0-100)
-      // Higher = more credible (balanced reporting, high confidence, low alert ratio)
-      const balanceScore = Math.max(0, 100 - biasDeviation * 200); // 0-100
-      const confidenceScore = (avgConfidence || 0.5) * 100; // 0-100
-      const alertPenalty = (alerts / total) * 30; // Penalty for high alert ratio
-      const volumeBonus = Math.min(10, total / 5); // Small bonus for volume
-
-      const credibilityScore = Math.round(
-        Math.max(0, Math.min(100,
-          balanceScore * 0.4 +
-          confidenceScore * 0.3 +
-          (100 - alertPenalty) * 0.2 +
-          volumeBonus * 0.1
-        ))
-      );
-
-      return {
-        source: name,
-        credibilityScore,
-        volume: total,
-        sentimentBreakdown: { positive, negative, neutral },
-        biasDirection,
-        biasStrength: Math.round(biasStrength * 100),
-        consistencyScore: Math.round((1 - variance) * 100),
-        avgConfidence: Math.round((avgConfidence || 0.5) * 100),
-        alertRatio: Math.round((alerts / total) * 100),
-      };
-    });
+    const results = sourceStats.map(calculateCredibilityMetrics);
 
     // Sort by credibility score descending
     results.sort((a, b) => b.credibilityScore - a.credibilityScore);
@@ -99,4 +101,10 @@ const getSourceCredibility = async (req, res) => {
   }
 };
 
-module.exports = { getSourceCredibility };
+module.exports = {
+  getSourceCredibility,
+  __testables: {
+    CREDIBILITY_WEIGHTS,
+    calculateCredibilityMetrics,
+  },
+};

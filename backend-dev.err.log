@@ -1,0 +1,2 @@
+⚠️  OPENAI_API_KEY not set — falling back to local sentiment analysis.
+⚠️  FIREBASE_SERVICE_ACCOUNT_JSON not set — Firebase token verification disabled.
