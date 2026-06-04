@@ -1,14 +1,22 @@
-const crypto = require('crypto');
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
+const {
+  randomBytes,
+} = require('node:crypto');
+
+const buf = randomBytes(64);
+console.log(
+  `${buf.length} bytes of random data: ${buf.toString('hex')}`);
+
 const envPath = path.join(__dirname, '..', '.env');
-
-const newSecret = crypto.randomBytes(64).toString('hex');
-
-let envContent = fs.readFileSync(envPath, 'utf8');
-envContent = envContent.replace(/^JWT_SECRET=.*/m, `JWT_SECRET=${newSecret}`);
-fs.writeFileSync(envPath, envContent);
+fs.writeFileSync(
+  envPath,
+  fs.readFileSync(envPath, 'utf8').replace(
+    /^JWT_SECRET=.*/m,
+    `JWT_SECRET=${buf.toString('hex')}`
+  )
+);
 
 console.log('JWT secret rotated successfully.');
 console.log('All active sessions have been invalidated.');
