@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getAdminStats } from '../services/api';
+import { getAdminStats, getSourceHealth } from '../services/api';
 import toast from 'react-hot-toast';
 import ScrollToTop from '../components/ScrollToTop';
 import { useSocket } from '../context/SocketContext';
-import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap, ClipboardList } from 'lucide-react';
+import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap, ClipboardList, Rss, CheckCircle2, XCircle, AlertCircle, HelpCircle } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -17,6 +17,8 @@ const AdminDashboard = () => {
   const [auditLogs, setAuditLogs] = useState([]);
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditFilter, setAuditFilter] = useState('');
+  const [health, setHealth] = useState(null);
+  const [healthLoading, setHealthLoading] = useState(false);
   const socket = useSocket();
 
   const loadData = useCallback(async () => {
@@ -59,6 +61,24 @@ const AdminDashboard = () => {
       toast.error('Failed to load audit logs');
     } finally {
       setAuditLoading(false);
+    }
+  };
+
+  const loadHealth = async (probe = false) => {
+    setHealthLoading(true);
+    try {
+      const data = await getSourceHealth(probe);
+      setHealth(data);
+      if (probe) {
+        const down = data.summary?.down || 0;
+        const degraded = data.summary?.degraded || 0;
+        if (down + degraded === 0) toast.success('All news feeds healthy');
+        else toast.error(`${down + degraded} feed(s) need attention`);
+      }
+    } catch {
+      toast.error('Failed to load source health');
+    } finally {
+      setHealthLoading(false);
     }
   };
 
@@ -120,7 +140,7 @@ const AdminDashboard = () => {
   const sentimentData = stats.sentiment || { Positive: 0, Negative: 0, Neutral: 0 };
   const totalSentiment = sentimentData.Positive + sentimentData.Negative + sentimentData.Neutral || 1;
 
-  const TABS = ['overview', 'users', 'content', 'api', 'insights', 'audit'];
+  const TABS = ['overview', 'users', 'content', 'sources', 'api', 'insights', 'audit'];
 
   return (
     <div className="relative">
@@ -158,9 +178,9 @@ const AdminDashboard = () => {
                 ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
-            onClick={() => { setActiveTab(tab); if (tab === 'insights' && !insights) loadInsights(); if (tab === 'api') loadMetrics(); if (tab === 'audit') loadAuditLogs(); }}
+            onClick={() => { setActiveTab(tab); if (tab === 'insights' && !insights) loadInsights(); if (tab === 'api') loadMetrics(); if (tab === 'sources' && !health) loadHealth(false); if (tab === 'audit') loadAuditLogs(); }}
           >
-            {tab === 'api' ? 'API Metrics' : tab === 'audit' ? 'Audit Log' : tab}
+            {tab === 'api' ? 'API Metrics' : tab === 'sources' ? 'Feed Health' : tab === 'audit' ? 'Audit Log' : tab}
           </button>
         ))}
       </div>
@@ -375,6 +395,115 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'sources' && (
+          <motion.div key="sources" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            {(() => {
+              const STATUS = {
+                healthy:  { label: 'Healthy',  color: '#10b981', bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-600', Icon: CheckCircle2 },
+                degraded: { label: 'Degraded', color: '#f59e0b', bg: 'bg-amber-50 dark:bg-amber-500/10',     text: 'text-amber-600',   Icon: AlertCircle },
+                down:     { label: 'Down',     color: '#ef4444', bg: 'bg-red-50 dark:bg-red-500/10',         text: 'text-red-500',     Icon: XCircle },
+                unknown:  { label: 'Unknown',  color: '#94a3b8', bg: 'bg-gray-50 dark:bg-white/5',           text: 'text-gray-400',    Icon: HelpCircle },
+              };
+              const summary = health?.summary || { total: 0, healthy: 0, degraded: 0, down: 0, unknown: 0 };
+
+              return (
+                <>
+                  {/* Header + actions */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Rss size={16} className="text-blue-600" /> News Feed Health
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-600 uppercase">Adaptive Maintenance</span>
+                      </h3>
+                      <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                        Detects when a vendor changes their endpoint or feed format.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => loadHealth(true)}
+                      disabled={healthLoading}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      <RefreshCw size={12} className={healthLoading ? 'animate-spin' : ''} />
+                      {healthLoading ? 'Checking…' : 'Check feeds now'}
+                    </button>
+                  </div>
+
+                  {/* Summary chips */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+                    {['healthy', 'degraded', 'down', 'unknown'].map(k => {
+                      const s = STATUS[k];
+                      return (
+                        <div key={k} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-4">
+                          <div className={`w-8 h-8 rounded-lg ${s.bg} ${s.text} flex items-center justify-center mb-2`}>
+                            <s.Icon size={16} />
+                          </div>
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary[k]}</div>
+                          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{s.label}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Per-vendor list */}
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                    {healthLoading && !health ? (
+                      <div className="py-10 text-center">
+                        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                        <p className="text-sm text-gray-500">Loading feed health…</p>
+                      </div>
+                    ) : !health?.sources?.length ? (
+                      <p className="text-xs text-gray-500 text-center py-6">No source data. Click “Check feeds now”.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {health.sources.map((src) => {
+                          const s = STATUS[src.status] || STATUS.unknown;
+                          return (
+                            <div key={src.key} className="flex items-start justify-between gap-3 py-3 border-b border-[#eee] dark:border-[#2a2a2a] last:border-0">
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <s.Icon size={14} style={{ color: s.color }} />
+                                  <span className="text-xs font-semibold text-gray-900 dark:text-white">{src.name}</span>
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${s.bg} ${s.text}`}>{s.label}</span>
+                                  {src.kind && src.kind !== 'unreachable' && (
+                                    <span className="text-[9px] font-mono text-gray-400 uppercase">{src.kind}</span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 truncate">{src.url}</div>
+                                {src.issues?.length > 0 && (
+                                  <ul className="mt-1.5 space-y-0.5">
+                                    {src.issues.map((iss, i) => (
+                                      <li key={i} className="text-[10px] text-amber-600 dark:text-amber-500 flex items-start gap-1">
+                                        <AlertTriangle size={10} className="mt-0.5 shrink-0" /> {iss}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                              <div className="text-right shrink-0">
+                                <div className="text-sm font-bold text-gray-900 dark:text-white">{src.returned}</div>
+                                <div className="text-[9px] text-gray-400 uppercase">articles</div>
+                                {src.checkedAt && (
+                                  <div className="text-[9px] text-gray-400 mt-1">
+                                    {new Date(src.checkedAt).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' })}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {health?.checkedLive === false && health?.sources?.length > 0 && (
+                      <p className="text-[10px] text-gray-400 mt-3">Showing last-known state. Click “Check feeds now” to re-fetch live.</p>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
           </motion.div>
         )}
 

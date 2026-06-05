@@ -1,15 +1,11 @@
-const { fetchRSS } = require('./rssService');
+const { fetchSource } = require('./rssService');
 
 /**
- * Dedicated Fetcher for Astro Awani
- * (#Breaking) Direct RSS Integration — now uses shared RSS fetcher
+ * Dedicated fetcher for Astro Awani.
+ * Thin wrapper kept for backward compatibility — all config now lives in
+ * backend/config/newsSources.js (key: 'astro_awani'). To change Astro Awani's
+ * URL/format, edit the registry, not this file.
  */
-const fetchAstroAwaniNews = () =>
-  fetchRSS({
-    url:           'https://www.astroawani.com/rss/latest/public',
-    sourceName:    'Astro Awani',
-    provider:      'astro_awani_direct',
-    fallbackImage: 'https://www.astroawani.com/static/icons8-astro-awani-100.png',
-  });
+const fetchAstroAwaniNews = () => fetchSource('astro_awani');
 
 module.exports = { fetchAstroAwaniNews };

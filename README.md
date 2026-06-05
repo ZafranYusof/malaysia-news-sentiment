@@ -2,7 +2,7 @@
 
 # Malaysia News Sentiment Analysis
 
-**Real-Time Sentiment Analysis for Malaysian News**
+**Real-Time Sentiment Analysis for Malaysian News using API Integration**
 
 A final year project dashboard that aggregates Malaysian news articles, classifies sentiment using large language models, and visualizes public discourse across topics, entities, and sources.
 
@@ -44,7 +44,6 @@ The goal is to give researchers, journalists, and analysts a single view of how 
 | Frontend     | React 19, Vite, TailwindCSS, Recharts, Framer Motion                |
 | Backend      | Node.js, Express 5, MongoDB Atlas, JWT                              |
 | AI Pipeline  | Ollama (gpt-oss:120b) with NLP fallback                             |
-| Mobile       | Capacitor 6 (Android APK)                                           |
 | Deployment   | Vercel (frontend), Render (backend)                                 |
 | Testing      | Playwright (40 end-to-end tests)                                    |
 
@@ -63,16 +62,29 @@ The goal is to give researchers, journalists, and analysts a single view of how 
 
 ```
 malaysia-news-sentiment/
-├── frontend/           React SPA (Vite + Tailwind)
-│   ├── src/pages/      Dashboard, Search, Trending, Entities, Admin
-│   ├── src/components/ Charts, Cards, Heatmap, Entity graph
-│   └── src/services/   API client, auth context, offline support
-├── backend/            Express REST API
-│   ├── controllers/    Auth, Articles, Sentiment, Admin
-│   ├── services/       LLM pipeline, scraper, entity extractor
-│   ├── middleware/     Rate limiter, auth, error handler
-│   └── models/         Article, User, ApiMetric
-└── docs/               API documentation (70+ endpoints, 14 categories)
+├── frontend/               React SPA (Vite + Tailwind)
+│   ├── src/pages/          Dashboard, Search, Trending, Entities, Admin
+│   ├── src/components/     Charts, Cards, Heatmap, Entity graph
+│   ├── src/services/       API client, auth helpers
+│   ├── src/context/        React context providers (Auth, Theme)
+│   ├── src/hooks/          Custom React hooks
+│   ├── src/utils/          Helper functions
+│   ├── src/scss/           SCSS stylesheets
+│   ├── src/config/         App configuration
+│   ├── src/assets/         Static assets (images, icons)
+│   └── src/bones/          Layout and skeleton components
+├── backend/                Express REST API
+│   ├── controllers/        Auth, News, Entities, Admin, Sources, Alerts
+│   ├── services/           LLM pipeline, scraper, entity extractor
+│   ├── middleware/         Auth (JWT, role-based access)
+│   ├── models/             Mongoose schemas (Article, User, Entity, Source)
+│   ├── routes/             API route definitions (14 route files)
+│   ├── config/             Database and app configuration
+│   ├── scripts/            Dev utilities and migration scripts
+│   └── __tests__/          Unit tests
+├── nlp-service/            Python NLP service (fallback classifier)
+├── e2e/                    Playwright end-to-end tests (40 tests)
+└── docs/                   API documentation (70+ endpoints, 14 categories)
 ```
 
 ## Getting Started

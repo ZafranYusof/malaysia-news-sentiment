@@ -102,11 +102,15 @@ app.use(helmet());
 app.use(express.json({ limit: '2mb' }));
 
 // ── Rate limiting ─────────────────────────────────────────────
+// Skip rate limiting for admin users
+const skipIfAdmin = (req) => req.userRole === 'admin';
+
 const authLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfAdmin,
   message: { error: 'Too many auth attempts. Please try again in 5 minutes.' },
 });
 
@@ -115,6 +119,7 @@ const analysisLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfAdmin,
   message: { error: 'Too many requests. Please slow down.' },
 });
 
