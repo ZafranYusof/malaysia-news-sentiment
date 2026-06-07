@@ -58,36 +58,36 @@ const ResetPasswordPage = () => {
   // Email verification view
   if (window.location.pathname === '/verify-email') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fafaf9] dark:bg-[#0f0f0f] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="w-full max-w-sm bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-8 text-center shadow-xl shadow-black/5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 p-8 text-center"
         >
           {verifying ? (
             <>
-              <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white mt-5">Verifying...</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Please wait while we verify your email</p>
+              <div className="w-10 h-10 border-2 border-zinc-900 dark:border-zinc-700 border-t-transparent rounded-full animate-spin mx-auto" />
+              <h1 className="text-xl font-serif font-bold text-zinc-900 dark:text-zinc-50 mt-5">Verifying...</h1>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">Please wait while we verify your email</p>
             </>
           ) : verifyMsg ? (
             <>
-              <div className="w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mx-auto">
-                <CheckCircle size={28} className="text-emerald-500" />
+              <div className="w-14 h-14 border-2 border-green-600 dark:border-green-500 flex items-center justify-center mx-auto">
+                <CheckCircle size={28} className="text-green-600 dark:text-green-500" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white mt-4">Email Verified!</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{verifyMsg}</p>
-              <p className="text-xs text-gray-400 mt-3">Redirecting to dashboard...</p>
+              <h1 className="text-xl font-serif font-bold text-zinc-900 dark:text-zinc-50 mt-4">Email Verified</h1>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">{verifyMsg}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-3 uppercase tracking-wide">Redirecting to dashboard...</p>
             </>
           ) : (
             <>
-              <div className="w-14 h-14 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mx-auto">
-                <XCircle size={28} className="text-red-500" />
+              <div className="w-14 h-14 border-2 border-red-700 dark:border-red-500 flex items-center justify-center mx-auto">
+                <XCircle size={28} className="text-red-700 dark:text-red-500" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white mt-4">Verification Failed</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{error}</p>
-              <Link to="/login" className="inline-block mt-5 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors no-underline">
+              <h1 className="text-xl font-serif font-bold text-zinc-900 dark:text-zinc-50 mt-4">Verification Failed</h1>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">{error}</p>
+              <Link to="/login" className="inline-block mt-5 px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-sm font-medium uppercase tracking-wide transition-colors no-underline">
                 Back to Login
               </Link>
             </>
@@ -99,39 +99,42 @@ const ResetPasswordPage = () => {
 
   // Password reset view
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fafaf9] dark:bg-[#0f0f0f] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        className="w-full max-w-sm bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-8 shadow-xl shadow-black/5"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 p-8"
       >
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
-            <Lock size={22} className="text-white" />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 border-2 border-zinc-900 dark:border-zinc-700 mb-4">
+            <Lock size={22} className="text-zinc-900 dark:text-zinc-50" />
           </div>
+          <h1 className="text-2xl font-serif font-bold text-zinc-900 dark:text-zinc-50">
+            Reset Password
+          </h1>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2 uppercase tracking-wide">
+            Enter your new password below
+          </p>
         </div>
-
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white text-center">Set New Password</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1.5">Enter your new password below</p>
 
         {success ? (
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-6 flex items-center gap-2 px-4 py-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-emerald-600 text-sm"
+            className="flex items-center gap-2 px-4 py-3 border border-green-600 dark:border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-sm"
           >
             <CheckCircle size={16} />
             {success} Redirecting...
           </motion.div>
         ) : (
-          <form onSubmit={handleReset} className="mt-6 space-y-4">
+          <form onSubmit={handleReset} className="space-y-5">
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400 text-sm"
+                className="flex items-center gap-2 px-4 py-3 border border-red-700 dark:border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm"
               >
                 <XCircle size={14} />
                 {error}
@@ -139,11 +142,13 @@ const ResetPasswordPage = () => {
             )}
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">New password</label>
+              <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2 uppercase tracking-wide">
+                New Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  className="w-full px-4 py-3 text-sm bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a] rounded-xl outline-none focus:border-blue-500 text-gray-900 dark:text-white placeholder:text-gray-400 transition-colors pr-10"
+                  className="w-full px-4 py-3 text-sm bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-red-700 dark:focus:border-red-500 transition-colors pr-10"
                   placeholder="Min. 6 characters"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -152,7 +157,7 @@ const ResetPasswordPage = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors"
                   onClick={() => setShowPassword(p => !p)}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -161,10 +166,12 @@ const ResetPasswordPage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm password</label>
+              <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2 uppercase tracking-wide">
+                Confirm Password
+              </label>
               <input
                 type={showPassword ? 'text' : 'password'}
-                className="w-full px-4 py-3 text-sm bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a] rounded-xl outline-none focus:border-blue-500 text-gray-900 dark:text-white placeholder:text-gray-400 transition-colors"
+                className="w-full px-4 py-3 text-sm bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-red-700 dark:focus:border-red-500 transition-colors"
                 placeholder="Re-enter password"
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
@@ -175,16 +182,16 @@ const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-sm font-medium uppercase tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+              {loading && <div className="w-4 h-4 border-2 border-white/30 dark:border-zinc-900/30 border-t-white dark:border-t-zinc-900 rounded-full animate-spin" />}
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
         )}
 
-        <Link to="/login" className="flex items-center justify-center gap-1.5 mt-5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors no-underline">
-          <ArrowLeft size={12} /> Back to Login
+        <Link to="/login" className="flex items-center justify-center gap-1.5 mt-6 text-sm font-medium text-red-700 dark:text-red-500 hover:text-red-800 dark:hover:text-red-400 transition-colors no-underline">
+          <ArrowLeft size={14} /> Back to Login
         </Link>
       </motion.div>
     </div>
