@@ -3,226 +3,269 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import api from '../services/api';
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-const staggerItem = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
-};
 
 const RegisterPage = () => {
-  const { googleLogin } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  const [tab, setTab] = useState('email');
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error when user types
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (formData.name.length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Invalid email address';
+    }
+
+    if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    if (form.password !== form.confirm) return setError('Passwords do not match.');
-    if (form.password.length < 6) return setError('Password must be at least 6 characters.');
+    
+    if (!validateForm()) return;
+
     setLoading(true);
+    
     try {
-      const payload = { name: form.name, password: form.password, ...(tab === 'email' ? { email: form.email } : { phone: form.phone }) };
-      const res = await api.post('/auth/register', payload);
-      setSuccess(res.data.message);
+      await register(formData);
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
-    } finally { setLoading(false); }
+      setErrors({ form: err.response?.data?.error || 'Registration failed. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const handleGoogle = async () => {
-    setError('');
-    try { await googleLogin(); navigate('/dashboard'); }
-    catch (err) { setError(err.response?.data?.error || 'Google signup failed.'); }
-  };
-
-  if (success) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center p-4 bg-[#fafaf9] dark:bg-[#0f0f0f] ${isDark ? 'dark' : ''}`}>
-        <motion.div
-          className="w-full max-w-md bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#eee] dark:border-[#2a2a2a] p-8 shadow-sm text-center"
-          initial="hidden" animate="visible" variants={staggerContainer}
-        >
-          <motion.div variants={staggerItem} className="space-y-3">
-            <span className="text-5xl block">🎉</span>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Account Created!</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{success}</p>
-          </motion.div>
-          <motion.div variants={staggerItem} className="mt-6">
-            <Link
-              to="/login"
-              className="block w-full py-3 rounded-xl bg-accent text-white font-medium text-sm text-center hover:bg-accent/90 transition-all no-underline"
-            >
-              Go to Login
-            </Link>
-          </motion.div>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
-    <div className={`min-h-screen flex ${isDark ? 'dark' : ''}`}>
+    <div className="min-h-screen flex">
       {/* Left side - Visual */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-secondary to-accent items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-white rounded-full"
-              style={{ left: `${15 + i * 13}%`, top: `${20 + i * 9}%` }}
-              animate={{
-                y: [0, -15, 0],
-                opacity: [0.3, 0.7, 0.3],
-              }}
-              transition={{
-                duration: 2.5 + i * 0.4,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: i * 0.2,
-              }}
-            />
-          ))}
-        </div>
-        <div className="relative z-10 text-center text-white px-12">
+      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-800 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(20,184,166,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_80%,rgba(16,185,129,0.1),transparent_50%)]" />
+        
+        <div className="relative z-10 flex flex-col justify-center px-16 py-20">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="text-6xl mb-6">🚀</div>
-            <h2 className="text-3xl font-bold mb-3">Join the Intelligence</h2>
-            <p className="text-white/70 text-lg">Start analyzing Malaysian news with AI-powered sentiment detection</p>
+            <h3 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-6">
+              Join the platform
+            </h3>
+            <p className="text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed max-w-md">
+              Start analyzing Malaysian news sentiment with powerful AI tools designed for local context
+            </p>
+            
+            <div className="mt-12 grid grid-cols-2 gap-6">
+              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">14+</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">News sources tracked</div>
+              </div>
+              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">Real-time</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">Sentiment updates</div>
+              </div>
+              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">10+</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">Analysis features</div>
+              </div>
+              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
+                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">Malaysia</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">Language optimized</div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
 
       {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-[#fafaf9] dark:bg-[#0f0f0f]">
-        <motion.form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md space-y-4"
-          initial="hidden" animate="visible" variants={staggerContainer}
+      <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md mx-auto"
         >
-          <motion.div variants={staggerItem} className="text-center lg:text-left">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create your account</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Start analyzing Malaysian news sentiment for free</p>
-          </motion.div>
+          {/* Logo/Brand */}
+          <div className="mb-12">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+              MYNewsSentiment
+            </h1>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              Malaysia News Sentiment Analysis
+            </p>
+          </div>
 
-          {/* Tabs */}
-          <motion.div className="flex gap-1 p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl" variants={staggerItem}>
-            <button
-              type="button"
-              className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${tab === 'email' ? 'bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}
-              onClick={() => setTab('email')}
-            >Email</button>
-            <button
-              type="button"
-              className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${tab === 'phone' ? 'bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}
-              onClick={() => setTab('phone')}
-            >Phone</button>
-          </motion.div>
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Create account
+            </h2>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              Get started with sentiment analytics
+            </p>
+          </div>
 
-          {error && (
-            <motion.div className="p-3 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-medium" variants={staggerItem}>
-              {error}
+          {/* Form-level error */}
+          {errors.form && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
+            >
+              <p className="text-sm text-red-800 dark:text-red-200">{errors.form}</p>
             </motion.div>
           )}
 
-          <motion.div variants={staggerItem}>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Full Name</label>
-            <input
-              type="text" name="name" placeholder="Muhammad Zafran"
-              value={form.name} onChange={handleChange} required
-              className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-            />
-          </motion.div>
-
-          <motion.div variants={staggerItem}>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-              {tab === 'email' ? 'Email Address' : 'Phone Number'}
-            </label>
-            {tab === 'email' ? (
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+              >
+                Full name
+              </label>
               <input
-                type="email" name="email" placeholder="name@mail.com"
-                value={form.email} onChange={handleChange} required
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
+                placeholder="Ahmad bin Abdullah"
               />
-            ) : (
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+              >
+                Email address
+              </label>
               <input
-                type="tel" name="phone" placeholder="+60 123 4567"
-                value={form.phone} onChange={handleChange} required
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
+                placeholder="you@example.com"
               />
-            )}
-          </motion.div>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+              )}
+            </div>
 
-          <motion.div variants={staggerItem}>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Password</label>
-            <input
-              type="password" name="password" placeholder="Min 6 characters"
-              value={form.password} onChange={handleChange} required
-              className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-            />
-          </motion.div>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
+                placeholder="Minimum 8 characters"
+              />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
+              )}
+            </div>
 
-          <motion.div variants={staggerItem}>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Confirm Password</label>
-            <input
-              type="password" name="confirm" placeholder="Re-enter password"
-              value={form.confirm} onChange={handleChange} required
-              className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-            />
-          </motion.div>
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+              >
+                Confirm password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
+                placeholder="Re-enter your password"
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
+              )}
+            </div>
 
-          <motion.button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent/90 disabled:opacity-50 transition-all shadow-sm shadow-accent/20"
-            variants={staggerItem}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            {loading ? 'Creating...' : 'Create Account'}
-          </motion.button>
+            <div className="pt-2">
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Creating account...' : 'Create account'}
+              </motion.button>
+            </div>
+          </form>
 
-          <motion.div className="relative flex items-center gap-3" variants={staggerItem}>
-            <div className="flex-1 h-px bg-gray-200 dark:bg-[#2a2a2a]" />
-            <span className="text-xs text-gray-400">Or sign up with</span>
-            <div className="flex-1 h-px bg-gray-200 dark:bg-[#2a2a2a]" />
-          </motion.div>
+          {/* Terms */}
+          <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-500 text-center">
+            By creating an account, you agree to our Terms of Service and Privacy Policy
+          </p>
 
-          <motion.div variants={staggerItem}>
-            <motion.button
-              type="button"
-              onClick={handleGoogle}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#222] transition-all"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <svg height="16" width="16" viewBox="0 0 32 32"><g transform="matrix(.727273 0 0 .727273 -.954545 -1.45455)"><path fill="#fbbc05" d="M0 37V11l17 13z"/><path fill="#ea4335" d="M0 11l17 13 7-6.1L48 14V0H0z"/><path fill="#34a853" d="M0 37l30-23 7.9 1L48 0v48H0z"/><path fill="#4285f4" d="M48 48L17 24l-4-3 35-10z"/></g></svg>
-              Google
-            </motion.button>
-          </motion.div>
-
-          <motion.p className="text-center text-sm text-gray-500 dark:text-gray-400" variants={staggerItem}>
+          {/* Login link */}
+          <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Already have an account?{' '}
-            <Link to="/login" className="text-accent font-medium hover:underline">Sign in</Link>
-          </motion.p>
-        </motion.form>
+            <Link
+              to="/login"
+              className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+            >
+              Sign in
+            </Link>
+          </p>
+        </motion.div>
       </div>
     </div>
   );
