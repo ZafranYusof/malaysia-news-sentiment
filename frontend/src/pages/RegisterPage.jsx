@@ -21,7 +21,6 @@ const RegisterPage = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear error when user types
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' });
     }
@@ -67,42 +66,105 @@ const RegisterPage = () => {
     }
   };
 
+  // Dashboard preview data
+  const trendingTopics = [
+    { topic: "Economy", count: 247, trend: "up" },
+    { topic: "Politics", count: 189, trend: "down" },
+    { topic: "Technology", count: 156, trend: "up" },
+    { topic: "Education", count: 98, trend: "neutral" }
+  ];
+
+  const features = [
+    { icon: "📊", title: "Live Analytics", desc: "Real-time sentiment tracking" },
+    { icon: "🗺️", title: "Heatmap View", desc: "Geographic sentiment data" },
+    { icon: "📈", title: "Trend Analysis", desc: "Historical comparisons" },
+    { icon: "🔖", title: "Bookmarks", desc: "Save important articles" }
+  ];
+
   return (
     <div className="min-h-screen flex">
-      {/* Left side - Visual */}
-      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-teal-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-800 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(20,184,166,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_80%,rgba(16,185,129,0.1),transparent_50%)]" />
+      {/* Left side - Dashboard Preview */}
+      <div className="hidden lg:flex lg:w-[55%] bg-zinc-50 dark:bg-zinc-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-emerald-500/5 dark:from-teal-500/10 dark:to-emerald-500/10" />
         
-        <div className="relative z-10 flex flex-col justify-center px-16 py-20">
+        <div className="relative z-10 flex flex-col justify-center px-16 py-20 w-full">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-8"
           >
-            <h3 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-6">
-              Join the platform
-            </h3>
-            <p className="text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed max-w-md">
-              Start analyzing Malaysian news sentiment with powerful AI tools designed for local context
-            </p>
-            
-            <div className="mt-12 grid grid-cols-2 gap-6">
-              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
-                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">14+</div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">News sources tracked</div>
+            {/* Header */}
+            <div>
+              <h3 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-3">
+                Comprehensive news intelligence
+              </h3>
+              <p className="text-zinc-600 dark:text-zinc-400 max-w-md">
+                Access powerful analytics tools to understand Malaysian news sentiment
+              </p>
+            </div>
+
+            {/* Trending Topics */}
+            <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 border border-zinc-200 dark:border-zinc-700">
+              <h4 className="font-medium text-zinc-900 dark:text-zinc-50 mb-4">Trending Topics</h4>
+              <div className="space-y-3">
+                {trendingTopics.map((item, index) => (
+                  <motion.div
+                    key={item.topic}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`text-lg ${
+                        item.trend === 'up' ? '↗️' : item.trend === 'down' ? '↘️' : '➡️'
+                      }`}>
+                        {item.trend === 'up' ? '↗️' : item.trend === 'down' ? '↘️' : '➡️'}
+                      </span>
+                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                        {item.topic}
+                      </span>
+                    </div>
+                    <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                      {item.count} articles
+                    </span>
+                  </motion.div>
+                ))}
               </div>
-              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
-                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">Real-time</div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Sentiment updates</div>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.5 + index * 0.05 }}
+                  className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700"
+                >
+                  <div className="text-2xl mb-2">{feature.icon}</div>
+                  <h5 className="text-sm font-medium text-zinc-900 dark:text-zinc-50 mb-1">
+                    {feature.title}
+                  </h5>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {feature.desc}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Stats Footer */}
+            <div className="flex items-center gap-6 pt-4 text-sm text-zinc-500 dark:text-zinc-400">
+              <div>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">14+</span> News Sources
               </div>
-              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
-                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">10+</div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Analysis features</div>
+              <div>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">24/7</span> Monitoring
               </div>
-              <div className="p-6 rounded-xl bg-white/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
-                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">Malaysia</div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">Language optimized</div>
+              <div>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">95%</span> Accuracy
               </div>
             </div>
           </motion.div>
@@ -120,41 +182,23 @@ const RegisterPage = () => {
           {/* Logo/Brand */}
           <div className="mb-12">
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-              MYNewsSentiment
+              Create Account
             </h1>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Malaysia News Sentiment Analysis
+              Start analyzing Malaysian news sentiment
             </p>
           </div>
-
-          {/* Header */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-              Create account
-            </h2>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Get started with sentiment analytics
-            </p>
-          </div>
-
-          {/* Form-level error */}
-          {errors.form && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
-            >
-              <p className="text-sm text-red-800 dark:text-red-200">{errors.form}</p>
-            </motion.div>
-          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            {errors.form && (
+              <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800">
+                <p className="text-sm text-rose-600 dark:text-rose-400">{errors.form}</p>
+              </div>
+            )}
+
             <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
+              <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Full name
               </label>
               <input
@@ -167,16 +211,11 @@ const RegisterPage = () => {
                 className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
                 placeholder="Ahmad bin Abdullah"
               />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
-              )}
+              {errors.name && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.name}</p>}
             </div>
 
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Email address
               </label>
               <input
@@ -187,18 +226,13 @@ const RegisterPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
-                placeholder="you@example.com"
+                placeholder="ahmad@example.com"
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
-              )}
+              {errors.email && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.email}</p>}
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Password
               </label>
               <input
@@ -209,18 +243,13 @@ const RegisterPage = () => {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
-                placeholder="Minimum 8 characters"
+                placeholder="Min. 8 characters"
               />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
-              )}
+              {errors.password && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.password}</p>}
             </div>
 
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Confirm password
               </label>
               <input
@@ -231,32 +260,23 @@ const RegisterPage = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
-                placeholder="Re-enter your password"
+                placeholder="Re-enter password"
               />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
-              )}
+              {errors.confirmPassword && <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
             </div>
 
-            <div className="pt-2">
-              <motion.button
-                type="submit"
-                disabled={loading}
-                whileTap={{ scale: 0.98 }}
-                className="w-full px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Creating account...' : 'Create account'}
-              </motion.button>
-            </div>
+            <motion.button
+              type="submit"
+              disabled={loading}
+              whileTap={{ scale: 0.98 }}
+              className="w-full px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating account...' : 'Create account'}
+            </motion.button>
           </form>
 
-          {/* Terms */}
-          <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-500 text-center">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
-          </p>
-
           {/* Login link */}
-          <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mt-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Already have an account?{' '}
             <Link
               to="/login"

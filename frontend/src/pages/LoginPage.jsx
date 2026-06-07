@@ -30,6 +30,34 @@ const LoginPage = () => {
     }
   };
 
+  // Sample dashboard preview data
+  const sampleArticles = [
+    {
+      title: "Economic Growth Reaches 5.2% in Q2",
+      source: "The Star",
+      sentiment: "positive",
+      score: 0.78
+    },
+    {
+      title: "Traffic Congestion Worsens in KL",
+      source: "Malaysiakini",
+      sentiment: "negative",
+      score: -0.62
+    },
+    {
+      title: "New Tech Hub Opens in Cyberjaya",
+      source: "The Edge",
+      sentiment: "positive",
+      score: 0.85
+    }
+  ];
+
+  const sentimentStats = [
+    { label: "Positive", value: 42, color: "bg-emerald-500" },
+    { label: "Neutral", value: 38, color: "bg-zinc-400" },
+    { label: "Negative", value: 20, color: "bg-rose-500" }
+  ];
+
   return (
     <div className="min-h-screen flex">
       {/* Left side - Form */}
@@ -50,34 +78,16 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {/* Header */}
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-              Sign in
-            </h2>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Access your sentiment analytics dashboard
-            </p>
-          </div>
-
-          {/* Error message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
-            >
-              <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-            </motion.div>
-          )}
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800">
+                <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>
+              </div>
+            )}
+
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Email address
               </label>
               <input
@@ -87,15 +97,12 @@ const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
-                placeholder="you@example.com"
+                placeholder="ahmad@example.com"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Password
               </label>
               <input
@@ -150,60 +157,89 @@ const LoginPage = () => {
         </motion.div>
       </div>
 
-      {/* Right side - Visual */}
-      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-zinc-900 dark:to-zinc-800 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(20,184,166,0.1),transparent_50%)]" />
+      {/* Right side - Dashboard Preview */}
+      <div className="hidden lg:flex lg:w-[55%] bg-zinc-50 dark:bg-zinc-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
         
-        <div className="relative z-10 flex flex-col justify-center px-16 py-20">
+        <div className="relative z-10 flex flex-col justify-center px-16 py-20 w-full">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-8"
           >
-            <h3 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-6">
-              Real-time sentiment analysis
-            </h3>
-            <p className="text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed max-w-md">
-              Track and analyze sentiment trends across Malaysian news sources with AI-powered insights
-            </p>
-            
-            <div className="mt-12 space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-medium text-zinc-900 dark:text-zinc-50">Live sentiment tracking</h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">Monitor real-time sentiment shifts across news articles</p>
-                </div>
-              </div>
+            {/* Dashboard Preview Header */}
+            <div>
+              <h3 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-3">
+                Real-time sentiment insights
+              </h3>
+              <p className="text-zinc-600 dark:text-zinc-400 max-w-md">
+                Track sentiment trends across Malaysian news sources with AI-powered analysis
+              </p>
+            </div>
 
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-medium text-zinc-900 dark:text-zinc-50">Malaya NLP powered</h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">Malaysian language processing optimized for local context</p>
-                </div>
+            {/* Sentiment Distribution Mini Chart */}
+            <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 border border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-medium text-zinc-900 dark:text-zinc-50">Today's Sentiment</h4>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">Live</span>
               </div>
+              <div className="space-y-3">
+                {sentimentStats.map((stat) => (
+                  <div key={stat.label}>
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-zinc-600 dark:text-zinc-400">{stat.label}</span>
+                      <span className="font-medium text-zinc-900 dark:text-zinc-50">{stat.value}%</span>
+                    </div>
+                    <div className="h-2 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${stat.color} transition-all`}
+                        style={{ width: `${stat.value}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-medium text-zinc-900 dark:text-zinc-50">Comprehensive analytics</h4>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">Compare trends, track entities, and export detailed reports</p>
-                </div>
-              </div>
+            {/* Sample Article Cards */}
+            <div className="space-y-3">
+              {sampleArticles.map((article, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+                  className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h5 className="text-sm font-medium text-zinc-900 dark:text-zinc-50 mb-1 truncate">
+                        {article.title}
+                      </h5>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{article.source}</p>
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
+                        article.sentiment === 'positive'
+                          ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                          : article.sentiment === 'negative'
+                          ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
+                          : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-400'
+                      }`}
+                    >
+                      {article.sentiment === 'positive' ? '↗' : article.sentiment === 'negative' ? '↘' : '→'} {Math.abs(article.score).toFixed(2)}
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Dashboard CTA */}
+            <div className="pt-4">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Sign in to access your full analytics dashboard
+              </p>
             </div>
           </motion.div>
         </div>
