@@ -30,38 +30,10 @@ const LoginPage = () => {
     }
   };
 
-  // Sample dashboard preview data
-  const sampleArticles = [
-    {
-      title: "Economic Growth Reaches 5.2% in Q2",
-      source: "The Star",
-      sentiment: "positive",
-      score: 0.78
-    },
-    {
-      title: "Traffic Congestion Worsens in KL",
-      source: "Malaysiakini",
-      sentiment: "negative",
-      score: -0.62
-    },
-    {
-      title: "New Tech Hub Opens in Cyberjaya",
-      source: "The Edge",
-      sentiment: "positive",
-      score: 0.85
-    }
-  ];
-
-  const sentimentStats = [
-    { label: "Positive", value: 42, color: "bg-emerald-500" },
-    { label: "Neutral", value: 38, color: "bg-zinc-400" },
-    { label: "Negative", value: 20, color: "bg-rose-500" }
-  ];
-
   return (
     <div className="min-h-screen flex">
       {/* Left side - Form */}
-      <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20">
+      <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20 bg-white dark:bg-zinc-950">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -71,24 +43,25 @@ const LoginPage = () => {
           {/* Logo/Brand */}
           <div className="mb-12">
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-              MYNewsSentiment
+              <span className="font-serif">MY News</span>{' '}
+              <span className="font-serif italic text-red-700 dark:text-red-500">Sentiment</span>
             </h1>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Malaysia News Sentiment Analysis
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
+              Est. 2026 · Kuala Lumpur
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800">
-                <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>
+              <div className="p-4 border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                Email address
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2 uppercase tracking-wide">
+                Email Address
               </label>
               <input
                 id="email"
@@ -96,13 +69,13 @@ const LoginPage = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-red-700 dark:focus:border-red-500 transition-colors"
                 placeholder="ahmad@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2 uppercase tracking-wide">
                 Password
               </label>
               <input
@@ -111,24 +84,24 @@ const LoginPage = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-red-700 dark:focus:border-red-500 transition-colors"
                 placeholder="Enter your password"
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 text-emerald-600 focus:ring-emerald-500 dark:focus:ring-emerald-400"
+                  className="w-4 h-4 border-2 border-zinc-900 dark:border-zinc-700 text-red-700 focus:ring-red-700 dark:focus:ring-red-500"
                 />
-                <span className="ml-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <span className="ml-2 text-zinc-600 dark:text-zinc-400">
                   Remember me
                 </span>
               </label>
               <Link
                 to="/reset-password"
-                className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                className="text-red-700 dark:text-red-500 hover:text-red-800 dark:hover:text-red-400 transition-colors"
               >
                 Forgot password?
               </Link>
@@ -138,9 +111,9 @@ const LoginPage = () => {
               type="submit"
               disabled={loading}
               whileTap={{ scale: 0.98 }}
-              className="w-full px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-medium uppercase tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Signing in...' : 'Sign in →'}
             </motion.button>
           </form>
 
@@ -149,7 +122,7 @@ const LoginPage = () => {
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+              className="font-medium text-red-700 dark:text-red-500 hover:text-red-800 dark:hover:text-red-400 transition-colors"
             >
               Create account
             </Link>
@@ -157,90 +130,78 @@ const LoginPage = () => {
         </motion.div>
       </div>
 
-      {/* Right side - Dashboard Preview */}
+      {/* Right side - Editorial Visual */}
       <div className="hidden lg:flex lg:w-[55%] bg-zinc-50 dark:bg-zinc-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-zinc-500/5 dark:from-red-500/10 dark:to-zinc-500/10" />
+        
+        {/* Decorative lines */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-zinc-200 dark:bg-zinc-800" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-zinc-200 dark:bg-zinc-800" />
         
         <div className="relative z-10 flex flex-col justify-center px-16 py-20 w-full">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-8"
+            className="space-y-12"
           >
-            {/* Dashboard Preview Header */}
-            <div>
-              <h3 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-3">
-                Real-time sentiment insights
+            {/* Masthead style header */}
+            <div className="border-b-2 border-zinc-900 dark:border-zinc-700 pb-8">
+              <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-4">
+                <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
+                <span>Vol. 1 · No. 01</span>
+                <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
+              </div>
+              <h3 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-3">
+                Malaysia News
               </h3>
-              <p className="text-zinc-600 dark:text-zinc-400 max-w-md">
-                Track sentiment trends across Malaysian news sources with AI-powered analysis
+              <p className="text-3xl md:text-4xl font-serif italic text-red-700 dark:text-red-500">
+                Reported Plainly.
               </p>
             </div>
 
-            {/* Sentiment Distribution Mini Chart */}
-            <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 border border-zinc-200 dark:border-zinc-700">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium text-zinc-900 dark:text-zinc-50">Today's Sentiment</h4>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">Live</span>
+            {/* Featured article card */}
+            <div className="border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  Live Analysis
+                </span>
               </div>
-              <div className="space-y-3">
-                {sentimentStats.map((stat) => (
-                  <div key={stat.label}>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-zinc-600 dark:text-zinc-400">{stat.label}</span>
-                      <span className="font-medium text-zinc-900 dark:text-zinc-50">{stat.value}%</span>
-                    </div>
-                    <div className="h-2 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${stat.color} transition-all`}
-                        style={{ width: `${stat.value}%` }}
-                      />
-                    </div>
-                  </div>
+              <h4 className="text-xl font-serif font-bold text-zinc-900 dark:text-zinc-50 mb-4 leading-tight">
+                Malaysia's GDP grows 5.2% in Q1 2026
+              </h4>
+              <div className="flex items-center gap-4">
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium uppercase tracking-wide">
+                  Positive
+                </span>
+                <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Score: 0.87
+                </span>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8">
+              <p className="text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-4">
+                Powered By
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {['Malaysiakini', 'Astro Awani', 'FMT', 'Bernama', 'The Star'].map((source) => (
+                  <span
+                    key={source}
+                    className="px-3 py-1 border border-zinc-300 dark:border-zinc-700 text-xs text-zinc-600 dark:text-zinc-400"
+                  >
+                    {source}
+                  </span>
                 ))}
               </div>
             </div>
 
-            {/* Sample Article Cards */}
-            <div className="space-y-3">
-              {sampleArticles.map((article, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                  className="bg-white dark:bg-zinc-800 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h5 className="text-sm font-medium text-zinc-900 dark:text-zinc-50 mb-1 truncate">
-                        {article.title}
-                      </h5>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{article.source}</p>
-                    </div>
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
-                        article.sentiment === 'positive'
-                          ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                          : article.sentiment === 'negative'
-                          ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
-                          : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-400'
-                      }`}
-                    >
-                      {article.sentiment === 'positive' ? '↗' : article.sentiment === 'negative' ? '↘' : '→'} {Math.abs(article.score).toFixed(2)}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Dashboard CTA */}
-            <div className="pt-4">
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Sign in to access your full analytics dashboard
-              </p>
-            </div>
+            {/* Tagline */}
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 font-serif italic">
+              Real-time AI that monitors, classifies, and visualises sentiment across Malaysia's top news sources.
+            </p>
           </motion.div>
         </div>
       </div>
