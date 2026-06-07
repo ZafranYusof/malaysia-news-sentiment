@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { Analytics } from '@vercel/analytics/react';
 
 // Lazy-loaded heavy pages (code splitting)
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -548,6 +549,7 @@ const App = () => (
                       },
                     }}
                   />
+                  <Analytics />
                 </Router>
               </ArticleAnalysisProvider>
             </SocketProvider>
@@ -560,4 +562,3 @@ const App = () => (
 );
 
 export default App;
-
