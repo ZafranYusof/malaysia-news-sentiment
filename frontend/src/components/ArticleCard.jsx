@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import SentimentBadge from './SentimentBadge';
 import AlertBadge from './AlertBadge';
 import ShareButton from './ShareButton';
@@ -13,7 +13,7 @@ const formatDate = (dateStr) => {
     day: 'numeric', month: 'short', year: 'numeric',
   });
 };
-
+// Activity 1.3: Helper functions optimized with useMemo at call site
 const formatRelativeTime = (dateStr) => {
   if (!dateStr) return '';
   const now = new Date();
@@ -32,14 +32,8 @@ const formatRelativeTime = (dateStr) => {
   return formatDate(dateStr);
 };
 
-const getSentimentBorderColor = (sentiment) => {
-  switch (sentiment) {
-    case 'Positive': return '#30CF79';
-    case 'Negative': return '#F54E4E';
-    case 'Neutral': return '#F7A501';
-    default: return 'transparent';
-  }
-};
+// Activity 1.2: Sentiment border now uses CSS classes instead of inline styles
+// This improves maintainability and allows theming via CSS variables
 
 const getFaviconUrl = (url) => {
   if (!url) return null;
@@ -149,8 +143,9 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
     }
   };
 
-  const faviconUrl = getFaviconUrl(url);
-  const borderColor = getSentimentBorderColor(sentiment);
+  // Activity 1.3: Memoize favicon and relative time to prevent unnecessary recalculations
+  const faviconUrl = useMemo(() => getFaviconUrl(url), [url]);
+  const relativeTime = useMemo(() => formatRelativeTime(publishedAt), [publishedAt]);
 
   return (
     <div
@@ -158,7 +153,8 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
       className={`article-card ${isAlert ? 'article-card--alert' : 'article-card--interactive'}`}
       data-sentiment={sentiment}
       aria-label={`${title} — ${sentiment} sentiment${isAlert ? ' — Alert' : ''}`}
-      style={{ cursor: 'pointer', borderLeft: `3px solid ${borderColor}` }}
+      style={{ cursor: 'pointer' }}
+      data-sentiment-border={sentiment}
     >
       {/* Thumbnail - #6 lazy loading with blur placeholder */}
       <div className="art-thumb-container">
@@ -197,7 +193,7 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
           )}
           <span className="art-source">{sourceLabel}</span>
           <span className="art-sep">·</span>
-          <span className="art-date" title={formatDate(publishedAt)}>{formatRelativeTime(publishedAt)}</span>
+          <span className="art-date" title={formatDate(publishedAt)}>{relativeTime}</span>
           {topic && <span className="art-topic">#{topic}</span>}
           {isAlert && <AlertBadge />}
         </div>

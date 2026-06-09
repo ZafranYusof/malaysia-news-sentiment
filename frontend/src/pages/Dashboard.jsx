@@ -379,8 +379,11 @@ const Dashboard = () => {
     }
   };
 
-  const filteredArticles = (() => {
-    if (filter === 'All')    return articles;
+  // Activity 2.3: Memoize filtering logic to prevent unnecessary recalculations
+  const filteredArticles = useMemo(() => {
+    if (filter === 'all') return articles;
+    return articles.filter(a => a.sentiment === filter);
+  }, [articles, filter]);
     if (filter === 'Alerts') return articles.filter(a => a.isAlert);
     return articles.filter(a => a.sentiment === filter);
   })();
@@ -410,15 +413,39 @@ const Dashboard = () => {
     prevTabIndex.current = currentTabIndex;
   }, [currentTabIndex]);
 
+  // Activity 2.4: Responsive slide offset based on screen width
   const slideVariants = {
-    enter: (direction) => ({ x: direction > 0 ? 80 : -80, opacity: 0 }),
+    enter: (direction) => ({ 
+      x: direction > 0 ? (window.innerWidth < 375 ? 60 : 80) : (window.innerWidth < 375 ? -60 : -80), 
+      opacity: 0 
+    }),
     center: { x: 0, opacity: 1 },
-    exit: (direction) => ({ x: direction > 0 ? -80 : 80, opacity: 0 }),
+    exit: (direction) => ({ 
+      x: direction > 0 ? (window.innerWidth < 375 ? -60 : -80) : (window.innerWidth < 375 ? 60 : 80), 
+      opacity: 0 
+    }),
   };
 
-  // Click-to-filter on pie chart
+  // Click-to-filter on pie chart (Activity 2.2 - Toggle behaviour)
   const handlePieSegmentClick = (sentimentName) => {
-    setFilter(sentimentName);
+    // Toggle: if already filtered by this sentiment, reset to 'all'
+    setFilter(filter === sentimentName ? 'all' : sentimentName);
+  };
+
+  // Click-to-filter on KPI cards (Activity 1.1 - Perfective Maintenance)
+  const handleKpiClick = (sentimentLabel) => {
+    // Map KPI label to sentiment filter value
+    const labelToSentiment = {
+      'positive': 'Positive',
+      'negative': 'Negative', 
+      'neutral': 'Neutral'
+    };
+    
+    const sentimentValue = labelToSentiment[sentimentLabel.toLowerCase()];
+    if (sentimentValue) {
+      // Toggle: if already filtered by this sentiment, reset to 'all'
+      setFilter(filter === sentimentValue ? 'all' : sentimentValue);
+    }
   };
 
   const isLoading = initLoading || searchLoading;
@@ -655,10 +682,11 @@ const Dashboard = () => {
                               key={c.label} 
                               className={`${CARD} ${
                                 c.hero ? 'col-span-2 p-5 bg-gradient-to-br from-blue-50 to-white dark:from-blue-500/5 dark:to-[#1a1a1a]' : 'p-4'
-                              }`}
+                              } ${!c.hero ? 'cursor-pointer' : ''}`}
                               variants={kpiItemVariants}
-                              whileHover={{ y: -2 }}
+                              whileHover={{ y: -2, scale: !c.hero ? 1.02 : 1 }}
                               transition={{ duration: 0.15, ease: 'easeOut' }}
+                              onClick={() => !c.hero && handleKpiClick(c.label)}
                             >
                               <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
                               <div className={`${c.hero ? 'text-4xl' : 'text-2xl'} font-bold mt-1 ${c.color}`}>{c.value}</div>
@@ -678,7 +706,7 @@ const Dashboard = () => {
                         animate="visible"
                       >
                         <InlineErrorBoundary name="Pie Chart">
-                          <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} />
+                          <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
                         </InlineErrorBoundary>
                       </motion.div>
                     </Skeleton>
@@ -896,7 +924,7 @@ const Dashboard = () => {
                         >
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <InlineErrorBoundary name="Pie Chart">
-                              <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} />
+                              <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
                             </InlineErrorBoundary>
                           </div>
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
