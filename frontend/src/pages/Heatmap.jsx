@@ -117,7 +117,7 @@ const Heatmap = () => {
 
   const getStateData = (stateName) => data.find(d => d.state === stateName) || { avgSentiment: 0, articleCount: 0, topTopic: 'N/A' };
 
-  const handleMouseMove = (e) => {
+  const handleTooltipMove = (e) => {
     setTooltip({ x: e.clientX, y: e.clientY });
   };
 
