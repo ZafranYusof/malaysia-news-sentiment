@@ -107,6 +107,9 @@ const SentimentHeatmap = ({ data = [], loading = false }) => {
               </div>
               
               {/* Tooltip on hover */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10 w-48">
+                <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl">
+                  <div className="font-bold mb-1">{item.state}</div>
                   <div className="space-y-1 text-[11px]">
                     <div>Sentiment: {color.label}</div>
                     <div>Articles: {item.total}</div>

@@ -3,11 +3,11 @@ import React from 'react';
 const TopSourcesHorizontal = ({ sourcesData = [] }) => {
   // Sort and take top 8 sources
   const topSources = sourcesData
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => b.total - a.total)
     .slice(0, 8);
 
-  const maxCount = topSources.length > 0 ? topSources[0].count : 1;
-  const totalArticles = topSources.reduce((sum, s) => sum + s.count, 0);
+  const maxCount = topSources.length > 0 ? topSources[0].total : 1;
+  const totalArticles = topSources.reduce((sum, s) => sum + s.total, 0);
 
   // Color palette for sources
   const colors = [
@@ -36,8 +36,8 @@ const TopSourcesHorizontal = ({ sourcesData = [] }) => {
 
       <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
         {topSources.map((source, index) => {
-          const percentage = ((source.count / totalArticles) * 100).toFixed(1);
-          const barWidth = (source.count / maxCount) * 100;
+          const percentage = ((source.total / totalArticles) * 100).toFixed(1);
+          const barWidth = (source.total / maxCount) * 100;
           const color = colors[index % colors.length];
 
           return (
@@ -58,7 +58,7 @@ const TopSourcesHorizontal = ({ sourcesData = [] }) => {
                 </div>
                 <div className="flex items-baseline gap-2 flex-shrink-0 ml-3">
                   <span className="text-lg font-black text-gray-900 dark:text-white">
-                    {source.count}
+                    {source.total}
                   </span>
                   <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                     ({percentage}%)
