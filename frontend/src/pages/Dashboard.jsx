@@ -557,7 +557,6 @@ const Dashboard = () => {
           </button>
         </motion.div>
       )}
-      )}
 
       {/* Content */}
       <div className="mt-8 transition-opacity">
