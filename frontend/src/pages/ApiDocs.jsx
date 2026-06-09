@@ -1289,7 +1289,7 @@ const OverviewPage = () => {
 
 // ─── Authentication Page ─────────────────────────────────────────────────────
 const AuthenticationPage = () => (
-  <div className="space-y-6">
+  <div id="authentication" className="space-y-6">
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
         Authentication
@@ -1328,7 +1328,7 @@ const AuthenticationPage = () => (
 
 // ─── Errors Page ─────────────────────────────────────────────────────────────
 const ErrorsPage = () => (
-  <div className="space-y-6">
+  <div id="errors" className="space-y-6">
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
         Error Codes
@@ -1372,7 +1372,7 @@ const ErrorsPage = () => (
 
 // ─── Real-time Page ──────────────────────────────────────────────────────────
 const RealtimePage = () => (
-  <div className="space-y-6">
+  <div id="realtime" className="space-y-6">
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
         Real-time Updates (SSE)
