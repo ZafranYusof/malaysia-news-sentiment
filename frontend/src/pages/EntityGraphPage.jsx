@@ -523,6 +523,3 @@ export default function EntityGraphPage() {
     </motion.div>
   );
 }
-
-
-export default EntityGraphPage;
