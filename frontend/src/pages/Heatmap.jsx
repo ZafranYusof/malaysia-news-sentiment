@@ -38,11 +38,6 @@ const Heatmap = () => {
   const [hoveredState, setHoveredState] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
   const [tooltip, setTooltip] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [dataLoading, setDataLoading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [touchStart, setTouchStart] = useState(null);
   const { theme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -50,61 +45,8 @@ const Heatmap = () => {
     fetchData();
   }, [days]);
 
-
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.3, 3));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.3, 0.5));
-  const handleResetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
-
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
-  };
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setTouchStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-  };
-
-  const handleMouseMove = (e) => {
-    if (isDragging && touchStart) {
-      setPan({ x: e.clientX - touchStart.x, y: e.clientY - touchStart.y });
-    }
-  };
-
-  const handleMouseUp = () => setIsDragging(false);
-
-  const handleTouchStart = (e) => {
-    if (e.touches.length === 1) {
-      setTouchStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
-    } else if (e.touches.length === 2) {
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      setTouchStart({ ...touchStart, pinchDist: dist });
-    }
-  };
-
-  const handleTouchMove = (e) => {
-    if (e.touches.length === 1 && touchStart && !touchStart.pinchDist) {
-      setPan({ x: e.touches[0].clientX - touchStart.x, y: e.touches[0].clientY - touchStart.y });
-    } else if (e.touches.length === 2 && touchStart?.pinchDist) {
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      const delta = (dist - touchStart.pinchDist) * 0.01;
-      setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
-      setTouchStart({ ...touchStart, pinchDist: dist });
-    }
-  };
-
-  const handleTouchEnd = () => setTouchStart(null);
-
-
   const fetchData = async () => {
-    setDataLoading(true);
+    setLoading(true);
     try {
       const res = await api.get(`/news/heatmap?days=${days}`);
       setData(res.data);
