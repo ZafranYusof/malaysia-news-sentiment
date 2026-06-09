@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import api from '../services/api';
 
 const SENTIMENTS = ['Positive', 'Negative', 'Neutral'];
@@ -90,6 +91,22 @@ const AdvancedSearch = () => {
     localStorage.setItem('savedSearches', JSON.stringify(updated));
   };
 
+
+  const clearAllFilters = () => {
+    setFilters({
+      sentiment: [],
+      source: [],
+      dateFrom: '',
+      dateTo: '',
+      language: '',
+      minConfidence: 0,
+      sortBy: 'date',
+    });
+  };
+
+  const hasActiveFilters = filters.sentiment.length > 0 || filters.source.length > 0 || 
+    filters.dateFrom || filters.dateTo || filters.language || filters.minConfidence > 0;
+
   const loadSearch = (search) => {
     setQuery(search.query);
     setFilters(search.filters);
@@ -159,6 +176,52 @@ const AdvancedSearch = () => {
           </svg>
         </button>
       </div>
+
+
+      {/* Active Filters Display */}
+      {hasActiveFilters && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap items-center gap-2 bg-gray-50 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-[#2a2a2a] p-3"
+        >
+          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active Filters:</span>
+          {filters.sentiment.map(s => (
+            <button
+              key={s}
+              onClick={() => toggleSentiment(s)}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium bg-white dark:bg-[#0a0a0a] border-2 border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:border-red-500 transition-colors"
+            >
+              {s}
+              <X size={12} />
+            </button>
+          ))}
+          {filters.dateFrom && (
+            <button
+              onClick={() => setFilters(prev => ({ ...prev, dateFrom: '' }))}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium bg-white dark:bg-[#0a0a0a] border-2 border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:border-red-500 transition-colors"
+            >
+              From: {filters.dateFrom}
+              <X size={12} />
+            </button>
+          )}
+          {filters.dateTo && (
+            <button
+              onClick={() => setFilters(prev => ({ ...prev, dateTo: '' }))}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium bg-white dark:bg-[#0a0a0a] border-2 border-gray-300 dark:border-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:border-red-500 transition-colors"
+            >
+              To: {filters.dateTo}
+              <X size={12} />
+            </button>
+          )}
+          <button
+            onClick={clearAllFilters}
+            className="ml-auto px-3 py-1 text-xs font-bold bg-red-600 text-white border-2 border-red-700 hover:bg-red-700 transition-colors uppercase tracking-wide"
+          >
+            Clear All
+          </button>
+        </motion.div>
+      )}
 
       <div className="flex gap-6">
         {/* Filters Panel */}
