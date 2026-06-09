@@ -5,7 +5,7 @@ import { useArticleAnalysis } from '../context/ArticleAnalysisContext';
 
 const ArticleCardCompact = ({ article, onClick }) => {
   const [imageError, setImageError] = useState(false);
-  const { bookmarkedArticles, toggleBookmark } = useArticleAnalysis();
+  const { bookmarkedArticles, toggleBookmark, openArticlePanel } = useArticleAnalysis();
   const isBookmarked = bookmarkedArticles?.some(a => a._id === article._id);
 
   const handleBookmark = (e) => {
@@ -19,7 +19,7 @@ const ArticleCardCompact = ({ article, onClick }) => {
   };
 
   const handleCardClick = () => {
-    if (onClick) onClick(article);
+    if (onClick) onClick(article); else openArticlePanel(article);
   };
 
   // Format time ago
