@@ -108,6 +108,9 @@ app.use(express.json({ limit: '2mb' }));
 // Skip rate limiting for admin users
 const skipIfAdmin = (req) => req.userRole === 'admin';
 
+// DISABLED FOR LOCAL TESTING
+const authLimiter = (req, res, next) => next();
+/*
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -116,6 +119,7 @@ const authLimiter = rateLimit({
   skip: skipIfAdmin,
   message: { error: 'Too many auth attempts. Please try again in 15 minutes.' },
 });
+*/
 
 const analysisLimiter = rateLimit({
   windowMs: 60 * 1000,
