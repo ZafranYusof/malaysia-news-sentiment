@@ -1049,9 +1049,13 @@ const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = ()
           {categoryItems.map(item => {
             const cat = apiCategories.find(c => c.id === item.id);
             return (
-              <Link
+              <a
                 key={item.id}
-                to={`/api/${item.path}`}
+                href={`#${item.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                }}
                 className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-2.5 ${
                   activeSection === item.id
                     ? 'bg-accent/10 text-accent border-l-2 border-accent pl-2.5'
@@ -1061,7 +1065,7 @@ const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = ()
                 <span className="text-sm w-5 text-center">{item.icon}</span>
                 <span className="flex-1">{item.label}</span>
                 {cat && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-white/5 text-gray-400">{cat.endpoints.length}</span>}
-              </Link>
+              </a>
             );
           })}
         </div>
