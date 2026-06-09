@@ -710,7 +710,7 @@ const Dashboard = () => {
                       <SectionHeader title="Key Metrics" />
                       <Skeleton name="kpi-row" loading={isLoading}>
                         <motion.div 
-                          className="grid grid-cols-2 gap-3"
+                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                           variants={containerVariants}
                           initial="hidden"
                           animate="visible"
@@ -938,7 +938,7 @@ const Dashboard = () => {
                       <SectionHeader title="Key Metrics" />
                       <Skeleton name="kpi-row" loading={isLoading}>
                         <motion.div 
-                          className="grid grid-cols-4 gap-4"
+                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                           variants={containerVariants}
                           initial="hidden"
                           animate="visible"
@@ -971,6 +971,7 @@ const Dashboard = () => {
                               </div>
                             </motion.div>
                           ))}
+                        </motion.div>
                       </Skeleton>
                     </div>
 
@@ -986,7 +987,7 @@ const Dashboard = () => {
                         >
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <InlineErrorBoundary name="Pie Chart">
-                              <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
+                              <SentimentDonutChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
                             </InlineErrorBoundary>
                           </div>
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
