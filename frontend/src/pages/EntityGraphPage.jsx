@@ -7,6 +7,7 @@ import { Search, List, Network, X } from 'lucide-react';
 const SENTIMENT_COLORS = { Positive: '#10B981', Negative: '#EF4444', Neutral: '#F59E0B' };
 const SENTIMENT_GLOW = { Positive: 'rgba(16,185,129,0.4)', Negative: 'rgba(239,68,68,0.4)', Neutral: 'rgba(245,158,11,0.4)' };
 const TYPE_LABELS = { politicians: 'Politicians', parties: 'Parties', organizations: 'Organizations', locations: 'Locations' };
+const TYPE_ICONS = { politicians: '👤', parties: '🏛️', organizations: '🏢', locations: '📍' };
 const TYPE_COLORS = { politicians: '#6366f1', parties: '#8b5cf6', organizations: '#06b6d4', locations: '#f59e0b' };
 
 export default function EntityGraphPage() {
@@ -16,7 +17,6 @@ export default function EntityGraphPage() {
   const [data, setData] = useState({ nodes: [], edges: [] });
   const [loading, setLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState(null);
-  const [graphRendering, setGraphRendering] = useState(false);
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [search, setSearch] = useState('');
@@ -152,9 +152,6 @@ export default function EntityGraphPage() {
       container,
       width,
       height,
-      renderer: 'canvas',
-      enableOptimize: true,
-      optimizeZoom: 0.7,
       data: g6Data,
       layout: {
         type: 'force',
@@ -167,12 +164,7 @@ export default function EntityGraphPage() {
         alphaDecay: 0.015,
         alphaMin: 0.001,
       },
-      behaviors: [
-        { type: 'drag-canvas', enableOptimize: true, sensitivity: isMobile ? 1.2 : 1 },
-        { type: 'zoom-canvas', enableOptimize: true, minZoom: 0.3, maxZoom: 3, sensitivity: isMobile ? 1.5 : 1 },
-        'drag-element',
-        'hover-activate'
-      ],
+      behaviors: ['drag-canvas', 'zoom-canvas', 'drag-element', 'hover-activate'],
       node: {
         style: { cursor: 'pointer' },
         state: {
@@ -196,24 +188,8 @@ export default function EntityGraphPage() {
       if (nodeId) handleNodeClick(nodeId);
     });
 
-    setGraphRendering(true);
     graph.render();
-    graph.on('afterlayout', () => setGraphRendering(false));
-    setTimeout(() => setGraphRendering(false), 3000); // Fallback
     graphInstance.current = graph;
-
-    // Mobile double-tap to reset zoom
-    if (isMobile) {
-      let lastTap = 0;
-      container.addEventListener('touchend', (e) => {
-        const now = Date.now();
-        if (now - lastTap < 300) {
-          e.preventDefault();
-          graph.fitView();
-        }
-        lastTap = now;
-      });
-    }
 
     return () => {
       if (graphInstance.current) {
@@ -381,10 +357,10 @@ export default function EntityGraphPage() {
         {/* Graph View */}
         {(!isMobile || viewMode === 'graph') && (
           <div ref={graphRef} className="flex-1 relative z-[1]" style={{ minHeight: isMobile ? 350 : 550 }}>
-            {(loading || graphRendering) && (
+            {loading && (
               <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 gap-3">
                 <div className="w-10 h-10 border-3 border-blue-100 dark:border-blue-500/20 border-t-blue-600 rounded-full animate-spin" />
-                <span className="text-sm">{loading ? "Loading entity data..." : "Rendering graph layout..."}</span>
+                <span className="text-sm">Mapping entity connections...</span>
               </div>
             )}
             {!loading && !data.nodes.length && (
