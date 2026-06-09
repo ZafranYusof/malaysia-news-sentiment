@@ -1262,7 +1262,7 @@ const OverviewPage = () => {
           {apiCategories.map(cat => (
             <Link
               key={cat.id}
-              to={`/api/${cat.id}`}
+              to={`/api-docs/${cat.id}`}
               className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-4 hover:shadow-md hover:border-accent/30 transition-all group"
             >
               <div className="flex items-center gap-3">
@@ -1478,7 +1478,7 @@ const ApiDocs = () => {
 
   // Determine active section from URL path
   const activeSection = useMemo(() => {
-    const path = location.pathname.replace(/^\/api\/?/, '').replace(/\/$/, '');
+    const path = location.pathname.replace(/^\/api-docs\/?/, '').replace(/\/$/, '');
     if (!path) return 'overview';
     return path;
   }, [location.pathname]);
