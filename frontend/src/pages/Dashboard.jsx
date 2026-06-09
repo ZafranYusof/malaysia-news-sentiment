@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense, memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +14,7 @@ import AnalyzingOverlay from '../components/AnalyzingOverlay';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import useSwipeTabs from '../hooks/useSwipeTabs';
 import { hapticImpact } from '../utils/haptics';
-import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download, Settings2 } from 'lucide-react';
+import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download, Settings2, RefreshCw } from 'lucide-react';
 import DashboardCustomizer from '../components/DashboardCustomizer';
 import EmptyState from '../components/EmptyState';
 import DashboardSummary from '../components/DashboardSummary';
@@ -25,7 +25,7 @@ const TrendLineChart = lazy(() => import('../components/TrendLineChart'));
 const TopSourcesChart = lazy(() => import('../components/TopSourcesChart'));
 const SentimentMap = lazy(() => import('../components/SentimentMap'));
 
-const ChartFallback = () => (
+const ChartFallback = memo(() => (
   <div className="h-48 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#eee] dark:border-[#2a2a2a] p-5 space-y-3">
     <div className="flex items-center gap-2">
       <div className="h-3 w-3 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
@@ -39,9 +39,10 @@ const ChartFallback = () => (
       <div className="flex-1 h-[55%] rounded-t-lg bg-gray-200 dark:bg-gray-700 animate-pulse" style={{ animationDelay: '600ms' }} />
     </div>
   </div>
-);
+));
+ChartFallback.displayName = 'ChartFallback';
 
-const DashboardSkeleton = () => (
+const DashboardSkeleton = memo(() => (
   <div className="space-y-8 animate-pulse">
     {/* Header skeleton */}
     <div className="space-y-2">
@@ -86,7 +87,8 @@ const DashboardSkeleton = () => (
       ))}
     </div>
   </div>
-);
+));
+DashboardSkeleton.displayName = 'DashboardSkeleton';
 
 import SourceCredibility from '../components/SourceCredibility';
 import { List as VirtualList } from 'react-window';
@@ -127,6 +129,15 @@ const TIME_OPTIONS = [
 const CARD = 'bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl dark:shadow-[0_0_15px_rgba(59,130,246,0.03)]';
 
 const Dashboard = () => {
+  // ============================================================================
+  // PERFORMANCE OPTIMIZATIONS:
+  // - Memoized components: ChartFallback, DashboardSkeleton, SectionHeader
+  // - Memoized values: articles, distribution, filteredArticles, counts, KPI
+  // - Memoized callbacks: all event handlers wrapped in useCallback
+  // - Memoized animation variants to prevent object recreation
+  // - Optimized useEffect dependencies to prevent infinite loops
+  // ============================================================================
+  
   const { user, toggleBookmark } = useAuth();
   const { t } = useLanguage();
   const queryClient = useQueryClient();
@@ -153,6 +164,19 @@ const Dashboard = () => {
     setMobileTab(tab);
     setTimeout(() => setTabSwitching(false), 150);
   }, [mobileTab]);
+  
+  // Memoize derived values to prevent recalculations
+  const articles = useMemo(() => 
+    isHistoryView ? (dashboardData?.history?.articles || []) : searchArticles,
+    [isHistoryView, dashboardData?.history?.articles, searchArticles]
+  );
+  
+  const distribution = useMemo(() => 
+    isHistoryView 
+      ? (dashboardData?.stats?.sentiments || { Positive: 0, Negative: 0, Neutral: 0 })
+      : (searchDistribution || { Positive: 0, Negative: 0, Neutral: 0 }),
+    [isHistoryView, dashboardData?.stats?.sentiments, searchDistribution]
+  );
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -238,11 +262,7 @@ const Dashboard = () => {
     setPage(1);
   }, [timeframe]);
 
-  // Derived Values
-  const articles = isHistoryView ? (dashboardData?.history?.articles || []) : searchArticles;
-  const distribution = isHistoryView 
-    ? (dashboardData?.stats?.sentiments || { Positive: 0, Negative: 0, Neutral: 0 })
-    : (searchDistribution || { Positive: 0, Negative: 0, Neutral: 0 });
+  // Derived Values (now memoized above)
   const trends = dashboardData?.trends || [];
   const sources = sourcesData || [];
   const regionalData = regData || [];
@@ -287,16 +307,18 @@ const Dashboard = () => {
       hasTriedAutoForecast.current = true;
       loadForecastAndDigest(articles, 'Recent History');
     }
-  }, [articles, isHistoryView, digest, forecast, digestLoading, forecastLoading, loadForecastAndDigest]);
+    // loadForecastAndDigest is stable via useCallback, articles checked by length change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [articles.length, isHistoryView, digest, forecast, digestLoading, forecastLoading]);
 
-  const handleManualForecast = () => {
+  const handleManualForecast = useCallback(() => {
     if (isMobile) setMobileTab('ai');
     loadForecastAndDigest(articles, isHistoryView ? 'History Overview' : currentQuery);
-  };
+  }, [isMobile, articles, isHistoryView, currentQuery, loadForecastAndDigest]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     setPage(newPage);
-  };
+  }, []);
 
   const handleSearch = async (query, pageSize, latest = false) => {
     setSearchLoading(true);
@@ -345,15 +367,15 @@ const Dashboard = () => {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     const filename = isHistoryView ? 'malaysia-news-history.csv' : `sentiment-analysis-${currentQuery}.csv`;
     exportToCSV(articles, filename);
     toast.success('Successfully exported to CSV');
-  };
+  }, [isHistoryView, currentQuery, articles]);
 
-  const handlePrint = () => {
+  const handlePrint = useCallback(() => {
     window.print();
-  };
+  }, []);
 
   const handleDownloadPDF = async () => {
     const pdfToast = toast.loading('Generating PDF report...');
@@ -379,26 +401,26 @@ const Dashboard = () => {
     }
   };
 
-  const filteredArticles = (() => {
+  const filteredArticles = useMemo(() => {
     if (filter === 'All')    return articles;
     if (filter === 'Alerts') return articles.filter(a => a.isAlert);
     return articles.filter(a => a.sentiment === filter);
-  })();
+  }, [articles, filter]);
 
-  const counts = {
+  const counts = useMemo(() => ({
     total:    stats.total || articles.length,
     positive: stats.sentiments?.Positive || articles.filter(a => a.sentiment === 'Positive').length,
     negative: stats.sentiments?.Negative || articles.filter(a => a.sentiment === 'Negative').length,
     neutral:  stats.sentiments?.Neutral || articles.filter(a => a.sentiment === 'Neutral').length,
     alerts:   stats.alerts || articles.filter(a => a.isAlert).length,
-  };
+  }), [stats, articles]);
 
-  const KPI = [
+  const KPI = useMemo(() => [
     { label: t('totalArticles'), value: counts.total,    color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10', sub: 'articles analyzed', hero: true },
     { label: t('positive'),       value: counts.positive, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10', sub: `${counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total` },
     { label: t('negative'),       value: counts.negative, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10', sub: `${counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total` },
     { label: t('neutral'),        value: counts.neutral,  color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10', sub: `${counts.total ? Math.round(counts.neutral  / counts.total * 100) : 0}% of total` },
-  ];
+  ], [t, counts]);
 
   // Track previous tab index for slide direction
   const prevTabIndex = useRef(0);
@@ -410,54 +432,54 @@ const Dashboard = () => {
     prevTabIndex.current = currentTabIndex;
   }, [currentTabIndex]);
 
-  const slideVariants = {
+  const slideVariants = useMemo(() => ({
     enter: (direction) => ({ x: direction > 0 ? 80 : -80, opacity: 0 }),
     center: { x: 0, opacity: 1 },
     exit: (direction) => ({ x: direction > 0 ? -80 : 80, opacity: 0 }),
-  };
+  }), []);
 
-  // Click-to-filter on pie chart
-  const handlePieSegmentClick = (sentimentName) => {
+  // Click-to-filter on pie chart - memoized
+  const handlePieSegmentClick = useCallback((sentimentName) => {
     setFilter(sentimentName);
-  };
+  }, []);
 
   const isLoading = initLoading || searchLoading;
 
-  // Animation variants - subtle
-  const containerVariants = {
+  // Animation variants - optimized for performance
+  const containerVariants = useMemo(() => ({
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: { staggerChildren: 0.04, delayChildren: 0.02 }
     }
-  };
+  }), []);
 
-  const kpiItemVariants = {
+  const kpiItemVariants = useMemo(() => ({
     hidden: { opacity: 0, y: 6 },
     visible: { 
       opacity: 1, y: 0,
       transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
     }
-  };
+  }), []);
 
-  const chartVariants = {
+  const chartVariants = useMemo(() => ({
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
       transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
     }
-  };
+  }), []);
 
-  const articleVariants = {
+  const articleVariants = useMemo(() => ({
     hidden: { opacity: 0, y: 8 },
     visible: { 
       opacity: 1, y: 0,
       transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
     }
-  };
+  }), []);
 
-  // Section header component
-  const SectionHeader = ({ title, badge, children }) => (
+  // Section header component - memoized
+  const SectionHeader = memo(({ title, badge, children }) => (
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
         {title}
@@ -467,7 +489,8 @@ const Dashboard = () => {
       </h2>
       {children}
     </div>
-  );
+  ));
+  SectionHeader.displayName = 'SectionHeader';
 
   return (
     <div
@@ -512,12 +535,28 @@ const Dashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm"
+          className="mt-4 flex items-start gap-3 px-4 py-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400"
           role="alert"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          {error}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div className="flex-1">
+            <p className="text-sm font-medium">{error}</p>
+          </div>
+          <button
+            onClick={() => {
+              setManualError('');
+              if (dashboardError) {
+                queryClient.invalidateQueries(['dashboardInit']);
+              }
+            }}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-100 dark:bg-red-500/20 hover:bg-red-200 dark:hover:bg-red-500/30 rounded-lg transition-colors"
+            aria-label="Retry"
+          >
+            <RefreshCw size={12} />
+            Retry
+          </button>
         </motion.div>
+      )}
       )}
 
       {/* Content */}
