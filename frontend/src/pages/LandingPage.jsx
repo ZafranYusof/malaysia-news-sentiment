@@ -381,7 +381,7 @@ const Navbar = ({ isDark, toggleTheme, navigate }) => {
           </Link>
           <div className="hidden md:flex items-center gap-8 text-[13px] tracking-wider uppercase text-ink-muted dark:text-ink-faint">
             <a href="#features" className="hover:text-accent transition-colors">Features</a>
-            <Link to="/api" className="hover:text-accent transition-colors">Docs</Link>
+            <Link to="/api-docs" className="hover:text-accent transition-colors">Docs</Link>
             <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
             <Link to="/about" className="hover:text-accent transition-colors">About</Link>
             <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
@@ -453,7 +453,7 @@ const Navbar = ({ isDark, toggleTheme, navigate }) => {
               <div className="flex flex-col px-6 py-4 space-y-1">
                 {[
                   { label: 'Features', href: '#features', isAnchor: true },
-                  { label: 'Docs', to: '/api' },
+                  { label: 'Docs', to: '/api-docs' },
                   { label: 'Pricing', to: '/pricing' },
                   { label: 'About', to: '/about' },
                   { label: 'Contact', to: '/contact' },
@@ -529,7 +529,7 @@ const Footer = () => (
           <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
             <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
-            <Link to="/api" className="hover:text-accent transition-colors">API</Link>
+            <Link to="/api-docs" className="hover:text-accent transition-colors">API</Link>
           </div>
         </div>
         <div>
