@@ -42,7 +42,7 @@ const TopSourcesHorizontal = ({ sourcesData = [] }) => {
 
           return (
             <div 
-              key={source.name || index} 
+              key={source.source || index} 
               className="group cursor-pointer"
             >
               {/* Source name and count */}
@@ -53,7 +53,7 @@ const TopSourcesHorizontal = ({ sourcesData = [] }) => {
                     style={{ backgroundColor: color }}
                   />
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate">
-                    {source.name || 'Unknown Source'}
+                    {source.source || 'Unknown'}
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2 flex-shrink-0 ml-3">

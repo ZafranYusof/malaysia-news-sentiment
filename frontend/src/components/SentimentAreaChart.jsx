@@ -5,9 +5,9 @@ const SentimentAreaChart = ({ trendsData = [] }) => {
   // Transform data for area chart
   const chartData = trendsData.map(item => ({
     date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    Positive: item.positive || 0,
-    Negative: item.negative || 0,
-    Neutral: item.neutral || 0,
+    Positive: item.Positive || item.positive || 0,
+    Negative: item.Negative || item.negative || 0,
+    Neutral: item.Neutral || item.neutral || 0,
   }));
 
   const CustomTooltip = ({ active, payload, label }) => {

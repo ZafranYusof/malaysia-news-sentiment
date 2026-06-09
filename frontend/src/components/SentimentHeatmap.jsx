@@ -11,12 +11,10 @@ const SentimentHeatmap = ({ data = [], loading = false }) => {
   // Generate heatmap data
   const heatmapData = states.map(state => {
     const stateData = data.find(d => d.state === state) || {};
-    const total = (stateData.positive || 0) + (stateData.negative || 0) + (stateData.neutral || 0);
+    const total = stateData.count || 0;
     
     // Calculate sentiment score (-1 to 1)
-    const score = total > 0 
-      ? ((stateData.positive || 0) - (stateData.negative || 0)) / total 
-      : 0;
+    const score = stateData.avgScore !== undefined ? (stateData.avgScore * 2 - 1) : 0;
     
     return {
       state,
@@ -104,18 +102,14 @@ const SentimentHeatmap = ({ data = [], loading = false }) => {
                   {item.total}
                 </span>
                 <span className={`text-[10px] font-semibold ${color.text} opacity-80 mt-0.5`}>
-                  {item.total > 0 ? ((item.positive / item.total) * 100).toFixed(0) : 0}% pos
+                  {color.label}
                 </span>
               </div>
               
               {/* Tooltip on hover */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10 w-48">
-                <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl">
-                  <div className="font-bold mb-1">{item.state}</div>
                   <div className="space-y-1 text-[11px]">
-                    <div>✅ Positive: {item.positive} ({item.total > 0 ? ((item.positive/item.total)*100).toFixed(0) : 0}%)</div>
-                    <div>⚠️ Negative: {item.negative} ({item.total > 0 ? ((item.negative/item.total)*100).toFixed(0) : 0}%)</div>
-                    <div>➖ Neutral: {item.neutral} ({item.total > 0 ? ((item.neutral/item.total)*100).toFixed(0) : 0}%)</div>
+                    <div>Sentiment: {color.label}</div>
+                    <div>Articles: {item.total}</div>
                   </div>
                   <div className="border-t border-gray-700 mt-2 pt-1 font-semibold">
                     Total: {item.total} articles
