@@ -395,7 +395,7 @@ const Dashboard = () => {
 
   const filteredArticles = useMemo(() => {
     const data = articles.length === 0 ? mockArticles : articles;
-    if (filter === 'all') return data;
+    if (filter === 'All' || filter === 'all') return data;
     return data.filter(a => a.sentiment === filter);
   }, [articles, filter]);
 
@@ -471,7 +471,7 @@ const Dashboard = () => {
   // Click-to-filter on pie chart (Activity 2.2 - Toggle behaviour)
   const handlePieSegmentClick = (sentimentName) => {
     // Toggle: if already filtered by this sentiment, reset to 'all'
-    setFilter(filter === sentimentName ? 'all' : sentimentName);
+    setFilter(filter === sentimentName ? 'All' : sentimentName);
   };
 
   // Click-to-filter on KPI cards (Activity 1.1 - Perfective Maintenance)
@@ -486,7 +486,7 @@ const Dashboard = () => {
     const sentimentValue = labelToSentiment[sentimentLabel.toLowerCase()];
     if (sentimentValue) {
       // Toggle: if already filtered by this sentiment, reset to 'all'
-      setFilter(filter === sentimentValue ? 'all' : sentimentValue);
+      setFilter(filter === sentimentValue ? 'All' : sentimentValue);
     }
   };
 
