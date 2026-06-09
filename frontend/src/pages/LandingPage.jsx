@@ -1843,60 +1843,6 @@ const LandingPage = () => {
         </div>
       </AnimatedSection>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <AnimatedSection className="py-12 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-8">
-            <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Feedback</p>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">What users say</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: 'Dr. Ahmad', role: 'FYP Supervisor', text: 'The technical implementation demonstrates strong understanding of NLP pipelines and real-time data processing. Well-architected system.' },
-              { name: 'Peer Reviewer', role: 'Software Engineering', text: 'Clean UI/UX with intuitive navigation. The dashboard visualizations are professional-grade and responsive across devices.' },
-              { name: 'Beta Tester', role: 'UMPSA Student', text: 'Really useful for tracking Malaysian news sentiment. The entity graph helped me understand connections between political figures.' },
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                variants={staggerItem}
-                className="relative bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 group"
-                {...(!prefersReducedMotion && {
-                  animate: { y: [0, -5, 0] },
-                  transition: { duration: 4 + i * 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.5 },
-                })}
-              >
-                {/* Decorative quote */}
-                <motion.span
-                  className="absolute top-3 right-4 text-5xl text-accent/10 font-serif leading-none select-none"
-                  animate={{ opacity: [0.1, 0.2, 0.1] }}
-                  transition={{ duration: 3, repeat: Infinity, delay: i * 0.3 }}
-                >
-                  "
-                </motion.span>
-                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4 italic relative z-10">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    className="relative w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-sm"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    {t.name[0]}
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-accent/30 opacity-0 group-hover:opacity-100"
-                      animate={{ scale: [1, 1.3], opacity: [0.5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{t.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4 italic">Feedback from project evaluation</p>
-        </div>
-      </AnimatedSection>
 
       {/* ─── FAQ ─── */}
       <AnimatedSection className="py-12 px-6" variants={staggerContainer}>
