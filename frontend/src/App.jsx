@@ -498,7 +498,6 @@ const AppInner = () => (
     <Route path="/shared/:id" element={<SharedArticle />} />
     
     {/* Static Informational Pages */}
-    <Route path="/api/*" element={<ApiDocs />} />
     <Route path="/contact" element={<ContactPage />} />
     <Route path="/features" element={<FeaturesPage />} />
     <Route path="/pricing" element={<PricingPage />} />
