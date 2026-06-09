@@ -27,7 +27,8 @@ if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes('your_'))
 connectDB();
 
 const app = express();
-n// Trust proxy for Render deployment (X-Forwarded-For headers)
+
+// Trust proxy for Render deployment (X-Forwarded-For headers)
 app.set("trust proxy", 1);
 
 // ── API Metrics Tracking ──────────────────────────────────────
