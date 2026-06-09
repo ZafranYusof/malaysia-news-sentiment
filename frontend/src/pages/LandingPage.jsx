@@ -1219,9 +1219,9 @@ const LandingPage = () => {
 
           {/* Title */}
           <motion.h1 variants={staggerItem} className="font-display text-5xl sm:text-6xl md:text-7xl font-bold text-ink dark:text-paper leading-[1.05] mb-6 tracking-tight">
-            Malaysia News Sentiment,{' '}
+            Malaysia's News Sentiment,{' '}
             <span className="italic text-accent">
-              Reported Plainly.
+              Decoded in Real-Time.
             </span>
             <br />
             <span className="block mt-4 text-2xl sm:text-3xl md:text-4xl font-normal italic text-ink-muted dark:text-ink-faint">
@@ -1235,7 +1235,7 @@ const LandingPage = () => {
 
           {/* Subtitle */}
           <motion.p variants={staggerItem} className="text-lg text-ink-muted dark:text-ink-faint max-w-2xl mx-auto mb-10 font-serif italic">
-            Real-time AI that monitors, classifies, and visualises sentiment across Malaysia's top news sources. Never miss a narrative shift.
+            AI-powered sentiment analysis tracking Malaysia's media landscape. From breaking news to trending narratives—understand public sentiment as it unfolds, backed by 92% classification accuracy.
           </motion.p>
 
           {/* CTA */}
@@ -1284,8 +1284,8 @@ const LandingPage = () => {
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
           {[
             { target: realArticleCount || 1000, suffix: realArticleCount ? '+' : '+', label: 'Articles Analyzed', icon: Newspaper },
-            { target: 50, suffix: '+', label: 'News Sources', icon: Globe },
-            { target: 95, suffix: '%', label: 'AI Accuracy', icon: Star },
+            { target: 15, suffix: '', label: 'News Sources', icon: Globe },
+            { target: 92, suffix: '%', label: 'Classification Accuracy', icon: Star },
           ].map((s, i) => (
             <motion.div
               key={i}
