@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import SearchBarClean from '../components/SearchBarClean';
-import ArticleCard from '../components/ArticleCard';
+import ArticleCardCompact from '../components/ArticleCardCompact';
 import SentimentDonutChart from '../components/SentimentDonutChart';
 import SentimentHorizontalBar from '../components/SentimentHorizontalBar';
 import SentimentAreaChart from '../components/SentimentAreaChart';
@@ -913,7 +913,7 @@ const Dashboard = () => {
                               key={article._id || article.url}
                               variants={articleVariants}
                             >
-                              <ArticleCard 
+                              <ArticleCardCompact 
                                 article={article} 
                                 onBookmark={toggleBookmark}
                                 isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
@@ -1317,7 +1317,7 @@ const Dashboard = () => {
                             const article = filteredArticles[index];
                             return (
                               <div style={style} key={article._id || article.url}>
-                                <ArticleCard 
+                                <ArticleCardCompact 
                                   article={article} 
                                   onBookmark={toggleBookmark}
                                   isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
@@ -1332,7 +1332,7 @@ const Dashboard = () => {
                             key={article._id || article.url}
                             variants={articleVariants}
                           >
-                            <ArticleCard 
+                            <ArticleCardCompact 
                               article={article} 
                               onBookmark={toggleBookmark}
                               isBookmarked={user?.bookmarks?.includes(article._id || article.id)}
