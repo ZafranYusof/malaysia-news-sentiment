@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import SearchBar from '../components/SearchBar';
+import SearchBarClean from '../components/SearchBarClean';
 import ArticleCard from '../components/ArticleCard';
 import SentimentDonutChart from '../components/SentimentDonutChart';
 import SentimentHorizontalBar from '../components/SentimentHorizontalBar';
@@ -579,7 +579,7 @@ const Dashboard = () => {
         </p>
       </motion.div>
 
-      <SearchBar onSearch={handleSearch} loading={searchLoading} />
+      <SearchBarClean onSearch={handleSearch} loading={searchLoading} />
 
       {/* Dashboard Summary Banner */}
       <DashboardSummary distribution={distribution} keywords={keywords} articles={articles} />
