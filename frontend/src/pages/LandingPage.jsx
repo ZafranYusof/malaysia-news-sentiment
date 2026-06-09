@@ -1166,6 +1166,8 @@ const LandingPage = () => {
     { icon: FileDown, title: 'Export Reports', desc: 'Generate PowerPoint presentations and CSV exports with one click.', color: 'text-teal-500', glowColor: 'rgba(20,184,166,0.2)' },
   ];
 
+  if (user) return <Navigate to="/dashboard" replace />;
+
   return (
     <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors overflow-x-hidden relative">
       {/* #4 Scroll progress indicator */}

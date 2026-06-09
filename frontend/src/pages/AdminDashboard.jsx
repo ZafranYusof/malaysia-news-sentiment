@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAdminStats } from '../services/api';
 import toast from 'react-hot-toast';
 import ScrollToTop from '../components/ScrollToTop';
 import { useSocket } from '../context/SocketContext';
-import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap, Search, ArrowUpDown, ChevronUp, ChevronDown, MoreVertical, Trash2, UserX, Crown } from 'lucide-react';
+import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -15,10 +15,6 @@ const AdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [metricsLoading, setMetricsLoading] = useState(false);
   const socket = useSocket();
-  const [userSearch, setUserSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [sortField, setSortField] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState('desc');
 
   const loadData = useCallback(async () => {
     try {
@@ -57,50 +53,6 @@ const AdminDashboard = () => {
     finally { setInsightsLoading(false); }
   };
 
-
-  // Filter and sort users
-  const filteredUsers = useMemo(() => {
-    if (!stats?.recentUsers) return [];
-    
-    let filtered = stats.recentUsers.filter(u => {
-      const matchSearch = u.name.toLowerCase().includes(userSearch.toLowerCase()) || 
-                         u.email.toLowerCase().includes(userSearch.toLowerCase());
-      const matchRole = roleFilter === 'all' || u.role === roleFilter;
-      return matchSearch && matchRole;
-    });
-
-    filtered.sort((a, b) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
-      
-      if (sortField === 'createdAt') {
-        aVal = new Date(aVal).getTime();
-        bVal = new Date(bVal).getTime();
-      } else if (sortField === 'analysisCount') {
-        aVal = aVal || 0;
-        bVal = bVal || 0;
-      } else if (typeof aVal === 'string') {
-        aVal = aVal.toLowerCase();
-        bVal = bVal.toLowerCase();
-      }
-      
-      if (sortOrder === 'asc') return aVal > bVal ? 1 : -1;
-      return aVal < bVal ? 1 : -1;
-    });
-
-    return filtered;
-  }, [stats?.recentUsers, userSearch, roleFilter, sortField, sortOrder]);
-
-  const toggleSort = (field) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('desc');
-    }
-  };
-
-
   // Real-time updates
   useEffect(() => {
     if (!socket) return;
@@ -126,7 +78,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent border-2 animate-spin" />
+        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
         <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading Admin Dashboard...</p>
       </div>
     );
@@ -136,7 +88,7 @@ const AdminDashboard = () => {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Dashboard Unavailable</h2>
-        <button onClick={() => window.location.reload()} className="mt-4 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium border-2 hover:bg-blue-700 transition-colors">
+        <button onClick={() => window.location.reload()} className="mt-4 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
           Retry
         </button>
       </div>
@@ -165,8 +117,8 @@ const AdminDashboard = () => {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">System overview and analytics management</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 border-2">
-            <div className="w-1.5 h-1.5 border-2 bg-emerald-500 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-full">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">All Systems Online</span>
           </div>
           <button onClick={loadData} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors">
@@ -176,7 +128,7 @@ const AdminDashboard = () => {
       </motion.div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-1 w-fit mb-6">
+      <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl p-1 w-fit mb-6">
         {TABS.map(tab => (
           <button
             key={tab}
@@ -203,8 +155,8 @@ const AdminDashboard = () => {
                 { label: 'Registered Users', value: stats.overview.totalUsers, sub: 'Active accounts', icon: <Users size={18} />, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10' },
                 { label: 'Total Views', value: (stats.overview.totalViews || 0).toLocaleString(), sub: 'Article views', icon: <Eye size={18} />, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' },
               ].map(card => (
-                <div key={card.label} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5 hover:shadow-md transition-shadow">
-                  <div className={`w-9 h-9 border-2 ${card.bg} ${card.color} flex items-center justify-center mb-3`}>
+                <div key={card.label} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 hover:shadow-md transition-shadow">
+                  <div className={`w-9 h-9 rounded-xl ${card.bg} ${card.color} flex items-center justify-center mb-3`}>
                     {card.icon}
                   </div>
                   <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{card.label}</div>
@@ -216,7 +168,7 @@ const AdminDashboard = () => {
 
             {/* Sentiment + Sources */}
             <div className="grid md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
                   Sentiment Distribution
                   <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 uppercase">Live</span>
@@ -229,8 +181,8 @@ const AdminDashboard = () => {
                   ].map(s => (
                     <div key={s.label} className="flex items-center gap-3">
                       <span className="text-[11px] text-gray-500 dark:text-gray-400 w-16 font-medium">{s.label}</span>
-                      <div className="flex-1 h-2 border-2 bg-gray-100 dark:bg-white/5 overflow-hidden">
-                        <div className="h-full border-2 transition-all duration-700" style={{ width: `${(s.count / totalSentiment * 100)}%`, background: s.color }} />
+                      <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(s.count / totalSentiment * 100)}%`, background: s.color }} />
                       </div>
                       <span className="text-[11px] font-bold text-gray-900 dark:text-white w-8 text-right">{Math.round(s.count / totalSentiment * 100)}%</span>
                     </div>
@@ -242,7 +194,7 @@ const AdminDashboard = () => {
                     { label: 'Neutral', count: sentimentData.Neutral, color: '#f59e0b' },
                     { label: 'Negative', count: sentimentData.Negative, color: '#ef4444' },
                   ].map(s => (
-                    <div key={s.label} className="text-center p-2.5 border-2" style={{ background: `${s.color}08`, border: `1px solid ${s.color}20` }}>
+                    <div key={s.label} className="text-center p-2.5 rounded-xl" style={{ background: `${s.color}08`, border: `1px solid ${s.color}20` }}>
                       <div className="text-lg font-bold" style={{ color: s.color }}>{s.count}</div>
                       <div className="text-[9px] font-semibold text-gray-500 uppercase">{s.label}</div>
                     </div>
@@ -250,7 +202,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Top Sources</h3>
                 <div className="space-y-1">
                   {stats.topSources?.length > 0 ? stats.topSources.map((s, i) => (
@@ -259,7 +211,7 @@ const AdminDashboard = () => {
                         <span className="text-[11px] font-bold text-gray-400 w-5">#{i + 1}</span>
                         <span className="text-xs font-semibold text-gray-900 dark:text-white">{s.source || 'Unknown'}</span>
                       </div>
-                      <span className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 border-2">{s.count} articles</span>
+                      <span className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-0.5 rounded-full">{s.count} articles</span>
                     </div>
                   )) : <p className="text-xs text-gray-500">No source data available</p>}
                 </div>
@@ -268,7 +220,7 @@ const AdminDashboard = () => {
 
             {/* Topics + Recent Articles */}
             <div className="grid md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Popular Topics</h3>
                 <div className="flex flex-wrap gap-2">
                   {stats.popularTopics?.length > 0 ? stats.popularTopics.map((t, i) => (
@@ -280,7 +232,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Recent Articles</h3>
                 <div className="space-y-2">
                   {stats.recentArticles?.slice(0, 5).map((a, i) => (
@@ -300,7 +252,7 @@ const AdminDashboard = () => {
 
             {/* Activity Timeline */}
             {stats.activityTimeline?.length > 0 && (
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5 mb-6">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5 mb-6">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Activity by Hour</h3>
                 <div className="flex items-end gap-1 h-28 px-2">
                   {Array.from({ length: 24 }, (_, h) => {
@@ -323,177 +275,41 @@ const AdminDashboard = () => {
 
         {activeTab === 'users' && (
           <motion.div key="users" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+            <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
                 Registered Users
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-500/10 text-amber-600 uppercase">{stats.overview.totalUsers} total</span>
               </h3>
-              {/* Search & Filter Controls */}
-              <div className="flex flex-wrap gap-3 mb-4">
-                <div className="flex-1 min-w-[200px] relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <input
-                    type="text"
-                    placeholder="Search by name or email..."
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border-2 border-gray-900 dark:border-gray-700 bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-red-700 dark:focus:border-red-500"
-                  />
-                </div>
-                <select
-                  value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
-                  className="px-4 py-2 border-2 border-gray-900 dark:border-gray-700 bg-white dark:bg-zinc-900 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-red-700"
-                >
-                  <option value="all">All Roles</option>
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                </select>
-                {(userSearch || roleFilter !== 'all') && (
-                  <button
-                    onClick={() => { setUserSearch(''); setRoleFilter('all'); }}
-                    className="px-3 py-2 text-xs font-bold bg-red-600 text-white border-2 border-red-700 hover:bg-red-700 transition-colors uppercase tracking-wide"
-                  >
-                    Clear Filters
-                  </button>
-                )}
-              </div>
-
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b-2 border-gray-900 dark:border-gray-700">
-                      <th 
-                        onClick={() => toggleSort('name')}
-                        className="text-left py-4 px-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          Name
-                          {sortField === 'name' ? (
-                            sortOrder === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-                          ) : (
-                            <ArrowUpDown size={14} className="opacity-30" />
-                          )}
-                        </div>
-                      </th>
-                      <th className="text-left py-4 px-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Email</th>
-                      <th 
-                        onClick={() => toggleSort('role')}
-                        className="text-left py-4 px-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          Role
-                          {sortField === 'role' ? (
-                            sortOrder === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-                          ) : (
-                            <ArrowUpDown size={14} className="opacity-30" />
-                          )}
-                        </div>
-                      </th>
-                      <th 
-                        onClick={() => toggleSort('analysisCount')}
-                        className="text-left py-4 px-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Activity size={14} />
-                          Analyses
-                          {sortField === 'analysisCount' ? (
-                            sortOrder === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-                          ) : (
-                            <ArrowUpDown size={14} className="opacity-30" />
-                          )}
-                        </div>
-                      </th>
-                      <th 
-                        onClick={() => toggleSort('createdAt')}
-                        className="text-left py-4 px-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          Joined
-                          {sortField === 'createdAt' ? (
-                            sortOrder === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-                          ) : (
-                            <ArrowUpDown size={14} className="opacity-30" />
-                          )}
-                        </div>
-                      </th>
-                      <th className="text-right py-4 px-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Actions</th>
+                    <tr className="border-b border-[#eee] dark:border-[#2a2a2a]">
+                      <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">User</th>
+                      <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Role</th>
+                      <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Analyses</th>
+                      <th className="text-left py-2 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Joined</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" className="py-8 text-center">
-                          <UserX size={40} className="mx-auto text-gray-300 dark:text-gray-700 mb-2" />
-                          <p className="text-sm font-medium text-gray-500">No users found</p>
-                          <p className="text-xs text-gray-400 mt-1">Try adjusting your filters</p>
+                    {stats.recentUsers?.map((u, i) => (
+                      <tr key={i} className="border-b border-[#eee] dark:border-[#2a2a2a] last:border-0 hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                        <td className="py-3 px-3">
+                          <div className="text-xs font-semibold text-gray-900 dark:text-white">{u.name}</div>
+                          <div className="text-[10px] text-gray-400">{u.email}</div>
                         </td>
+                        <td className="py-3 px-3">
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
+                            u.role === 'admin' 
+                              ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 border border-indigo-200 dark:border-indigo-500/20' 
+                              : 'bg-gray-50 dark:bg-white/5 text-gray-500 border border-gray-200 dark:border-gray-700'
+                          }`}>{u.role}</span>
+                        </td>
+                        <td className="py-3 px-3 text-xs font-bold text-emerald-600">{u.analysisCount || 0}</td>
+                        <td className="py-3 px-3 text-[11px] text-gray-400">{new Date(u.createdAt).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                       </tr>
-                    ) : (
-                      filteredUsers.map((u, i) => (
-                        <tr key={i} className="border-b-2 border-gray-200 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-2">
-                              {u.role === 'admin' && <Crown size={14} className="text-red-600 dark:text-red-500" />}
-                              <div className="text-sm font-bold text-gray-900 dark:text-white">{u.name}</div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="text-xs text-gray-600 dark:text-gray-400">{u.email}</div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className={`text-xs font-bold px-3 py-1 border-2 uppercase tracking-wide ${
-                              u.role === 'admin' 
-                                ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-600 dark:border-red-700' 
-                                : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700'
-                            }`}>{u.role}</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-2">
-                              <Activity size={14} className="text-emerald-600" />
-                              <span className="text-sm font-bold text-emerald-600">{u.analysisCount || 0}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(u.createdAt).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                className="p-2 border-2 border-gray-300 dark:border-gray-700 hover:border-gray-900 dark:hover:border-gray-500 transition-colors group"
-                                title="More Actions"
-                              >
-                                <MoreVertical size={16} className="text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                              </button>
-                              <button
-                                className="p-2 border-2 border-red-300 dark:border-red-800 hover:border-red-600 dark:hover:border-red-600 transition-colors group"
-                                title="Delete User"
-                              >
-                                <Trash2 size={16} className="text-red-600 dark:text-red-500 group-hover:text-red-700 dark:group-hover:text-red-400" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
+                    ))}
                   </tbody>
                 </table>
-              </div>
-              
-              {/* Table Footer */}
-              <div className="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 border-t-2 border-gray-200 dark:border-gray-800 pt-3">
-                <div className="flex items-center gap-4">
-                  <span>
-                    Showing <span className="font-bold text-gray-900 dark:text-white">{filteredUsers.length}</span> of{' '}
-                    <span className="font-bold text-gray-900 dark:text-white">{stats.overview.totalUsers}</span> users
-                  </span>
-                  {(userSearch || roleFilter !== 'all') && (
-                    <span className="text-amber-600 dark:text-amber-500 font-medium">Filtered</span>
-                  )}
-                </div>
-                <div className="text-gray-400">
-                  Sort: <span className="font-bold text-gray-600 dark:text-gray-300 capitalize">{sortField}</span> ({sortOrder === 'asc' ? '↑' : '↓'})
-                </div>
               </div>
             </div>
           </motion.div>
@@ -502,7 +318,7 @@ const AdminDashboard = () => {
         {activeTab === 'content' && (
           <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">High Impact Articles</h3>
                 <div className="space-y-2">
                   {stats.topImpactArticles?.length > 0 ? stats.topImpactArticles.map((a, i) => (
@@ -520,7 +336,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Source Distribution</h3>
                 <div className="space-y-3">
                   {stats.topSources?.map((s, i) => {
@@ -528,8 +344,8 @@ const AdminDashboard = () => {
                     return (
                       <div key={i} className="flex items-center gap-3">
                         <span className="text-[11px] text-gray-500 w-24 font-medium truncate">{s.source || 'Unknown'}</span>
-                        <div className="flex-1 h-2 border-2 bg-gray-100 dark:bg-white/5 overflow-hidden">
-                          <div className="h-full border-2 bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${(s.count / maxSource) * 100}%` }} />
+                        <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${(s.count / maxSource) * 100}%` }} />
                         </div>
                         <span className="text-[11px] font-bold text-gray-900 dark:text-white w-8 text-right">{s.count}</span>
                       </div>
@@ -544,8 +360,8 @@ const AdminDashboard = () => {
         {activeTab === 'api' && (
           <motion.div key="api" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             {metricsLoading || !metrics ? (
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-10 text-center">
-                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent border-2 animate-spin mx-auto mb-3" />
+              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-10 text-center">
+                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                 <p className="text-sm text-gray-500">Loading API metrics...</p>
               </div>
             ) : (
@@ -558,8 +374,8 @@ const AdminDashboard = () => {
                     { label: 'Error Rate', value: `${metrics.errorRate}%`, sub: `${metrics.errors} total errors`, icon: <AlertTriangle size={18} />, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10' },
                     { label: 'Uptime', value: metrics.uptime, sub: `Since ${new Date(metrics.startedAt).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' })}`, icon: <Cpu size={18} />, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-500/10' },
                   ].map(card => (
-                    <div key={card.label} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
-                      <div className={`w-9 h-9 border-2 ${card.bg} ${card.color} flex items-center justify-center mb-3`}>
+                    <div key={card.label} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
+                      <div className={`w-9 h-9 rounded-xl ${card.bg} ${card.color} flex items-center justify-center mb-3`}>
                         {card.icon}
                       </div>
                       <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{card.label}</div>
@@ -571,7 +387,7 @@ const AdminDashboard = () => {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* HTTP Methods */}
-                  <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">HTTP Methods</h3>
                     <div className="space-y-3">
                       {Object.entries(metrics.methods).filter(([_, v]) => v > 0).map(([method, count]) => {
@@ -580,8 +396,8 @@ const AdminDashboard = () => {
                         return (
                           <div key={method} className="flex items-center gap-3">
                             <span className="text-[11px] font-mono font-bold w-12" style={{ color: colors[method] || '#94a3b8' }}>{method}</span>
-                            <div className="flex-1 h-2 border-2 bg-gray-100 dark:bg-white/5 overflow-hidden">
-                              <div className="h-full border-2" style={{ width: `${(count / maxMethod) * 100}%`, background: colors[method] || '#6366f1' }} />
+                            <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+                              <div className="h-full rounded-full" style={{ width: `${(count / maxMethod) * 100}%`, background: colors[method] || '#6366f1' }} />
                             </div>
                             <span className="text-[11px] font-bold text-gray-900 dark:text-white w-8 text-right">{count}</span>
                           </div>
@@ -604,7 +420,7 @@ const AdminDashboard = () => {
                   </div>
 
                   {/* Top Endpoints */}
-                  <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
                       Top Endpoints
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-600 uppercase">{metrics.topEndpoints.length} tracked</span>
@@ -635,23 +451,23 @@ const AdminDashboard = () => {
 
         {activeTab === 'insights' && (
           <motion.div key="insights" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] border-2 p-5">
+            <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-5">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
                 AI Strategic Insights
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-500/10 text-purple-600 uppercase">GPT-4o</span>
               </h3>
               {insightsLoading ? (
                 <div className="py-10 text-center">
-                  <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent border-2 animate-spin mx-auto mb-3" />
+                  <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                   <p className="text-sm text-gray-500">Generating insights...</p>
                 </div>
               ) : insights ? (
                 <div className="space-y-4">
-                  <div className="p-4 border-2 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-500/5 dark:to-orange-500/5 border border-red-200 dark:border-red-500/15">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-500/5 dark:to-orange-500/5 border border-red-200 dark:border-red-500/15">
                     <div className="text-[10px] font-bold text-red-500 uppercase tracking-wide mb-1.5">Risk Assessment</div>
                     <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{insights.risk}</p>
                   </div>
-                  <div className="p-4 border-2 bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-500/5 dark:to-cyan-500/5 border border-emerald-200 dark:border-emerald-500/15">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-cyan-50 dark:from-emerald-500/5 dark:to-cyan-500/5 border border-emerald-200 dark:border-emerald-500/15">
                     <div className="text-[10px] font-bold text-emerald-500 uppercase tracking-wide mb-1.5">Opportunity</div>
                     <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{insights.opportunity}</p>
                   </div>
@@ -662,7 +478,7 @@ const AdminDashboard = () => {
               ) : (
                 <div className="py-8 text-center">
                   <p className="text-sm text-gray-500 mb-3">Click to generate AI-powered strategic insights from recent news data</p>
-                  <button onClick={loadInsights} className="px-4 py-2 text-xs font-medium bg-blue-600 text-white border-2 hover:bg-blue-700 transition-colors">
+                  <button onClick={loadInsights} className="px-4 py-2 text-xs font-medium bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                     Generate Insights
                   </button>
                 </div>
