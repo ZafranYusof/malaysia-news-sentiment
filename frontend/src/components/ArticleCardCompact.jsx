@@ -49,9 +49,9 @@ const ArticleCardCompact = ({ article, onClick }) => {
       <div className="flex gap-4">
         {/* Thumbnail */}
         <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700">
-          {article.image && !imageError ? (
+          {article.urlToImage && !imageError ? (
             <img
-              src={article.image}
+              src={article.urlToImage}
               alt={article.title}
               onError={() => setImageError(true)}
               className="w-full h-full object-cover"
