@@ -488,7 +488,7 @@ const AppInner = () => (
     <Route path="/credibility" element={<ProtectedRoute><Layout><SourceCredibility /></Layout></ProtectedRoute>} />
     <Route path="/digest" element={<ProtectedRoute><Layout><Digest /></Layout></ProtectedRoute>} />
     <Route path="/search" element={<ProtectedRoute><Layout><AdvancedSearch /></Layout></ProtectedRoute>} />
-    <Route path="/api-docs" element={<ApiDocs />} />
+    <Route path="/api-docs/*" element={<ApiDocs />} />
     <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
     <Route path="/heatmap" element={<ProtectedRoute><Layout><Heatmap /></Layout></ProtectedRoute>} />
     <Route path="/categories" element={<ProtectedRoute><Layout><Categories /></Layout></ProtectedRoute>} />
