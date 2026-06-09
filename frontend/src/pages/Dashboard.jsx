@@ -709,104 +709,151 @@ const Dashboard = () => {
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                   >
                   <div className="space-y-6">
-                    {/* KPI Cards - NEW LAYOUT */}
+                    {/* KPI Cards - PROPER DESIGN */}
                     <div>
                       <SectionHeader title="Key Metrics" />
                       <Skeleton name="kpi-row" loading={isLoading}>
                         <motion.div 
-                          className="space-y-4"
+                          className="space-y-5"
                           variants={containerVariants}
                           initial="hidden"
                           animate="visible"
                         >
-                          {/* Hero Card - Full Width */}
-                          <motion.div 
-                            className={`${CARD} relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-10 rounded-3xl`}
-                            variants={kpiItemVariants}
-                            whileHover={{ y: -4, scale: 1.01, boxShadow: '0 25px 50px rgba(0,0,0,0.2)' }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            {/* Decorative background */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
-                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
-                            
-                            {/* Content */}
-                            <div className="relative z-10 flex items-center justify-between">
-                              <div>
-                                <div className="flex items-center gap-3 mb-3">
-                                  <span className="text-5xl">📊</span>
-                                  <div className="text-sm font-bold text-white/90 uppercase tracking-widest">Total Articles Analyzed</div>
+                          {/* Main Stats Row */}
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {/* Total Articles */}
+                            <motion.div 
+                              className="md:col-span-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 relative overflow-hidden"
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -2 }}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                                    Total Articles Analyzed
+                                  </div>
+                                  <div className="text-5xl font-black text-slate-900 dark:text-white mb-1">
+                                    {counts.total.toLocaleString()}
+                                  </div>
+                                  <div className="text-sm text-slate-600 dark:text-slate-400">
+                                    Complete dataset coverage
+                                  </div>
                                 </div>
-                                <div className="text-8xl font-black text-white drop-shadow-2xl">
-                                  {counts.total}
+                                <div className="hidden md:flex items-center gap-8">
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold text-emerald-600">{counts.positive}</div>
+                                    <div className="text-xs text-slate-500">Positive</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold text-red-600">{counts.negative}</div>
+                                    <div className="text-xs text-slate-500">Negative</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold text-amber-600">{counts.neutral}</div>
+                                    <div className="text-xs text-slate-500">Neutral</div>
+                                  </div>
                                 </div>
-                                <div className="text-lg text-white/80 mt-3 font-semibold">Complete dataset coverage</div>
                               </div>
-                              <div className="text-white/20 text-9xl font-black">📰</div>
-                            </div>
-                          </motion.div>
+                            </motion.div>
+                          </div>
 
-                          {/* Sentiment Cards - 3 Column Grid */}
+                          {/* Sentiment Cards Row */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* Positive */}
                             <motion.div 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-8 rounded-2xl cursor-pointer`}
+                              className="bg-white dark:bg-slate-800 border-l-4 border-emerald-500 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-shadow"
                               variants={kpiItemVariants}
-                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(16,185,129,0.3)' }}
-                              transition={{ duration: 0.2 }}
+                              whileHover={{ x: 4 }}
                               onClick={() => handleKpiClick('positive')}
                             >
-                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span className="text-3xl">✅</span>
-                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Positive</div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                    Positive Sentiment
+                                  </span>
                                 </div>
-                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.positive}</div>
-                                <div className="text-sm text-white/80 mt-2 font-semibold">
-                                  {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total
+                                <div className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                                  filter === 'Positive' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                  {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}%
+                                </div>
+                              </div>
+                              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">
+                                {counts.positive.toLocaleString()}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${counts.total ? (counts.positive / counts.total * 100) : 0}%` }}
+                                  />
                                 </div>
                               </div>
                             </motion.div>
 
                             {/* Negative */}
                             <motion.div 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 p-8 rounded-2xl cursor-pointer`}
+                              className="bg-white dark:bg-slate-800 border-l-4 border-red-500 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-shadow"
                               variants={kpiItemVariants}
-                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(239,68,68,0.3)' }}
-                              transition={{ duration: 0.2 }}
+                              whileHover={{ x: 4 }}
                               onClick={() => handleKpiClick('negative')}
                             >
-                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span className="text-3xl">⚠️</span>
-                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Negative</div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-red-500" />
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                    Negative Sentiment
+                                  </span>
                                 </div>
-                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.negative}</div>
-                                <div className="text-sm text-white/80 mt-2 font-semibold">
-                                  {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total
+                                <div className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                                  filter === 'Negative' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                  {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}%
+                                </div>
+                              </div>
+                              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">
+                                {counts.negative.toLocaleString()}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${counts.total ? (counts.negative / counts.total * 100) : 0}%` }}
+                                  />
                                 </div>
                               </div>
                             </motion.div>
 
                             {/* Neutral */}
                             <motion.div 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-8 rounded-2xl cursor-pointer`}
+                              className="bg-white dark:bg-slate-800 border-l-4 border-amber-500 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-shadow"
                               variants={kpiItemVariants}
-                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(245,158,11,0.3)' }}
-                              transition={{ duration: 0.2 }}
+                              whileHover={{ x: 4 }}
                               onClick={() => handleKpiClick('neutral')}
                             >
-                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span className="text-3xl">➖</span>
-                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Neutral</div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                    Neutral Sentiment
+                                  </span>
                                 </div>
-                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.neutral}</div>
-                                <div className="text-sm text-white/80 mt-2 font-semibold">
-                                  {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}% of total
+                                <div className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                                  filter === 'Neutral' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                  {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}%
+                                </div>
+                              </div>
+                              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">
+                                {counts.neutral.toLocaleString()}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${counts.total ? (counts.neutral / counts.total * 100) : 0}%` }}
+                                  />
                                 </div>
                               </div>
                             </motion.div>
@@ -1000,104 +1047,151 @@ const Dashboard = () => {
                       <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
                     )}
                     
-                    {/* KPI Cards - NEW LAYOUT */}
+                    {/* KPI Cards - PROPER DESIGN */}
                     <div>
                       <SectionHeader title="Key Metrics" />
                       <Skeleton name="kpi-row" loading={isLoading}>
                         <motion.div 
-                          className="space-y-4"
+                          className="space-y-5"
                           variants={containerVariants}
                           initial="hidden"
                           animate="visible"
                         >
-                          {/* Hero Card - Full Width */}
-                          <motion.div 
-                            className={`${CARD} relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-10 rounded-3xl`}
-                            variants={kpiItemVariants}
-                            whileHover={{ y: -4, scale: 1.01, boxShadow: '0 25px 50px rgba(0,0,0,0.2)' }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            {/* Decorative background */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
-                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
-                            
-                            {/* Content */}
-                            <div className="relative z-10 flex items-center justify-between">
-                              <div>
-                                <div className="flex items-center gap-3 mb-3">
-                                  <span className="text-5xl">📊</span>
-                                  <div className="text-sm font-bold text-white/90 uppercase tracking-widest">Total Articles Analyzed</div>
+                          {/* Main Stats Row */}
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {/* Total Articles */}
+                            <motion.div 
+                              className="md:col-span-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 relative overflow-hidden"
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -2 }}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                                    Total Articles Analyzed
+                                  </div>
+                                  <div className="text-5xl font-black text-slate-900 dark:text-white mb-1">
+                                    {counts.total.toLocaleString()}
+                                  </div>
+                                  <div className="text-sm text-slate-600 dark:text-slate-400">
+                                    Complete dataset coverage
+                                  </div>
                                 </div>
-                                <div className="text-8xl font-black text-white drop-shadow-2xl">
-                                  {counts.total}
+                                <div className="hidden md:flex items-center gap-8">
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold text-emerald-600">{counts.positive}</div>
+                                    <div className="text-xs text-slate-500">Positive</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold text-red-600">{counts.negative}</div>
+                                    <div className="text-xs text-slate-500">Negative</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold text-amber-600">{counts.neutral}</div>
+                                    <div className="text-xs text-slate-500">Neutral</div>
+                                  </div>
                                 </div>
-                                <div className="text-lg text-white/80 mt-3 font-semibold">Complete dataset coverage</div>
                               </div>
-                              <div className="text-white/20 text-9xl font-black">📰</div>
-                            </div>
-                          </motion.div>
+                            </motion.div>
+                          </div>
 
-                          {/* Sentiment Cards - 3 Column Grid */}
+                          {/* Sentiment Cards Row */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* Positive */}
                             <motion.div 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-8 rounded-2xl cursor-pointer`}
+                              className="bg-white dark:bg-slate-800 border-l-4 border-emerald-500 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-shadow"
                               variants={kpiItemVariants}
-                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(16,185,129,0.3)' }}
-                              transition={{ duration: 0.2 }}
+                              whileHover={{ x: 4 }}
                               onClick={() => handleKpiClick('positive')}
                             >
-                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span className="text-3xl">✅</span>
-                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Positive</div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                    Positive Sentiment
+                                  </span>
                                 </div>
-                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.positive}</div>
-                                <div className="text-sm text-white/80 mt-2 font-semibold">
-                                  {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total
+                                <div className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                                  filter === 'Positive' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                  {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}%
+                                </div>
+                              </div>
+                              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">
+                                {counts.positive.toLocaleString()}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${counts.total ? (counts.positive / counts.total * 100) : 0}%` }}
+                                  />
                                 </div>
                               </div>
                             </motion.div>
 
                             {/* Negative */}
                             <motion.div 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 p-8 rounded-2xl cursor-pointer`}
+                              className="bg-white dark:bg-slate-800 border-l-4 border-red-500 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-shadow"
                               variants={kpiItemVariants}
-                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(239,68,68,0.3)' }}
-                              transition={{ duration: 0.2 }}
+                              whileHover={{ x: 4 }}
                               onClick={() => handleKpiClick('negative')}
                             >
-                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span className="text-3xl">⚠️</span>
-                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Negative</div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-red-500" />
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                    Negative Sentiment
+                                  </span>
                                 </div>
-                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.negative}</div>
-                                <div className="text-sm text-white/80 mt-2 font-semibold">
-                                  {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total
+                                <div className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                                  filter === 'Negative' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                  {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}%
+                                </div>
+                              </div>
+                              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">
+                                {counts.negative.toLocaleString()}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${counts.total ? (counts.negative / counts.total * 100) : 0}%` }}
+                                  />
                                 </div>
                               </div>
                             </motion.div>
 
                             {/* Neutral */}
                             <motion.div 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-8 rounded-2xl cursor-pointer`}
+                              className="bg-white dark:bg-slate-800 border-l-4 border-amber-500 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-shadow"
                               variants={kpiItemVariants}
-                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(245,158,11,0.3)' }}
-                              transition={{ duration: 0.2 }}
+                              whileHover={{ x: 4 }}
                               onClick={() => handleKpiClick('neutral')}
                             >
-                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span className="text-3xl">➖</span>
-                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Neutral</div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                    Neutral Sentiment
+                                  </span>
                                 </div>
-                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.neutral}</div>
-                                <div className="text-sm text-white/80 mt-2 font-semibold">
-                                  {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}% of total
+                                <div className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                                  filter === 'Neutral' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                  {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}%
+                                </div>
+                              </div>
+                              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">
+                                {counts.neutral.toLocaleString()}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${counts.total ? (counts.neutral / counts.total * 100) : 0}%` }}
+                                  />
                                 </div>
                               </div>
                             </motion.div>
