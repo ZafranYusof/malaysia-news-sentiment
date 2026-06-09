@@ -150,7 +150,7 @@ const Layout = ({ children }) => {
       `}>
         {/* Masthead */}
         <div className="px-5 py-5 border-b-2 border-ink dark:border-paper">
-          <Link to="/dashboard" className="block no-underline">
+          <Link to="/" className="block no-underline">
             <p className="editorial-kicker mb-1">The Sentiment</p>
             <h1 className="font-display font-bold text-xl leading-none text-ink dark:text-paper">
               MY News <span className="italic text-accent">Sentiment</span>
@@ -246,7 +246,7 @@ const Layout = ({ children }) => {
               <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
-          <span className="font-display font-bold text-sm text-ink dark:text-paper">MY News <span className="italic text-accent">Sentiment</span></span>
+          <Link to="/" className="font-display font-bold text-sm text-ink dark:text-paper no-underline">MY News <span className="italic text-accent">Sentiment</span></Link>
           <ThemeToggle />
         </header>
 
