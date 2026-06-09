@@ -41,7 +41,7 @@ const CodeBlock = ({ code, language = 'json' }) => {
         onClick={handleCopy}
         className="absolute top-2 right-2 px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 hover:text-white font-medium"
       >
-        {copied ? '✓ Copied' : 'Copy'}
+        {copied ? 'Copied' : 'Copy'}
       </button>
     </div>
   );
@@ -118,7 +118,7 @@ const apiCategories = [
   {
     id: 'public',
     title: 'Public',
-    icon: '🌐',
+    icon: '',
     description: 'No authentication required. Access sentiment analysis and article data freely.',
     endpoints: [
       {
@@ -177,7 +177,7 @@ const apiCategories = [
   {
     id: 'auth',
     title: 'Authentication',
-    icon: '🔐',
+    icon: '',
     description: 'User registration, login, and session management. Returns JWT tokens for protected endpoints.',
     endpoints: [
       {
@@ -269,7 +269,7 @@ const apiCategories = [
   {
     id: 'news',
     title: 'News & Analysis',
-    icon: '📰',
+    icon: '',
     description: 'Core news endpoints for searching, analyzing, and interacting with Malaysian news articles.',
     endpoints: [
       {
@@ -502,7 +502,7 @@ const apiCategories = [
   {
     id: 'entities',
     title: 'Entities',
-    icon: '🔗',
+    icon: '',
     description: 'Entity extraction and relationship graph. Discover connections between people, organizations, and topics.',
     endpoints: [
       {
@@ -551,7 +551,7 @@ const apiCategories = [
   {
     id: 'feed',
     title: 'Live Feed',
-    icon: '📡',
+    icon: '',
     description: 'Real-time news feed and Server-Sent Events (SSE) stream for live updates.',
     endpoints: [
       {
@@ -584,7 +584,7 @@ const apiCategories = [
   {
     id: 'forecast',
     title: 'Forecast',
-    icon: '🔮',
+    icon: '',
     description: 'AI-powered sentiment forecasting for specific topics.',
     endpoints: [
       {
@@ -606,7 +606,7 @@ const apiCategories = [
   {
     id: 'digest',
     title: 'Digest',
-    icon: '📋',
+    icon: '',
     description: 'AI-generated news digests summarizing key stories and trends.',
     endpoints: [
       {
@@ -649,7 +649,7 @@ const apiCategories = [
   {
     id: 'alerts',
     title: 'Alerts',
-    icon: '🔔',
+    icon: '',
     description: 'Manage custom sentiment alerts. Get notified when topics match your criteria.',
     endpoints: [
       {
@@ -725,7 +725,7 @@ const apiCategories = [
   {
     id: 'credibility',
     title: 'Credibility',
-    icon: '✅',
+    icon: '',
     description: 'Source credibility scoring and analysis. Evaluate news source reliability.',
     endpoints: [
       {
@@ -757,7 +757,7 @@ const apiCategories = [
   {
     id: 'sources',
     title: 'Source Analysis',
-    icon: '🔍',
+    icon: '',
     description: 'Calculated credibility scores based on algorithmic analysis.',
     endpoints: [
       {
@@ -776,7 +776,7 @@ const apiCategories = [
   {
     id: 'reports',
     title: 'Reports',
-    icon: '📊',
+    icon: '',
     description: 'Generate downloadable PDF reports with charts and analysis.',
     endpoints: [
       {
@@ -811,7 +811,7 @@ const apiCategories = [
   {
     id: 'history',
     title: 'History',
-    icon: '📜',
+    icon: '',
     description: 'User browsing history, dashboard data, and trend analytics.',
     endpoints: [
       {
@@ -876,7 +876,7 @@ const apiCategories = [
   {
     id: 'share',
     title: 'Share & Embed',
-    icon: '🔗',
+    icon: '',
     description: 'Public sharing and embedding of article analysis.',
     endpoints: [
       {
@@ -910,7 +910,7 @@ const apiCategories = [
   {
     id: 'user',
     title: 'User Settings',
-    icon: '👤',
+    icon: '',
     description: 'User dashboard layout and personalization settings.',
     endpoints: [
       {
@@ -943,7 +943,7 @@ const apiCategories = [
   {
     id: 'admin',
     title: 'Admin',
-    icon: '⚙️',
+    icon: '',
     description: 'Administrative endpoints for system monitoring and management. Requires admin role.',
     endpoints: [
       {
@@ -996,10 +996,10 @@ const apiCategories = [
 
 // ─── Route mapping ───────────────────────────────────────────────────────────
 const SECTION_ROUTES = [
-  { path: '', id: 'overview', label: 'Overview', icon: '📖' },
-  { path: 'authentication', id: 'authentication', label: 'Authentication', icon: '🔐' },
-  { path: 'errors', id: 'errors', label: 'Error Codes', icon: '⚠️' },
-  { path: 'realtime', id: 'realtime', label: 'Real-time / SSE', icon: '📡' },
+  { path: '', id: 'overview', label: 'Overview', icon: '' },
+  { path: 'authentication', id: 'authentication', label: 'Authentication', icon: '' },
+  { path: 'errors', id: 'errors', label: 'Error Codes', icon: '' },
+  { path: 'realtime', id: 'realtime', label: 'Real-time / SSE', icon: '' },
   ...apiCategories.map(cat => ({ path: cat.id, id: cat.id, label: cat.title, icon: cat.icon })),
 ];
 
@@ -1196,7 +1196,7 @@ const OverviewPage = () => {
 
         {/* Getting Started */}
         <div className="mt-6 bg-gradient-to-r from-accent/5 to-purple-500/5 border border-accent/20 rounded-xl p-5">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">🚀 Quick Start</h3>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Quick Start</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div className="space-y-1">
               <p className="font-semibold text-gray-700 dark:text-gray-300">1. Try Public API</p>
@@ -1237,7 +1237,7 @@ const OverviewPage = () => {
 
       {/* Rate Limiting */}
       <div className="bg-yellow-50 dark:bg-yellow-500/5 border border-yellow-200 dark:border-yellow-500/20 rounded-2xl p-5">
-        <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-400 mb-2">⚡ Rate Limiting</h3>
+        <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-400 mb-2">Rate Limiting</h3>
         <ul className="text-xs text-yellow-700 dark:text-yellow-400/80 space-y-1">
           <li>• Without auth: <strong>100 requests/hour</strong> per IP</li>
           <li>• With auth token: <strong>1,000 requests/hour</strong></li>
@@ -1249,7 +1249,7 @@ const OverviewPage = () => {
 
       {/* All Categories Overview */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">📚 Endpoint Categories</h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Endpoint Categories</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {apiCategories.map(cat => (
             <Link
@@ -1288,7 +1288,7 @@ const AuthenticationPage = () => (
   <div className="space-y-6">
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-        🔐 Authentication
+        Authentication
       </h1>
       <p className="text-sm text-gray-600 dark:text-gray-400">
         Protected endpoints require a JWT Bearer token in the <code className="text-accent bg-accent/5 px-1.5 py-0.5 rounded">Authorization</code> header.
@@ -1327,7 +1327,7 @@ const ErrorsPage = () => (
   <div className="space-y-6">
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-        ⚠️ Error Codes
+        Error Codes
       </h1>
       <p className="text-sm text-gray-600 dark:text-gray-400">
         All errors follow a consistent JSON format with an error message and optional details.
@@ -1371,7 +1371,7 @@ const RealtimePage = () => (
   <div className="space-y-6">
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-        📡 Real-time Updates (SSE)
+        Real-time Updates (SSE)
       </h1>
       <p className="text-sm text-gray-600 dark:text-gray-400">
         The API supports Server-Sent Events (SSE) for real-time article updates. Connect to the stream endpoint to receive new articles as they are analyzed.
