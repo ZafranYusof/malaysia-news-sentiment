@@ -250,6 +250,13 @@ const Dashboard = () => {
   const trends = dashboardData?.trends || [];
   const sources = sourcesData || [];
   const regionalData = regData || [];
+
+  // Transform distribution for new charts (capital -> lowercase)
+  const chartDistribution = {
+    positive: distribution.Positive || distribution.positive || 0,
+    negative: distribution.Negative || distribution.negative || 0,
+    neutral: distribution.Neutral || distribution.neutral || 0,
+  };
   const keywords = dashboardData?.keywords || [];
   const stats = dashboardData?.stats || { total: 0, sentiments: {}, alerts: 0 };
   const error = manualError || (dashboardError ? (dashboardError.friendlyMessage || 'Could not load analysis history. Please check if the server is running.') : '');
@@ -870,7 +877,7 @@ const Dashboard = () => {
                         animate="visible"
                       >
                         <InlineErrorBoundary name="Pie Chart">
-                          <SentimentDonutChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
+                          <SentimentDonutChart distribution={chartDistribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
                         </InlineErrorBoundary>
                       </motion.div>
                     </Skeleton>
@@ -971,7 +978,7 @@ const Dashboard = () => {
                           <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Bar Chart">
-                                <SentimentHorizontalBar distribution={distribution} />
+                                <SentimentHorizontalBar distribution={chartDistribution} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
@@ -1211,13 +1218,13 @@ const Dashboard = () => {
                         >
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <InlineErrorBoundary name="Pie Chart">
-                              <SentimentDonutChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
+                              <SentimentDonutChart distribution={chartDistribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
                             </InlineErrorBoundary>
                           </div>
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Bar Chart">
-                                <SentimentHorizontalBar distribution={distribution} />
+                                <SentimentHorizontalBar distribution={chartDistribution} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
