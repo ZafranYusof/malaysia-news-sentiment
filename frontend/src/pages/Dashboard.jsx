@@ -705,48 +705,111 @@ const Dashboard = () => {
                     transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                   >
                   <div className="space-y-6">
-                    {/* KPI Cards */}
+                    {/* KPI Cards - NEW LAYOUT */}
                     <div>
                       <SectionHeader title="Key Metrics" />
                       <Skeleton name="kpi-row" loading={isLoading}>
                         <motion.div 
-                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                          className="space-y-4"
                           variants={containerVariants}
                           initial="hidden"
                           animate="visible"
                         >
-                          {KPI.map(c => (
+                          {/* Hero Card - Full Width */}
+                          <motion.div 
+                            className={`${CARD} relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-10 rounded-3xl`}
+                            variants={kpiItemVariants}
+                            whileHover={{ y: -4, scale: 1.01, boxShadow: '0 25px 50px rgba(0,0,0,0.2)' }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {/* Decorative background */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
+                            
+                            {/* Content */}
+                            <div className="relative z-10 flex items-center justify-between">
+                              <div>
+                                <div className="flex items-center gap-3 mb-3">
+                                  <span className="text-5xl">📊</span>
+                                  <div className="text-sm font-bold text-white/90 uppercase tracking-widest">Total Articles Analyzed</div>
+                                </div>
+                                <div className="text-8xl font-black text-white drop-shadow-2xl">
+                                  {counts.total}
+                                </div>
+                                <div className="text-lg text-white/80 mt-3 font-semibold">Complete dataset coverage</div>
+                              </div>
+                              <div className="text-white/20 text-9xl font-black">📰</div>
+                            </div>
+                          </motion.div>
+
+                          {/* Sentiment Cards - 3 Column Grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Positive */}
                             <motion.div 
-                              key={c.label} 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br ${c.gradient} ${
-                                c.hero ? 'col-span-2 p-8' : 'p-6'
-                              } cursor-pointer group`}
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-8 rounded-2xl cursor-pointer`}
                               variants={kpiItemVariants}
-                              whileHover={{ y: -4, scale: 1.02, boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
-                              transition={{ duration: 0.2, ease: 'easeOut' }}
-                              onClick={() => !c.hero && handleKpiClick(c.label)}
+                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(16,185,129,0.3)' }}
+                              transition={{ duration: 0.2 }}
+                              onClick={() => handleKpiClick('positive')}
                             >
-                              {/* Decorative circles background */}
                               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12" />
-                              
-                              {/* Content */}
                               <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-2xl">{c.icon}</span>
-                                  <div className="text-xs font-semibold text-white/80 uppercase tracking-wider">{c.label}</div>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-3xl">✅</span>
+                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Positive</div>
                                 </div>
-                                <div className={`${c.hero ? 'text-6xl' : 'text-5xl'} font-bold mt-3 ${c.color} drop-shadow-lg`}>
-                                  {c.value}
+                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.positive}</div>
+                                <div className="text-sm text-white/80 mt-2 font-semibold">
+                                  {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total
                                 </div>
-                                <div className="text-sm text-white/70 mt-2 font-medium">{c.sub}</div>
                               </div>
                             </motion.div>
-                          ))}
+
+                            {/* Negative */}
+                            <motion.div 
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 p-8 rounded-2xl cursor-pointer`}
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(239,68,68,0.3)' }}
+                              transition={{ duration: 0.2 }}
+                              onClick={() => handleKpiClick('negative')}
+                            >
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-3xl">⚠️</span>
+                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Negative</div>
+                                </div>
+                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.negative}</div>
+                                <div className="text-sm text-white/80 mt-2 font-semibold">
+                                  {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total
+                                </div>
+                              </div>
+                            </motion.div>
+
+                            {/* Neutral */}
+                            <motion.div 
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-8 rounded-2xl cursor-pointer`}
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(245,158,11,0.3)' }}
+                              transition={{ duration: 0.2 }}
+                              onClick={() => handleKpiClick('neutral')}
+                            >
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-3xl">➖</span>
+                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Neutral</div>
+                                </div>
+                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.neutral}</div>
+                                <div className="text-sm text-white/80 mt-2 font-semibold">
+                                  {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}% of total
+                                </div>
+                              </div>
+                            </motion.div>
+                          </div>
                         </motion.div>
                       </Skeleton>
                     </div>
-
                     {/* Pie Chart */}
                     <Skeleton name="charts-grid" loading={isLoading}>
                       <motion.div 
@@ -933,48 +996,111 @@ const Dashboard = () => {
                       <AiDigestCard digest={digest} loading={digestLoading} topic={currentQuery} />
                     )}
                     
-                    {/* KPI Row */}
+                    {/* KPI Cards - NEW LAYOUT */}
                     <div>
                       <SectionHeader title="Key Metrics" />
                       <Skeleton name="kpi-row" loading={isLoading}>
                         <motion.div 
-                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                          className="space-y-4"
                           variants={containerVariants}
                           initial="hidden"
                           animate="visible"
                         >
-                          {KPI.map(c => (
+                          {/* Hero Card - Full Width */}
+                          <motion.div 
+                            className={`${CARD} relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-10 rounded-3xl`}
+                            variants={kpiItemVariants}
+                            whileHover={{ y: -4, scale: 1.01, boxShadow: '0 25px 50px rgba(0,0,0,0.2)' }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {/* Decorative background */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
+                            
+                            {/* Content */}
+                            <div className="relative z-10 flex items-center justify-between">
+                              <div>
+                                <div className="flex items-center gap-3 mb-3">
+                                  <span className="text-5xl">📊</span>
+                                  <div className="text-sm font-bold text-white/90 uppercase tracking-widest">Total Articles Analyzed</div>
+                                </div>
+                                <div className="text-8xl font-black text-white drop-shadow-2xl">
+                                  {counts.total}
+                                </div>
+                                <div className="text-lg text-white/80 mt-3 font-semibold">Complete dataset coverage</div>
+                              </div>
+                              <div className="text-white/20 text-9xl font-black">📰</div>
+                            </div>
+                          </motion.div>
+
+                          {/* Sentiment Cards - 3 Column Grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Positive */}
                             <motion.div 
-                              key={c.label} 
-                              className={`${CARD} relative overflow-hidden bg-gradient-to-br ${c.gradient} ${
-                                c.hero ? 'col-span-2 p-8' : 'p-6'
-                              } cursor-pointer group`}
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-8 rounded-2xl cursor-pointer`}
                               variants={kpiItemVariants}
-                              whileHover={{ y: -4, scale: 1.02, boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
-                              transition={{ duration: 0.2, ease: 'easeOut' }}
-                              onClick={() => !c.hero && handleKpiClick(c.label)}
+                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(16,185,129,0.3)' }}
+                              transition={{ duration: 0.2 }}
+                              onClick={() => handleKpiClick('positive')}
                             >
-                              {/* Decorative circles background */}
                               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12" />
-                              
-                              {/* Content */}
                               <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-2xl">{c.icon}</span>
-                                  <div className="text-xs font-semibold text-white/80 uppercase tracking-wider">{c.label}</div>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-3xl">✅</span>
+                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Positive</div>
                                 </div>
-                                <div className={`${c.hero ? 'text-6xl' : 'text-5xl'} font-bold mt-3 ${c.color} drop-shadow-lg`}>
-                                  {c.value}
+                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.positive}</div>
+                                <div className="text-sm text-white/80 mt-2 font-semibold">
+                                  {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total
                                 </div>
-                                <div className="text-sm text-white/70 mt-2 font-medium">{c.sub}</div>
                               </div>
                             </motion.div>
-                          ))}
+
+                            {/* Negative */}
+                            <motion.div 
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 p-8 rounded-2xl cursor-pointer`}
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(239,68,68,0.3)' }}
+                              transition={{ duration: 0.2 }}
+                              onClick={() => handleKpiClick('negative')}
+                            >
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-3xl">⚠️</span>
+                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Negative</div>
+                                </div>
+                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.negative}</div>
+                                <div className="text-sm text-white/80 mt-2 font-semibold">
+                                  {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total
+                                </div>
+                              </div>
+                            </motion.div>
+
+                            {/* Neutral */}
+                            <motion.div 
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-8 rounded-2xl cursor-pointer`}
+                              variants={kpiItemVariants}
+                              whileHover={{ y: -6, scale: 1.03, boxShadow: '0 20px 40px rgba(245,158,11,0.3)' }}
+                              transition={{ duration: 0.2 }}
+                              onClick={() => handleKpiClick('neutral')}
+                            >
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <span className="text-3xl">➖</span>
+                                  <div className="text-xs font-bold text-white/90 uppercase tracking-wider">Neutral</div>
+                                </div>
+                                <div className="text-6xl font-black text-white drop-shadow-lg">{counts.neutral}</div>
+                                <div className="text-sm text-white/80 mt-2 font-semibold">
+                                  {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}% of total
+                                </div>
+                              </div>
+                            </motion.div>
+                          </div>
                         </motion.div>
                       </Skeleton>
                     </div>
-
                     {/* Charts Grid */}
                     <div>
                       <SectionHeader title="Charts" />
