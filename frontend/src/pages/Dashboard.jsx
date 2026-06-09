@@ -6,6 +6,10 @@ import { useLanguage } from '../context/LanguageContext';
 import SearchBar from '../components/SearchBar';
 import ArticleCard from '../components/ArticleCard';
 import SentimentDonutChart from '../components/SentimentDonutChart';
+import SentimentHorizontalBar from '../components/SentimentHorizontalBar';
+import SentimentAreaChart from '../components/SentimentAreaChart';
+import SentimentHeatmap from '../components/SentimentHeatmap';
+import TopSourcesHorizontal from '../components/TopSourcesHorizontal';
 import AiDigestCard from '../components/AiDigestCard';
 import WordCloud from '../components/WordCloud';
 import ForecastCard from '../components/ForecastCard';
@@ -920,28 +924,28 @@ const Dashboard = () => {
                           <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Bar Chart">
-                                <SentimentBarChart distribution={distribution} />
+                                <SentimentHorizontalBar distribution={distribution} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
                           <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Trend Chart">
-                                <TrendLineChart trendsData={trends} />
+                                <SentimentAreaChart trendsData={trends} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
                           <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sentiment Map">
-                                <SentimentMap data={regionalData} loading={isLoading} />
+                                <SentimentHeatmap data={regionalData} loading={isLoading} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
                           <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sources Chart">
-                                <TopSourcesChart sourcesData={sources} />
+                                <TopSourcesHorizontal sourcesData={sources} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
@@ -1119,28 +1123,28 @@ const Dashboard = () => {
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Bar Chart">
-                                <SentimentBarChart distribution={distribution} />
+                                <SentimentHorizontalBar distribution={distribution} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sentiment Map">
-                                <SentimentMap data={regionalData} loading={isLoading} />
+                                <SentimentHeatmap data={regionalData} loading={isLoading} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Trend Chart">
-                                <TrendLineChart trendsData={trends} />
+                                <SentimentAreaChart trendsData={trends} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
                           <div className={`col-span-2 ${CARD} p-5`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sources Chart">
-                                <TopSourcesChart sourcesData={sources} />
+                                <TopSourcesHorizontal sourcesData={sources} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
