@@ -1020,9 +1020,13 @@ const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = ()
         {/* General sections */}
         <div className="space-y-0.5">
           {generalItems.map(item => (
-            <Link
+            <a
               key={item.id}
-              to={`/api${item.path ? '/' + item.path : ''}`}
+              href={`#${item.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+              }}
               className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-2.5 ${
                 activeSection === item.id
                   ? 'bg-accent/10 text-accent border-l-2 border-accent pl-2.5'
@@ -1031,7 +1035,7 @@ const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = ()
             >
               <span className="text-sm w-5 text-center">{item.icon}</span>
               <span>{item.label}</span>
-            </Link>
+            </a>
           ))}
         </div>
 
