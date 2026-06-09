@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import SearchBar from '../components/SearchBar';
 import ArticleCard from '../components/ArticleCard';
-import SentimentPieChart from '../components/SentimentPieChart';
+import SentimentDonutChart from '../components/SentimentDonutChart';
 import AiDigestCard from '../components/AiDigestCard';
 import WordCloud from '../components/WordCloud';
 import ForecastCard from '../components/ForecastCard';
@@ -406,10 +406,39 @@ const Dashboard = () => {
   };
 
   const KPI = [
-    { label: t('totalArticles'), value: counts.total,    color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10', sub: 'articles analyzed', hero: true },
-    { label: t('positive'),       value: counts.positive, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10', sub: `${counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total` },
-    { label: t('negative'),       value: counts.negative, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10', sub: `${counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total` },
-    { label: t('neutral'),        value: counts.neutral,  color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10', sub: `${counts.total ? Math.round(counts.neutral  / counts.total * 100) : 0}% of total` },
+    { 
+      label: t('totalArticles'), 
+      value: counts.total, 
+      color: 'text-white', 
+      gradient: 'from-blue-500 via-blue-600 to-blue-700',
+      sub: 'articles analyzed', 
+      hero: true,
+      icon: '📊'
+    },
+    { 
+      label: t('positive'), 
+      value: counts.positive, 
+      color: 'text-white', 
+      gradient: 'from-emerald-500 via-emerald-600 to-emerald-700',
+      sub: `${counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total`,
+      icon: '✅'
+    },
+    { 
+      label: t('negative'), 
+      value: counts.negative, 
+      color: 'text-white', 
+      gradient: 'from-red-500 via-red-600 to-red-700',
+      sub: `${counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total`,
+      icon: '⚠️'
+    },
+    { 
+      label: t('neutral'), 
+      value: counts.neutral, 
+      color: 'text-white', 
+      gradient: 'from-amber-500 via-amber-600 to-amber-700',
+      sub: `${counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}% of total`,
+      icon: '➖'
+    },
   ];
 
   // Track previous tab index for slide direction
@@ -689,17 +718,29 @@ const Dashboard = () => {
                           {KPI.map(c => (
                             <motion.div 
                               key={c.label} 
-                              className={`${CARD} ${
-                                c.hero ? 'col-span-2 p-5 bg-gradient-to-br from-blue-50 to-white dark:from-blue-500/5 dark:to-[#1a1a1a]' : 'p-4'
-                              } ${!c.hero ? 'cursor-pointer' : ''}`}
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br ${c.gradient} ${
+                                c.hero ? 'col-span-2 p-8' : 'p-6'
+                              } cursor-pointer group`}
                               variants={kpiItemVariants}
-                              whileHover={{ y: -2, scale: !c.hero ? 1.02 : 1 }}
-                              transition={{ duration: 0.15, ease: 'easeOut' }}
+                              whileHover={{ y: -4, scale: 1.02, boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
+                              transition={{ duration: 0.2, ease: 'easeOut' }}
                               onClick={() => !c.hero && handleKpiClick(c.label)}
                             >
-                              <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
-                              <div className={`${c.hero ? 'text-4xl' : 'text-2xl'} font-bold mt-1 ${c.color}`}>{c.value}</div>
-                              <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{c.sub}</div>
+                              {/* Decorative circles background */}
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+                              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12" />
+                              
+                              {/* Content */}
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-2xl">{c.icon}</span>
+                                  <div className="text-xs font-semibold text-white/80 uppercase tracking-wider">{c.label}</div>
+                                </div>
+                                <div className={`${c.hero ? 'text-6xl' : 'text-5xl'} font-bold mt-3 ${c.color} drop-shadow-lg`}>
+                                  {c.value}
+                                </div>
+                                <div className="text-sm text-white/70 mt-2 font-medium">{c.sub}</div>
+                              </div>
                             </motion.div>
                           ))}
                         </motion.div>
@@ -715,7 +756,7 @@ const Dashboard = () => {
                         animate="visible"
                       >
                         <InlineErrorBoundary name="Pie Chart">
-                          <SentimentPieChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
+                          <SentimentDonutChart distribution={distribution} onSegmentClick={handlePieSegmentClick} activeFilter={filter} />
                         </InlineErrorBoundary>
                       </motion.div>
                     </Skeleton>
@@ -905,19 +946,31 @@ const Dashboard = () => {
                           {KPI.map(c => (
                             <motion.div 
                               key={c.label} 
-                              className={`${CARD} p-5 ${
-                                c.hero ? 'bg-gradient-to-br from-blue-50 to-white dark:from-blue-500/5 dark:to-[#1a1a1a]' : ''
-                              }`}
+                              className={`${CARD} relative overflow-hidden bg-gradient-to-br ${c.gradient} ${
+                                c.hero ? 'col-span-2 p-8' : 'p-6'
+                              } cursor-pointer group`}
                               variants={kpiItemVariants}
-                              whileHover={{ y: -2 }}
-                              transition={{ duration: 0.15, ease: 'easeOut' }}
+                              whileHover={{ y: -4, scale: 1.02, boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
+                              transition={{ duration: 0.2, ease: 'easeOut' }}
+                              onClick={() => !c.hero && handleKpiClick(c.label)}
                             >
-                              <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{c.label}</div>
-                              <div className={`text-3xl font-bold mt-1.5 ${c.color}`}>{c.value}</div>
-                              <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">{c.sub}</div>
+                              {/* Decorative circles background */}
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+                              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12" />
+                              
+                              {/* Content */}
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-2xl">{c.icon}</span>
+                                  <div className="text-xs font-semibold text-white/80 uppercase tracking-wider">{c.label}</div>
+                                </div>
+                                <div className={`${c.hero ? 'text-6xl' : 'text-5xl'} font-bold mt-3 ${c.color} drop-shadow-lg`}>
+                                  {c.value}
+                                </div>
+                                <div className="text-sm text-white/70 mt-2 font-medium">{c.sub}</div>
+                              </div>
                             </motion.div>
                           ))}
-                        </motion.div>
                       </Skeleton>
                     </div>
 
