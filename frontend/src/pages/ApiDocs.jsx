@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 
@@ -1004,7 +1004,7 @@ const SECTION_ROUTES = [
 ];
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
-const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = () => {} }) => {
+const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = () => {}, navigate }) => {
   const generalItems = SECTION_ROUTES.slice(0, 4);
   const categoryItems = SECTION_ROUTES.slice(4);
 
@@ -1025,7 +1025,7 @@ const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = ()
               href={`#${item.id}`}
               onClick={(e) => {
                 e.preventDefault();
-                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                navigate(`/api-docs/${item.id}`);
               }}
               className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-2.5 ${
                 activeSection === item.id
@@ -1054,7 +1054,7 @@ const Sidebar = ({ activeSection, mobileMenuOpen = false, setMobileMenuOpen = ()
                 href={`#${item.id}`}
                 onClick={(e) => {
                   e.preventDefault();
-                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                  navigate(`/api-docs/${item.id}`);
                 }}
                 className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-2.5 ${
                   activeSection === item.id
@@ -1473,6 +1473,7 @@ const CategoryPage = ({ category }) => {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 const ApiDocs = () => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -1550,7 +1551,7 @@ const ApiDocs = () => {
         className="flex gap-8 max-w-7xl mx-auto px-6 py-8"
       >
         {/* Sidebar */}
-        <Sidebar activeSection={activeSection} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
+        <Sidebar activeSection={activeSection} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} navigate={navigate} />
 
         {/* Main Content */}
         <div className="flex-1 min-w-0 pb-20">
