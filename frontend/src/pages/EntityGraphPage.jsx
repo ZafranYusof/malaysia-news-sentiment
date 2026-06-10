@@ -169,12 +169,9 @@ export default function EntityGraphPage() {
         alphaDecay: 0.015,
         alphaMin: 0.001,
       },
-      behaviors: [
-        { type: 'drag-canvas', enableOptimize: true, sensitivity: isMobile ? 1.2 : 1 },
-        { type: 'zoom-canvas', enableOptimize: true, minZoom: 0.3, maxZoom: 3, sensitivity: isMobile ? 1.5 : 1 },
-        'drag-element',
-        'hover-activate'
-      ],
+      modes: {
+        default: ['drag-canvas', 'zoom-canvas', 'drag-node'],
+      },
       node: {
         style: { cursor: 'pointer' },
         state: {
