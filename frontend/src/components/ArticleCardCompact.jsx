@@ -3,14 +3,13 @@ import { ExternalLink, Bookmark, BookmarkCheck } from 'lucide-react';
 import SentimentBadge from './SentimentBadge';
 import { useArticleAnalysis } from '../context/ArticleAnalysisContext';
 
-const ArticleCardCompact = ({ article, onClick }) => {
+const ArticleCardCompact = ({ article, onClick, onBookmark, isBookmarked }) => {
   const [imageError, setImageError] = useState(false);
-  const { bookmarkedArticles, toggleBookmark, openArticlePanel } = useArticleAnalysis();
-  const isBookmarked = bookmarkedArticles?.some(a => a._id === article._id);
+  const { openArticlePanel } = useArticleAnalysis();
 
   const handleBookmark = (e) => {
     e.stopPropagation();
-    toggleBookmark(article);
+    if (onBookmark) onBookmark(article._id || article.id);
   };
 
   const handleOpenExternal = (e) => {
