@@ -50,9 +50,9 @@ export default function EntityGraphPage() {
       if (timeframe) params.set('timeframe', timeframe);
       if (typeFilter) params.set('type', typeFilter);
       const res = await fetch(`${API}/entities/graph?${params}`, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) { const errText = await res.text(); console.error("API Error:", res.status, errText); throw new Error(`Failed: ${res.status}`); }
       setData(await res.json());
-    } catch { setData({ nodes: [], edges: [] }); }
+    } catch (err) { console.error("Fetch Graph Error:", err, "Status:", err.message); setData({ nodes: [], edges: [] }); }
     finally { setLoading(false); }
   }, [search, timeframe, typeFilter]);
 
