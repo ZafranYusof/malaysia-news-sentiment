@@ -18,7 +18,7 @@ import AnalyzingOverlay from '../components/AnalyzingOverlay';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import useSwipeTabs from '../hooks/useSwipeTabs';
 import { hapticImpact } from '../utils/haptics';
-import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download, Settings2 } from 'lucide-react';
+import { Search, Clock, ArrowLeft, Sparkles, FileDown, Printer, ChevronLeft, ChevronRight, BarChart3, TrendingUp, Brain, Download, Settings2, Globe } from 'lucide-react';
 import DashboardCustomizer from '../components/DashboardCustomizer';
 import EmptyState from '../components/EmptyState';
 import DashboardSummary from '../components/DashboardSummary';
@@ -569,14 +569,25 @@ const Dashboard = () => {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="mb-6 flex items-start justify-between"
       >
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {user?.name ? `Welcome back, ${user.name.split(' ')[0]}` : 'Dashboard'}
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Malaysia News Sentiment Analysis
-        </p>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {user?.name ? `Welcome back, ${user.name.split(' ')[0]}` : 'Dashboard'}
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Malaysia News Sentiment Analysis
+          </p>
+        </div>
+        
+        {/* Language Toggle */}
+        <button
+          onClick={() => setLang(lang === 'en' ? 'ms' : 'en')}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-[#2a2a2a] rounded-xl hover:border-blue-500 dark:hover:border-blue-500 transition-colors text-gray-700 dark:text-gray-300"
+        >
+          <Globe size={14} />
+          <span>{lang === 'en' ? 'BM' : 'ENG'}</span>
+        </button>
       </motion.div>
 
       <SearchBarClean onSearch={handleSearch} loading={searchLoading} />
