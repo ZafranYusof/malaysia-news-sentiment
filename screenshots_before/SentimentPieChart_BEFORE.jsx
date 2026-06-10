@@ -94,5 +94,4 @@ const SentimentPieChart = ({ distribution, onSegmentClick, activeFilter }) => {
   );
 };
 
-// Changed from Pie to Donut chart (Activity 2: Chart Visualization Enhancement)
 export default SentimentPieChart;
