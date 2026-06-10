@@ -8,6 +8,7 @@ const SENTIMENT_COLORS = { Positive: '#10B981', Negative: '#EF4444', Neutral: '#
 const SENTIMENT_GLOW = { Positive: 'rgba(16,185,129,0.4)', Negative: 'rgba(239,68,68,0.4)', Neutral: 'rgba(245,158,11,0.4)' };
 const TYPE_LABELS = { politicians: 'Politicians', parties: 'Parties', organizations: 'Organizations', locations: 'Locations' };
 const TYPE_COLORS = { politicians: '#6366f1', parties: '#8b5cf6', organizations: '#06b6d4', locations: '#f59e0b' };
+const TYPE_ICONS = { politicians: '👤', parties: '🏛️', organizations: '🏢', locations: '📍' };
 
 export default function EntityGraphPage() {
   const { theme } = useTheme();
