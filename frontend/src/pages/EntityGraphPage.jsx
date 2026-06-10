@@ -161,7 +161,7 @@ export default function EntityGraphPage() {
         type: 'force',
         preventOverlap: true,
         nodeSpacing: mobileGraphMode ? 100 : 80,
-        linkDistance: (edge) => (mobileGraphMode ? 120 : 180) + (edge.data?.weight || 1) * 12,
+        linkDistance: mobileGraphMode ? 120 : 180,
         nodeStrength: mobileGraphMode ? -800 : -1200,
         edgeStrength: 0.25,
         collideStrength: 1,
