@@ -108,31 +108,39 @@ export default function EntityGraphPage() {
     const baseNodeSize = mobileGraphMode ? 20 : 28;
     const sizeRange = mobileGraphMode ? 20 : 52;
 
+
     const g6Data = {
       nodes: graphNodes.map(n => {
         const color = SENTIMENT_COLORS[n.sentiment] || SENTIMENT_COLORS.Neutral;
         const nodeSize = baseNodeSize + (n.mentions / maxMentions) * sizeRange;
         return {
           id: n.id,
-          data: { label: n.label, mentions: n.mentions, sentiment: n.sentiment, category: n.category },
+          label: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
+          mentions: n.mentions,
+          sentiment: n.sentiment,
+          category: n.category,
+          size: nodeSize,
           style: {
-            size: nodeSize,
             fill: color,
-            fillOpacity: 0.35,
             stroke: color,
             lineWidth: 2.5,
+            opacity: 0.8,
             shadowColor: SENTIMENT_GLOW[n.sentiment] || SENTIMENT_GLOW.Neutral,
             shadowBlur: 12,
-            labelText: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
-            labelFill: isDark ? '#f1f5f9' : '#0f172a',
-            labelFontSize: mobileGraphMode ? 10 : 12,
-            labelFontWeight: 600,
-            labelPlacement: 'bottom',
-            labelOffsetY: 6,
-            labelBackground: !mobileGraphMode,
-            labelBackgroundFill: isDark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)',
-            labelBackgroundRadius: 4,
-            labelBackgroundPadding: [2, 6, 2, 6],
+          },
+          labelCfg: {
+            style: {
+              fill: isDark ? '#f1f5f9' : '#0f172a',
+              fontSize: mobileGraphMode ? 10 : 12,
+              fontWeight: 600,
+              background: !mobileGraphMode ? {
+                fill: isDark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)',
+                padding: [2, 6, 2, 6],
+                radius: 4,
+              } : undefined,
+            },
+            position: 'bottom',
+            offset: 6,
           },
         };
       }),
@@ -185,8 +193,8 @@ export default function EntityGraphPage() {
         state: {
           active: { stroke: '#6366F1', lineWidth: 3.5, strokeOpacity: 0.9 },
           inactive: { strokeOpacity: 0.06 },
-        },
-      },
+      const nodeId = evt.item?._cfg?.id || evt.item?.get("id");
+      if (nodeId) { const node = data.nodes.find(n => n.id === nodeId); if (node) handleNodeClick(node.label); }
       animation: true,
       autoFit: 'view',
       padding: 60,
