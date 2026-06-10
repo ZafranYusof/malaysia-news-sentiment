@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { settingsTranslations } from '../services/settingsTranslations';
 import { Settings, Sun, Moon, Monitor, LogOut, User, Bell, Globe, Shield, CreditCard, Info } from 'lucide-react';
 
 const Section = ({ title, icon, children }) => (
@@ -69,6 +70,7 @@ const loadGuestNotificationPrefs = () => {
 const SettingsPage = () => {
   const { user, updatePreferences, updateProfile, logout } = useAuth();
   const { lang, setLang } = useLanguage();
+  const ts = (key) => settingsTranslations[lang]?.[key] || settingsTranslations.en[key] || key;
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
