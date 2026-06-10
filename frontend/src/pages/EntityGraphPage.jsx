@@ -336,7 +336,7 @@ export default function EntityGraphPage() {
       </div>
 
       {/* Graph + Sidebar Container */}
-      <div className="flex-1 flex rounded-2xl overflow-hidden border border-[#eee] dark:border-[#2a2a2a] bg-[#fafaf9] dark:bg-[#0f0f0f] relative min-h-[400px]">
+      <div className="flex-1 flex rounded-2xl  border border-[#eee] dark:border-[#2a2a2a] bg-[#fafaf9] dark:bg-[#0f0f0f] relative min-h-[400px]">
         {/* Background gradient */}
         {isDark && <div className="absolute inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(16,185,129,0.04) 0%, transparent 50%)' }} />}
 
