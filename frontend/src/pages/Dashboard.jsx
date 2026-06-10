@@ -132,7 +132,7 @@ const CARD = 'bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a
 
 const Dashboard = () => {
   const { user, toggleBookmark } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const queryClient = useQueryClient();
   const socket = useSocket();
   const [analysisProgress, setAnalysisProgress] = useState(null);
