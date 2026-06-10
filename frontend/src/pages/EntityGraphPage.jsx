@@ -125,19 +125,12 @@ export default function EntityGraphPage() {
             stroke: color,
             lineWidth: 2.5,
             opacity: 0.8,
-            shadowColor: SENTIMENT_GLOW[n.sentiment] || SENTIMENT_GLOW.Neutral,
-            shadowBlur: 12,
           },
           labelCfg: {
             style: {
               fill: isDark ? '#f1f5f9' : '#0f172a',
               fontSize: mobileGraphMode ? 10 : 12,
               fontWeight: 600,
-              background: !mobileGraphMode ? {
-                fill: isDark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)',
-                padding: [2, 6, 2, 6],
-                radius: 4,
-              } : undefined,
             },
             position: 'bottom',
             offset: 6,
@@ -193,16 +186,17 @@ export default function EntityGraphPage() {
         state: {
           active: { stroke: '#6366F1', lineWidth: 3.5, strokeOpacity: 0.9 },
           inactive: { strokeOpacity: 0.06 },
-      const nodeId = evt.item?._cfg?.id || evt.item?.get("id");
-      if (nodeId) { const node = data.nodes.find(n => n.id === nodeId); if (node) handleNodeClick(node.label); }
+        },
+      },
       animation: true,
       autoFit: 'view',
       padding: 60,
     });
 
     graph.on('node:click', (evt) => {
-      const nodeId = evt.target?.id;
-      if (nodeId) handleNodeClick(nodeId);
+      const nodeId = evt.item?._cfg?.id;
+      const node = data.nodes.find(n => n.id === nodeId);
+      if (node) handleNodeClick(node.label);
     });
 
     setGraphRendering(true);
