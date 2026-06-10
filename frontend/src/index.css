@@ -2,6 +2,7 @@
 
 /* Legacy styles for components not yet migrated to Tailwind */
 @import './styles/legacy.css';
+@import './styles/analyzing-overlay-modern.css';
 
 @tailwind base;
 @tailwind components;
