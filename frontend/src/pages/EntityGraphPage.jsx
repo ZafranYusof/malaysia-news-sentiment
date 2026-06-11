@@ -8,6 +8,7 @@ const SENTIMENT_COLORS = { Positive: '#10B981', Negative: '#EF4444', Neutral: '#
 const SENTIMENT_GLOW = { Positive: 'rgba(16,185,129,0.4)', Negative: 'rgba(239,68,68,0.4)', Neutral: 'rgba(245,158,11,0.4)' };
 const TYPE_LABELS = { politicians: 'Politicians', parties: 'Parties', organizations: 'Organizations', locations: 'Locations' };
 const TYPE_COLORS = { politicians: '#6366f1', parties: '#8b5cf6', organizations: '#06b6d4', locations: '#f59e0b' };
+const TYPE_ICONS = { politicians: '👤', parties: '🏛️', organizations: '🏢', locations: '📍' };
 
 export default function EntityGraphPage() {
   const { theme } = useTheme();
@@ -24,6 +25,15 @@ export default function EntityGraphPage() {
   const [timeframe, setTimeframe] = useState('');
   const [viewMode, setViewMode] = useState('graph');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Phase 1: New state variables
+  const [entityTypeFilter, setEntityTypeFilter] = useState({ 
+    PERSON: true, 
+    ORGANIZATION: true, 
+    LOCATION: true 
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
   const graphRef = useRef(null);
   const containerRef = useRef(null);
   const graphInstance = useRef(null);
@@ -39,6 +49,14 @@ export default function EntityGraphPage() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Phase 1: Helper function for edge sentiment colors
+  const getEdgeColor = (edge) => {
+    const sentiment = edge.sentiment || 0;
+    if (sentiment <= -0.3) return '#FF5C5C'; // Red
+    if (sentiment >= 0.3) return '#34D882';  // Green
+    return '#94A3B8'; // Grey
+  };
+
   const fetchGraph = useCallback(async () => {
     setLoading(true);
     try {
@@ -49,9 +67,9 @@ export default function EntityGraphPage() {
       if (timeframe) params.set('timeframe', timeframe);
       if (typeFilter) params.set('type', typeFilter);
       const res = await fetch(`${API}/entities/graph?${params}`, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) { const errText = await res.text(); console.error("API Error:", res.status, errText); throw new Error(`Failed: ${res.status}`); }
       setData(await res.json());
-    } catch { setData({ nodes: [], edges: [] }); }
+    } catch (err) { console.error("Fetch Graph Error:", err, "Status:", err.message); setData({ nodes: [], edges: [] }); }
     finally { setLoading(false); }
   }, [search, timeframe, typeFilter]);
 
@@ -96,6 +114,24 @@ export default function EntityGraphPage() {
     const mobileGraphMode = isMobile && viewMode === 'graph';
     let graphNodes = data.nodes;
     let graphEdges = data.edges;
+
+    // Phase 1: Apply entity type filter
+    graphNodes = graphNodes.filter(node => {
+      const nodeType = node.type || 'ORGANIZATION'; // Default fallback
+      return entityTypeFilter[nodeType] !== false;
+    });
+    
+    // Phase 1: Apply search query (don't filter out, just mark for highlighting)
+    const searchLower = searchQuery.toLowerCase();
+    const matchingNodeIds = new Set();
+    if (searchQuery) {
+      graphNodes.forEach(node => {
+        if (node.label?.toLowerCase().includes(searchLower) || 
+            node.id?.toLowerCase().includes(searchLower)) {
+          matchingNodeIds.add(node.id);
+        }
+      });
+    }
     if (mobileGraphMode) {
       const sorted = [...data.nodes].sort((a, b) => b.mentions - a.mentions);
       graphNodes = sorted.slice(0, 15);
@@ -107,31 +143,38 @@ export default function EntityGraphPage() {
     const baseNodeSize = mobileGraphMode ? 20 : 28;
     const sizeRange = mobileGraphMode ? 20 : 52;
 
+
     const g6Data = {
       nodes: graphNodes.map(n => {
         const color = SENTIMENT_COLORS[n.sentiment] || SENTIMENT_COLORS.Neutral;
         const nodeSize = baseNodeSize + (n.mentions / maxMentions) * sizeRange;
+        
+        // Phase 1: Highlight matching search results
+        const isMatch = searchQuery ? matchingNodeIds.has(n.id) : true;
+        const opacity = searchQuery && !isMatch ? 0.2 : 0.8;
+        const strokeWidth = isMatch && searchQuery ? 4 : 2.5;
+        
         return {
           id: n.id,
-          data: { label: n.label, mentions: n.mentions, sentiment: n.sentiment, category: n.category },
+          label: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
+          mentions: n.mentions,
+          sentiment: n.sentiment,
+          category: n.category,
+          size: nodeSize,
           style: {
-            size: nodeSize,
             fill: color,
-            fillOpacity: 0.35,
             stroke: color,
-            lineWidth: 2.5,
-            shadowColor: SENTIMENT_GLOW[n.sentiment] || SENTIMENT_GLOW.Neutral,
-            shadowBlur: 12,
-            labelText: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
-            labelFill: isDark ? '#f1f5f9' : '#0f172a',
-            labelFontSize: mobileGraphMode ? 10 : 12,
-            labelFontWeight: 600,
-            labelPlacement: 'bottom',
-            labelOffsetY: 6,
-            labelBackground: !mobileGraphMode,
-            labelBackgroundFill: isDark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)',
-            labelBackgroundRadius: 4,
-            labelBackgroundPadding: [2, 6, 2, 6],
+            lineWidth: strokeWidth,
+            opacity: opacity,
+          },
+          labelCfg: {
+            style: {
+              fill: isDark ? '#f1f5f9' : '#0f172a',
+              fontSize: mobileGraphMode ? 10 : 12,
+              fontWeight: 600,
+            },
+            position: 'bottom',
+            offset: 6,
           },
         };
       }),
@@ -139,9 +182,9 @@ export default function EntityGraphPage() {
         id: `edge-${i}`,
         source: e.source,
         target: e.target,
-        data: { weight: e.weight },
+        data: { weight: e.weight, sentiment: e.sentiment },
         style: {
-          stroke: isDark ? 'rgba(99,140,255,0.35)' : 'rgba(59,100,240,0.25)',
+          stroke: getEdgeColor(e), // Phase 1: Sentiment color
           lineWidth: Math.min(5, 1.5 + e.weight * 0.6),
           endArrow: false,
         },
@@ -160,19 +203,16 @@ export default function EntityGraphPage() {
         type: 'force',
         preventOverlap: true,
         nodeSpacing: mobileGraphMode ? 100 : 80,
-        linkDistance: (edge) => (mobileGraphMode ? 120 : 180) + (edge.data?.weight || 1) * 12,
+        linkDistance: mobileGraphMode ? 120 : 180,
         nodeStrength: mobileGraphMode ? -800 : -1200,
         edgeStrength: 0.25,
         collideStrength: 1,
         alphaDecay: 0.015,
         alphaMin: 0.001,
       },
-      behaviors: [
-        { type: 'drag-canvas', enableOptimize: true, sensitivity: isMobile ? 1.2 : 1 },
-        { type: 'zoom-canvas', enableOptimize: true, minZoom: 0.3, maxZoom: 3, sensitivity: isMobile ? 1.5 : 1 },
-        'drag-element',
-        'hover-activate'
-      ],
+      modes: {
+        default: ['drag-canvas', 'zoom-canvas', 'drag-node'],
+      },
       node: {
         style: { cursor: 'pointer' },
         state: {
@@ -192,8 +232,9 @@ export default function EntityGraphPage() {
     });
 
     graph.on('node:click', (evt) => {
-      const nodeId = evt.target?.id;
-      if (nodeId) handleNodeClick(nodeId);
+      const nodeId = evt.item?._cfg?.id;
+      const node = data.nodes.find(n => n.id === nodeId);
+      if (node) handleNodeClick(node.label);
     });
 
     setGraphRendering(true);
@@ -221,7 +262,7 @@ export default function EntityGraphPage() {
         graphInstance.current = null;
       }
     };
-  }, [data, loading, isDark, viewMode, isMobile]);
+  }, [data, loading, isDark, viewMode, isMobile, entityTypeFilter, searchQuery]);
 
   // Handle resize
   useEffect(() => {
@@ -297,6 +338,35 @@ export default function EntityGraphPage() {
           ))}
         </div>
 
+
+        {/* Phase 1: NER Type Filter */}
+        <div className="flex gap-2 items-center bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl px-3 py-2">
+          <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-400">Filter:</span>
+          {['PERSON', 'ORGANIZATION', 'LOCATION'].map(type => (
+            <label key={type} className="flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={entityTypeFilter[type]}
+                onChange={(e) => setEntityTypeFilter(prev => ({ ...prev, [type]: e.target.checked }))}
+                className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-[11px] font-medium text-gray-700 dark:text-gray-300">
+                {type === 'PERSON' ? '👤' : type === 'ORGANIZATION' ? '🏢' : '📍'} {type === 'PERSON' ? 'People' : type === 'ORGANIZATION' ? 'Orgs' : 'Places'}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        {/* Phase 1: Search Highlight */}
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            className="pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#1a1a1a] border-2 border-emerald-500/50 dark:border-emerald-500/30 rounded-xl outline-none focus:border-emerald-500 transition-colors w-48 text-gray-900 dark:text-white placeholder:text-gray-400"
+            placeholder="Highlight..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
         {/* Stats */}
         {!loading && data.nodes.length > 0 && (
           <div className="ml-auto flex gap-4 items-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
@@ -336,7 +406,7 @@ export default function EntityGraphPage() {
       </div>
 
       {/* Graph + Sidebar Container */}
-      <div className="flex-1 flex rounded-2xl overflow-hidden border border-[#eee] dark:border-[#2a2a2a] bg-[#fafaf9] dark:bg-[#0f0f0f] relative min-h-[400px]">
+      <div className="flex-1 flex rounded-2xl  border border-[#eee] dark:border-[#2a2a2a] bg-[#fafaf9] dark:bg-[#0f0f0f] relative min-h-[400px]">
         {/* Background gradient */}
         {isDark && <div className="absolute inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(16,185,129,0.04) 0%, transparent 50%)' }} />}
 

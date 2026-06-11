@@ -2,6 +2,7 @@
 
 /* Legacy styles for components not yet migrated to Tailwind */
 @import './styles/legacy.css';
+@import './styles/analyzing-overlay-modern.css';
 
 @tailwind base;
 @tailwind components;
@@ -141,4 +142,23 @@ h3 { font-weight: 600; }
 @keyframes gridMove {
   0% { transform: translate(0, 0); }
   100% { transform: translate(60px, 60px); }
+}
+
+/* Activity 1.2: CSS-based sentiment borders (Perfective Maintenance) */
+/* Replaces inline style={{ borderLeft: `3px solid ${color}` }} with data attributes */
+[data-sentiment-border="Positive"] {
+  border-left: 3px solid #30CF79;
+}
+
+[data-sentiment-border="Negative"] {
+  border-left: 3px solid #F54E4E;
+}
+
+[data-sentiment-border="Neutral"] {
+  border-left: 3px solid #F7A501;
+}
+
+/* Default fallback for unknown sentiment */
+[data-sentiment-border]:not([data-sentiment-border="Positive"]):not([data-sentiment-border="Negative"]):not([data-sentiment-border="Neutral"]) {
+  border-left: 3px solid transparent;
 }

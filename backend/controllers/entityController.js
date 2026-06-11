@@ -87,6 +87,7 @@ const getEntityGraph = async (req, res) => {
 
     const entityMentions = {};
     const coOccurrences = {};
+    const edgeSentiments = {}; // Track sentiment for each edge
 
     for (const article of articles) {
       const text = `${article.title} ${article.description || ''} ${article.content || ''}`;
@@ -106,10 +107,20 @@ const getEntityGraph = async (req, res) => {
         }
       }
 
+      // Track co-occurrences with sentiment
       for (let i = 0; i < foundEntities.length; i++) {
         for (let j = i + 1; j < foundEntities.length; j++) {
           const key = [foundEntities[i].name, foundEntities[j].name].sort().join('|||');
           coOccurrences[key] = (coOccurrences[key] || 0) + 1;
+          
+          // Store sentiment score for this co-occurrence
+          if (!edgeSentiments[key]) {
+            edgeSentiments[key] = [];
+          }
+          // Convert sentiment label to numeric score
+          const sentimentScore = article.sentiment === 'Positive' ? 1 : 
+                                  article.sentiment === 'Negative' ? -1 : 0;
+          edgeSentiments[key].push(sentimentScore);
         }
       }
     }
@@ -125,12 +136,40 @@ const getEntityGraph = async (req, res) => {
       const sc = { Positive: 0, Negative: 0, Neutral: 0 };
       data.sentiments.forEach(s => sc[s]++);
       const dominant = Object.entries(sc).sort((a, b) => b[1] - a[1])[0][0];
-      return { id: name, label: name, category: data.category, mentions: data.count, sentiment: dominant, sentimentBreakdown: sc };
+      
+      // Map category to type (PERSON/ORGANIZATION/LOCATION)
+      let type = 'ORGANIZATION'; // Default
+      if (data.category === 'politicians') type = 'PERSON';
+      else if (data.category === 'parties' || data.category === 'organizations') type = 'ORGANIZATION';
+      else if (data.category === 'locations') type = 'LOCATION';
+      
+      return { 
+        id: name, 
+        label: name, 
+        category: data.category, 
+        type: type, // Add type field for filtering
+        mentions: data.count, 
+        sentiment: dominant, 
+        sentimentBreakdown: sc 
+      };
     });
 
     const edges = Object.entries(coOccurrences)
       .filter(([key]) => { const [a, b] = key.split('|||'); return entityNames.has(a) && entityNames.has(b); })
-      .map(([key, count]) => { const [source, target] = key.split('|||'); return { source, target, weight: count }; })
+      .map(([key, count]) => { 
+        const [source, target] = key.split('|||');
+        // Calculate average sentiment for this edge
+        const sentiments = edgeSentiments[key] || [];
+        const avgSentiment = sentiments.length > 0 
+          ? sentiments.reduce((sum, s) => sum + s, 0) / sentiments.length 
+          : 0;
+        return { 
+          source, 
+          target, 
+          weight: count,
+          sentiment: parseFloat(avgSentiment.toFixed(2)) // Round to 2 decimals
+        };
+      })
       .sort((a, b) => b.weight - a.weight)
       .slice(0, 60);
 
