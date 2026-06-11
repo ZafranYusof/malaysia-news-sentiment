@@ -8,7 +8,7 @@ import ArticleCardCompact from '../components/ArticleCardCompact';
 import SentimentDonutChart from '../components/SentimentDonutChart';
 import SentimentHorizontalBar from '../components/SentimentHorizontalBar';
 import SentimentAreaChart from '../components/SentimentAreaChart';
-import MalaysiaSentimentMap from '../components/MalaysiaSentimentMap';
+import SentimentHeatmap from '../components/SentimentHeatmap';
 import TopSourcesHorizontal from '../components/TopSourcesHorizontal';
 import AiDigestCard from '../components/AiDigestCard';
 import WordCloud from '../components/WordCloud';
@@ -1003,7 +1003,7 @@ const Dashboard = () => {
                           <div className={`${CARD} p-4`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sentiment Map">
-                                <MalaysiaSentimentMap data={regionalData} loading={isLoading} />
+                                <SentimentHeatmap data={regionalData} loading={isLoading} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
@@ -1242,7 +1242,7 @@ const Dashboard = () => {
                           <div className={`${CARD} p-5 min-h-[280px] flex flex-col`}>
                             <Suspense fallback={<ChartFallback />}>
                               <InlineErrorBoundary name="Sentiment Map">
-                                <MalaysiaSentimentMap data={regionalData} loading={isLoading} />
+                                <SentimentHeatmap data={regionalData} loading={isLoading} />
                               </InlineErrorBoundary>
                             </Suspense>
                           </div>
