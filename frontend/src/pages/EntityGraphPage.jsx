@@ -338,6 +338,35 @@ export default function EntityGraphPage() {
           ))}
         </div>
 
+
+        {/* Phase 1: NER Type Filter */}
+        <div className="flex gap-2 items-center bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-xl px-3 py-2">
+          <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-400">Filter:</span>
+          {['PERSON', 'ORGANIZATION', 'LOCATION'].map(type => (
+            <label key={type} className="flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={entityTypeFilter[type]}
+                onChange={(e) => setEntityTypeFilter(prev => ({ ...prev, [type]: e.target.checked }))}
+                className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-[11px] font-medium text-gray-700 dark:text-gray-300">
+                {type === 'PERSON' ? '👤' : type === 'ORGANIZATION' ? '🏢' : '📍'} {type === 'PERSON' ? 'People' : type === 'ORGANIZATION' ? 'Orgs' : 'Places'}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        {/* Phase 1: Search Highlight */}
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            className="pl-8 pr-3 py-2 text-sm bg-white dark:bg-[#1a1a1a] border-2 border-emerald-500/50 dark:border-emerald-500/30 rounded-xl outline-none focus:border-emerald-500 transition-colors w-48 text-gray-900 dark:text-white placeholder:text-gray-400"
+            placeholder="Highlight..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
         {/* Stats */}
         {!loading && data.nodes.length > 0 && (
           <div className="ml-auto flex gap-4 items-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
