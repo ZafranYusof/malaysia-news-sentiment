@@ -114,6 +114,24 @@ export default function EntityGraphPage() {
     const mobileGraphMode = isMobile && viewMode === 'graph';
     let graphNodes = data.nodes;
     let graphEdges = data.edges;
+
+    // Phase 1: Apply entity type filter
+    graphNodes = graphNodes.filter(node => {
+      const nodeType = node.type || 'ORGANIZATION'; // Default fallback
+      return entityTypeFilter[nodeType] !== false;
+    });
+    
+    // Phase 1: Apply search query (don't filter out, just mark for highlighting)
+    const searchLower = searchQuery.toLowerCase();
+    const matchingNodeIds = new Set();
+    if (searchQuery) {
+      graphNodes.forEach(node => {
+        if (node.label?.toLowerCase().includes(searchLower) || 
+            node.id?.toLowerCase().includes(searchLower)) {
+          matchingNodeIds.add(node.id);
+        }
+      });
+    }
     if (mobileGraphMode) {
       const sorted = [...data.nodes].sort((a, b) => b.mentions - a.mentions);
       graphNodes = sorted.slice(0, 15);
@@ -130,6 +148,12 @@ export default function EntityGraphPage() {
       nodes: graphNodes.map(n => {
         const color = SENTIMENT_COLORS[n.sentiment] || SENTIMENT_COLORS.Neutral;
         const nodeSize = baseNodeSize + (n.mentions / maxMentions) * sizeRange;
+        
+        // Phase 1: Highlight matching search results
+        const isMatch = searchQuery ? matchingNodeIds.has(n.id) : true;
+        const opacity = searchQuery && !isMatch ? 0.2 : 0.8;
+        const strokeWidth = isMatch && searchQuery ? 4 : 2.5;
+        
         return {
           id: n.id,
           label: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
@@ -140,8 +164,8 @@ export default function EntityGraphPage() {
           style: {
             fill: color,
             stroke: color,
-            lineWidth: 2.5,
-            opacity: 0.8,
+            lineWidth: strokeWidth,
+            opacity: opacity,
           },
           labelCfg: {
             style: {
