@@ -88,11 +88,6 @@ const navItems = [
       <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
     </svg>
   )},
-  { path: '/api-docs', label: 'API Docs', icon: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>
-    </svg>
-  )},
   { path: '/settings', label: 'Settings', icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68 1.65 1.65 0 0 0 10 3.17V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -150,7 +145,7 @@ const Layout = ({ children }) => {
       `}>
         {/* Masthead */}
         <div className="px-5 py-5 border-b-2 border-ink dark:border-paper">
-          <Link to="/dashboard" className="block no-underline">
+          <Link to="/" className="block no-underline">
             <p className="editorial-kicker mb-1">The Sentiment</p>
             <h1 className="font-display font-bold text-xl leading-none text-ink dark:text-paper">
               MY News <span className="italic text-accent">Sentiment</span>
@@ -246,7 +241,7 @@ const Layout = ({ children }) => {
               <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
-          <span className="font-display font-bold text-sm text-ink dark:text-paper">MY News <span className="italic text-accent">Sentiment</span></span>
+          <Link to="/" className="font-display font-bold text-sm text-ink dark:text-paper no-underline">MY News <span className="italic text-accent">Sentiment</span></Link>
           <ThemeToggle />
         </header>
 

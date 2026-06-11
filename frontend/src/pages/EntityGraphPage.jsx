@@ -7,8 +7,8 @@ import { Search, List, Network, X } from 'lucide-react';
 const SENTIMENT_COLORS = { Positive: '#10B981', Negative: '#EF4444', Neutral: '#F59E0B' };
 const SENTIMENT_GLOW = { Positive: 'rgba(16,185,129,0.4)', Negative: 'rgba(239,68,68,0.4)', Neutral: 'rgba(245,158,11,0.4)' };
 const TYPE_LABELS = { politicians: 'Politicians', parties: 'Parties', organizations: 'Organizations', locations: 'Locations' };
-const TYPE_ICONS = { politicians: '👤', parties: '🏛️', organizations: '🏢', locations: '📍' };
 const TYPE_COLORS = { politicians: '#6366f1', parties: '#8b5cf6', organizations: '#06b6d4', locations: '#f59e0b' };
+const TYPE_ICONS = { politicians: '👤', parties: '🏛️', organizations: '🏢', locations: '📍' };
 
 export default function EntityGraphPage() {
   const { theme } = useTheme();
@@ -17,6 +17,7 @@ export default function EntityGraphPage() {
   const [data, setData] = useState({ nodes: [], edges: [] });
   const [loading, setLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [graphRendering, setGraphRendering] = useState(false);
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [search, setSearch] = useState('');
@@ -49,9 +50,9 @@ export default function EntityGraphPage() {
       if (timeframe) params.set('timeframe', timeframe);
       if (typeFilter) params.set('type', typeFilter);
       const res = await fetch(`${API}/entities/graph?${params}`, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) { const errText = await res.text(); console.error("API Error:", res.status, errText); throw new Error(`Failed: ${res.status}`); }
       setData(await res.json());
-    } catch { setData({ nodes: [], edges: [] }); }
+    } catch (err) { console.error("Fetch Graph Error:", err, "Status:", err.message); setData({ nodes: [], edges: [] }); }
     finally { setLoading(false); }
   }, [search, timeframe, typeFilter]);
 
@@ -107,31 +108,32 @@ export default function EntityGraphPage() {
     const baseNodeSize = mobileGraphMode ? 20 : 28;
     const sizeRange = mobileGraphMode ? 20 : 52;
 
+
     const g6Data = {
       nodes: graphNodes.map(n => {
         const color = SENTIMENT_COLORS[n.sentiment] || SENTIMENT_COLORS.Neutral;
         const nodeSize = baseNodeSize + (n.mentions / maxMentions) * sizeRange;
         return {
           id: n.id,
-          data: { label: n.label, mentions: n.mentions, sentiment: n.sentiment, category: n.category },
+          label: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
+          mentions: n.mentions,
+          sentiment: n.sentiment,
+          category: n.category,
+          size: nodeSize,
           style: {
-            size: nodeSize,
             fill: color,
-            fillOpacity: 0.35,
             stroke: color,
             lineWidth: 2.5,
-            shadowColor: SENTIMENT_GLOW[n.sentiment] || SENTIMENT_GLOW.Neutral,
-            shadowBlur: 12,
-            labelText: mobileGraphMode ? '' : (n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label),
-            labelFill: isDark ? '#f1f5f9' : '#0f172a',
-            labelFontSize: mobileGraphMode ? 10 : 12,
-            labelFontWeight: 600,
-            labelPlacement: 'bottom',
-            labelOffsetY: 6,
-            labelBackground: !mobileGraphMode,
-            labelBackgroundFill: isDark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)',
-            labelBackgroundRadius: 4,
-            labelBackgroundPadding: [2, 6, 2, 6],
+            opacity: 0.8,
+          },
+          labelCfg: {
+            style: {
+              fill: isDark ? '#f1f5f9' : '#0f172a',
+              fontSize: mobileGraphMode ? 10 : 12,
+              fontWeight: 600,
+            },
+            position: 'bottom',
+            offset: 6,
           },
         };
       }),
@@ -152,19 +154,24 @@ export default function EntityGraphPage() {
       container,
       width,
       height,
+      renderer: 'canvas',
+      enableOptimize: true,
+      optimizeZoom: 0.7,
       data: g6Data,
       layout: {
         type: 'force',
         preventOverlap: true,
         nodeSpacing: mobileGraphMode ? 100 : 80,
-        linkDistance: (edge) => (mobileGraphMode ? 120 : 180) + (edge.data?.weight || 1) * 12,
+        linkDistance: mobileGraphMode ? 120 : 180,
         nodeStrength: mobileGraphMode ? -800 : -1200,
         edgeStrength: 0.25,
         collideStrength: 1,
         alphaDecay: 0.015,
         alphaMin: 0.001,
       },
-      behaviors: ['drag-canvas', 'zoom-canvas', 'drag-element', 'hover-activate'],
+      modes: {
+        default: ['drag-canvas', 'zoom-canvas', 'drag-node'],
+      },
       node: {
         style: { cursor: 'pointer' },
         state: {
@@ -184,12 +191,29 @@ export default function EntityGraphPage() {
     });
 
     graph.on('node:click', (evt) => {
-      const nodeId = evt.target?.id;
-      if (nodeId) handleNodeClick(nodeId);
+      const nodeId = evt.item?._cfg?.id;
+      const node = data.nodes.find(n => n.id === nodeId);
+      if (node) handleNodeClick(node.label);
     });
 
+    setGraphRendering(true);
     graph.render();
+    graph.on('afterlayout', () => setGraphRendering(false));
+    setTimeout(() => setGraphRendering(false), 3000); // Fallback
     graphInstance.current = graph;
+
+    // Mobile double-tap to reset zoom
+    if (isMobile) {
+      let lastTap = 0;
+      container.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+          e.preventDefault();
+          graph.fitView();
+        }
+        lastTap = now;
+      });
+    }
 
     return () => {
       if (graphInstance.current) {
@@ -312,7 +336,7 @@ export default function EntityGraphPage() {
       </div>
 
       {/* Graph + Sidebar Container */}
-      <div className="flex-1 flex rounded-2xl overflow-hidden border border-[#eee] dark:border-[#2a2a2a] bg-[#fafaf9] dark:bg-[#0f0f0f] relative min-h-[400px]">
+      <div className="flex-1 flex rounded-2xl  border border-[#eee] dark:border-[#2a2a2a] bg-[#fafaf9] dark:bg-[#0f0f0f] relative min-h-[400px]">
         {/* Background gradient */}
         {isDark && <div className="absolute inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(16,185,129,0.04) 0%, transparent 50%)' }} />}
 
@@ -357,10 +381,10 @@ export default function EntityGraphPage() {
         {/* Graph View */}
         {(!isMobile || viewMode === 'graph') && (
           <div ref={graphRef} className="flex-1 relative z-[1]" style={{ minHeight: isMobile ? 350 : 550 }}>
-            {loading && (
+            {(loading || graphRendering) && (
               <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 gap-3">
                 <div className="w-10 h-10 border-3 border-blue-100 dark:border-blue-500/20 border-t-blue-600 rounded-full animate-spin" />
-                <span className="text-sm">Mapping entity connections...</span>
+                <span className="text-sm">{loading ? "Loading entity data..." : "Rendering graph layout..."}</span>
               </div>
             )}
             {!loading && !data.nodes.length && (

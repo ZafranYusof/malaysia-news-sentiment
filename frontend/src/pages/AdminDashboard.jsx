@@ -4,7 +4,7 @@ import { getAdminStats } from '../services/api';
 import toast from 'react-hot-toast';
 import ScrollToTop from '../components/ScrollToTop';
 import { useSocket } from '../context/SocketContext';
-import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap } from 'lucide-react';
+import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap, Search } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -15,6 +15,7 @@ const AdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [metricsLoading, setMetricsLoading] = useState(false);
   const socket = useSocket();
+  const [userSearch, setUserSearch] = useState('');
 
   const loadData = useCallback(async () => {
     try {
