@@ -262,7 +262,7 @@ export default function EntityGraphPage() {
         graphInstance.current = null;
       }
     };
-  }, [data, loading, isDark, viewMode, isMobile]);
+  }, [data, loading, isDark, viewMode, isMobile, entityTypeFilter, searchQuery]);
 
   // Handle resize
   useEffect(() => {
