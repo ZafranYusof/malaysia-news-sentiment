@@ -25,6 +25,15 @@ export default function EntityGraphPage() {
   const [timeframe, setTimeframe] = useState('');
   const [viewMode, setViewMode] = useState('graph');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Phase 1: New state variables
+  const [entityTypeFilter, setEntityTypeFilter] = useState({ 
+    PERSON: true, 
+    ORGANIZATION: true, 
+    LOCATION: true 
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
   const graphRef = useRef(null);
   const containerRef = useRef(null);
   const graphInstance = useRef(null);
@@ -39,6 +48,14 @@ export default function EntityGraphPage() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Phase 1: Helper function for edge sentiment colors
+  const getEdgeColor = (edge) => {
+    const sentiment = edge.sentiment || 0;
+    if (sentiment <= -0.3) return '#FF5C5C'; // Red
+    if (sentiment >= 0.3) return '#34D882';  // Green
+    return '#94A3B8'; // Grey
+  };
 
   const fetchGraph = useCallback(async () => {
     setLoading(true);
@@ -141,9 +158,9 @@ export default function EntityGraphPage() {
         id: `edge-${i}`,
         source: e.source,
         target: e.target,
-        data: { weight: e.weight },
+        data: { weight: e.weight, sentiment: e.sentiment },
         style: {
-          stroke: isDark ? 'rgba(99,140,255,0.35)' : 'rgba(59,100,240,0.25)',
+          stroke: getEdgeColor(e), // Phase 1: Sentiment color
           lineWidth: Math.min(5, 1.5 + e.weight * 0.6),
           endArrow: false,
         },
