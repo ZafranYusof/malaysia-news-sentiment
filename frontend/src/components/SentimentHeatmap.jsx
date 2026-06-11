@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const SentimentHeatmap = ({ data = [], loading = false }) => {
-  const [flippedCards, setFlippedCards] = useState({});
-
   // Malaysian states
   const states = [
     'Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan',
@@ -15,17 +13,37 @@ const SentimentHeatmap = ({ data = [], loading = false }) => {
     const stateData = data.find(d => d.state === state) || {};
     const total = stateData.count || 0;
     
+    // Calculate sentiment score (-1 to 1)
+    const score = stateData.avgScore !== undefined ? (stateData.avgScore * 2 - 1) : 0;
+    
     return {
       state,
       total,
       positive: stateData.positive || 0,
       negative: stateData.negative || 0,
       neutral: stateData.neutral || 0,
+      score,
     };
   }).sort((a, b) => b.total - a.total); // Sort by total articles
 
-  const toggleFlip = (state) => {
-    setFlippedCards(prev => ({ ...prev, [state]: !prev[state] }));
+  // Get color based on sentiment score
+  const getColor = (score) => {
+    if (score > 0.3) return { bg: 'bg-emerald-500', text: 'text-emerald-900', label: 'Very Positive' };
+    if (score > 0.1) return { bg: 'bg-emerald-400', text: 'text-emerald-800', label: 'Positive' };
+    if (score > -0.1) return { bg: 'bg-amber-400', text: 'text-amber-900', label: 'Neutral' };
+    if (score > -0.3) return { bg: 'bg-red-400', text: 'text-red-800', label: 'Negative' };
+    return { bg: 'bg-red-500', text: 'text-red-900', label: 'Very Negative' };
+  };
+
+  // Get intensity (size) based on total articles
+  const maxTotal = Math.max(...heatmapData.map(d => d.total));
+  const getIntensity = (total) => {
+    if (maxTotal === 0) return 'opacity-30';
+    const ratio = total / maxTotal;
+    if (ratio > 0.7) return 'opacity-100';
+    if (ratio > 0.4) return 'opacity-75';
+    if (ratio > 0.2) return 'opacity-60';
+    return 'opacity-40';
   };
 
   if (loading) {
@@ -43,7 +61,7 @@ const SentimentHeatmap = ({ data = [], loading = false }) => {
           Regional Sentiment Heatmap
         </h3>
         <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-          Click to flip
+          By State
         </span>
       </div>
 
@@ -64,76 +82,40 @@ const SentimentHeatmap = ({ data = [], loading = false }) => {
         </div>
       </div>
 
-      {/* Flipcard Grid */}
+      {/* Heatmap Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[240px] overflow-y-auto pr-2 custom-scrollbar">
         {heatmapData.map((item) => {
-          const isFlipped = flippedCards[item.state];
+          const color = getColor(item.score);
+          const intensity = getIntensity(item.total);
           
           return (
             <div
               key={item.state}
-              className="relative h-24 cursor-pointer perspective-1000"
-              onClick={() => toggleFlip(item.state)}
+              className={`${color.bg} ${intensity} rounded-xl p-3 transition-all duration-200 hover:scale-105 hover:opacity-100 cursor-pointer group relative`}
+              title={`${item.state}: ${item.total} articles`}
             >
-              <div
-                className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
-                  isFlipped ? 'rotate-y-180' : ''
-                }`}
-              >
-                {/* Front Side - Grey with state name + total */}
-                <div className="absolute w-full h-full backface-hidden bg-slate-100 dark:bg-slate-800 rounded-xl p-3 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">
-                    {item.state}
-                  </span>
-                  <div className="text-center">
-                    <div className="text-2xl font-black text-slate-700 dark:text-slate-300">
-                      {item.total}
-                    </div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
-                      articles
-                    </div>
+              <div className="flex flex-col">
+                <span className={`text-xs font-bold ${color.text} truncate`}>
+                  {item.state}
+                </span>
+                <span className={`text-lg font-black ${color.text} mt-1`}>
+                  {item.total}
+                </span>
+                <span className={`text-[10px] font-semibold ${color.text} opacity-80 mt-0.5`}>
+                  {color.label}
+                </span>
+              </div>
+              
+              {/* Tooltip on hover */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10 w-48">
+                <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl">
+                  <div className="font-bold mb-1">{item.state}</div>
+                  <div className="space-y-1 text-[11px]">
+                    <div>Sentiment: {color.label}</div>
+                    <div>Articles: {item.total}</div>
                   </div>
-                </div>
-
-                {/* Back Side - Sentiment breakdown */}
-                <div className="absolute w-full h-full backface-hidden bg-white dark:bg-gray-900 rounded-xl p-2 shadow-md rotate-y-180 border border-gray-200 dark:border-gray-700">
-                  <div className="text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-2 truncate">
-                    {item.state}
-                  </div>
-                  <div className="space-y-1">
-                    {/* Positive */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-[10px] text-gray-600 dark:text-gray-400">Positive</span>
-                      </div>
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                        {item.positive}
-                      </span>
-                    </div>
-                    {/* Negative */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span className="text-[10px] text-gray-600 dark:text-gray-400">Negative</span>
-                      </div>
-                      <span className="text-xs font-bold text-red-600 dark:text-red-400">
-                        {item.negative}
-                      </span>
-                    </div>
-                    {/* Neutral */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                        <span className="text-[10px] text-gray-600 dark:text-gray-400">Neutral</span>
-                      </div>
-                      <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                        {item.neutral}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-[9px] text-gray-500 dark:text-gray-400 text-center mt-1 pt-1 border-t border-gray-200 dark:border-gray-700">
-                    Total: {item.total}
+                  <div className="border-t border-gray-700 mt-2 pt-1 font-semibold">
+                    Total: {item.total} articles
                   </div>
                 </div>
               </div>
@@ -141,21 +123,6 @@ const SentimentHeatmap = ({ data = [], loading = false }) => {
           );
         })}
       </div>
-
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .transform-style-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
     </div>
   );
 };
