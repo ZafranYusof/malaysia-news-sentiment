@@ -348,8 +348,8 @@ const dashboardInit = async (req, res) => {
       .slice(0, limitNum);
 
     res.json({
-      history: { articles, total: Math.max(total, user?.analysisCount || 0) },
-      stats:   { total: Math.max(total, user?.analysisCount || 0), sentiments: sentimentMap, alerts: alertCount },
+      history: { articles, total: total },
+      stats:   { total: total, sentiments: sentimentMap, alerts: alertCount },
       trends:  Object.values(grouped),
       keywords,
     });
