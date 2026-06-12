@@ -50,6 +50,7 @@ const Heatmap = () => {
   const [days, setDays] = useState(7);
   const [selectedState, setSelectedState] = useState(null);
   const [geoError, setGeoError] = useState(false);
+  const [geoLoaded, setGeoLoaded] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -57,6 +58,8 @@ const Heatmap = () => {
   const mapRef = useRef(null);
   const popupRef = useRef(null);
   const hoveredIdRef = useRef(null);
+  const dataRef = useRef([]);
+  const geojsonRef = useRef(null);
 
   // Fetch sentiment data
   useEffect(() => {
@@ -65,6 +68,7 @@ const Heatmap = () => {
       try {
         const res = await api.get(`/news/heatmap?days=${days}`);
         setData(res.data);
+        dataRef.current = res.data;
       } catch (err) {
         console.error('Heatmap fetch error:', err);
       } finally {
@@ -144,6 +148,8 @@ const Heatmap = () => {
         f.id = i;
       });
 
+      geojsonRef.current = geojson;
+
       if (map.getSource('states')) {
         map.removeLayer('state-borders');
         map.removeLayer('state-fills');
@@ -198,7 +204,7 @@ const Heatmap = () => {
         map.setFilter('state-fills-hover', ['==', ['id'], feat.id]);
 
         const name = feat.properties._normalizedName;
-        const sd = getStateData(name);
+        const sd = dataRef.current.find(d => d.state === name) || { avgSentiment: null, articleCount: 0, topTopic: 'N/A' };
         const sentLabel = getSentimentLabel(sd.avgSentiment);
         const sentVal = sd.avgSentiment !== null ? (sd.avgSentiment > 0 ? '+' : '') + sd.avgSentiment.toFixed(2) : 'N/A';
 
@@ -230,6 +236,7 @@ const Heatmap = () => {
       });
 
       setGeoError(false);
+      setGeoLoaded(true);
     } catch (err) {
       console.error('GeoJSON load error:', err);
       setGeoError(true);
@@ -241,8 +248,7 @@ const Heatmap = () => {
     const map = mapRef.current;
     if (!map || !map.loaded() || !map.getSource('states')) return;
 
-    const source = map.getSource('states');
-    const geojson = source._data;
+    const geojson = geojsonRef.current;
     if (!geojson || !geojson.features) return;
 
     // Build color expression
@@ -263,7 +269,7 @@ const Heatmap = () => {
     } catch (e) {
       // layers might not exist yet
     }
-  }, [data]);
+  }, [data, geoLoaded]);
 
   return (
     <motion.div
