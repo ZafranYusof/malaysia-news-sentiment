@@ -369,4 +369,23 @@ const getPublicStats = async (req, res) => {
   }
 };
 
-module.exports = { getHistory, getTrends, getStats, deleteArticle, dashboardInit, getPublicStats };
+// DELETE /api/history/cleanup - remove articles without valid sentiment
+const cleanupUnclassified = async (req, res) => {
+  if (!isDbConnected()) return res.status(503).json({ error: 'DB not connected' });
+  try {
+    const result = await Article.deleteMany({
+      $or: [
+        { sentiment: { $exists: false } },
+        { sentiment: null },
+        { sentiment: '' },
+        { sentiment: { $nin: ['Positive', 'Negative', 'Neutral'] } },
+      ]
+    });
+    const remaining = await Article.countDocuments({});
+    res.json({ deleted: result.deletedCount, remaining });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { getHistory, getTrends, getStats, deleteArticle, dashboardInit, getPublicStats, cleanupUnclassified };
