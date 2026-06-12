@@ -9,46 +9,18 @@ const RANGE_OPTIONS = [
   { label: '90D', value: 90 },
 ];
 
-const TrendBadge = ({ trend }) => {
-  const config = {
-    improving: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', icon: '↑' },
-    declining: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', icon: '↓' },
-    stable:    { bg: 'bg-gray-100 dark:bg-gray-700/30', text: 'text-gray-700 dark:text-gray-300', icon: '→' },
-  };
-  const c = config[trend] || config.stable;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${c.bg} ${c.text}`}>
-      {c.icon} {trend.charAt(0).toUpperCase() + trend.slice(1)}
-    </span>
-  );
-};
-
-const StatCard = ({ label, value, sub, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 15 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay }}
-    whileHover={{ y: -3, scale: 1.02 }}
-    className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] hover:shadow-lg transition-shadow"
-  >
-    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide mb-1">{label}</p>
-    <p className="text-lg font-bold text-gray-900 dark:text-white">{value}</p>
-    {sub && <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{sub}</p>}
-  </motion.div>
-);
-
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   const data = payload[0]?.payload;
   return (
-    <div className="p-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] shadow-lg text-xs">
+    <div className="p-3 rounded-lg bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] shadow-lg text-xs">
       <p className="font-semibold text-gray-900 dark:text-white mb-1">{label}</p>
       <div className="space-y-0.5">
-        <p className="text-gray-600 dark:text-gray-300">Sentiment: <span className="font-medium">{data?.avgSentiment?.toFixed(3)}</span></p>
-        <p className="text-emerald-600">Positive: {data?.positiveCount}</p>
+        <p className="text-gray-600 dark:text-gray-300">Score: <span className="font-mono font-medium">{data?.avgSentiment?.toFixed(3)}</span></p>
+        <p className="text-green-600">Positive: {data?.positiveCount}</p>
         <p className="text-red-500">Negative: {data?.negativeCount}</p>
         <p className="text-gray-500">Neutral: {data?.neutralCount}</p>
-        <p className="text-blue-500">Total: {data?.totalArticles}</p>
+        <p className="font-medium text-gray-700 dark:text-gray-200">Total: {data?.totalArticles}</p>
       </div>
     </div>
   );
@@ -85,8 +57,7 @@ const SentimentTimeline = () => {
     fetchTimeline();
   };
 
-  // Find spikes (days where sentiment deviates significantly from average)
-  const spikes = timeline.filter((d, i) => {
+  const spikes = timeline.filter((d) => {
     if (timeline.length < 3) return false;
     const avg = timeline.reduce((s, x) => s + x.avgSentiment, 0) / timeline.length;
     return Math.abs(d.avgSentiment - avg) > 0.4;
@@ -96,39 +67,37 @@ const SentimentTimeline = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4 }}
       className="max-w-5xl mx-auto space-y-6"
     >
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Sentiment Timeline</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Track how sentiment changes over time for any topic</p>
-      </motion.div>
+      <div className="border-b-2 border-gray-900 dark:border-white pb-3">
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase">
+          Timeline
+        </h1>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 tracking-wide">
+          Sentiment trends over time
+        </p>
+      </div>
 
       {/* Search form */}
       <form onSubmit={handleSubmit} className="flex items-center gap-3 flex-wrap">
-        <div className="flex-1 min-w-[200px]">
-          <input
-            type="text"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="Enter topic (e.g. economy, Anwar, flood)..."
-            className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-          />
-        </div>
-        <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-[#222] rounded-xl p-1">
+        <input
+          type="text"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="Topic (e.g. economy, Anwar, flood)..."
+          className="flex-1 min-w-[200px] px-4 py-2.5 border border-gray-200 dark:border-[#333] bg-white dark:bg-[#111] text-sm text-gray-900 dark:text-white rounded-lg placeholder-gray-400 focus:outline-none focus:border-gray-400 dark:focus:border-gray-500"
+        />
+        <div className="flex items-center gap-1 border border-gray-200 dark:border-[#333] rounded-lg p-0.5">
           {RANGE_OPTIONS.map(opt => (
             <button
               key={opt.value}
               type="button"
               onClick={() => setDays(opt.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 days === opt.value
-                  ? 'bg-white dark:bg-[#333] text-gray-900 dark:text-white shadow-sm'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
@@ -139,163 +108,152 @@ const SentimentTimeline = () => {
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-50 transition-all shadow-sm"
+          className="px-5 py-2.5 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 transition-all"
         >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Analyzing...
-            </span>
-          ) : 'Analyze'}
+          {loading ? 'Loading...' : 'Analyze'}
         </button>
       </form>
 
-      {/* Results */}
+      {/* Loading */}
       {loading && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] animate-pulse">
-                <div className="h-3 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded w-2/3 mb-2" />
-                <div className="h-5 bg-[#f0f0f0] dark:bg-[#2a2a2a] rounded w-1/2" />
-              </div>
-            ))}
-          </div>
-          <div className="h-64 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl animate-pulse" />
+        <div className="py-12 text-center">
+          <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 border-t-gray-900 dark:border-t-white rounded-full animate-spin mx-auto" />
         </div>
       )}
 
+      {/* Empty state */}
       {!loading && searched && timeline.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center py-16 text-gray-400 dark:text-gray-500"
-        >
-          <motion.svg
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-12 h-12 mx-auto mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-          >
-            <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
-          </motion.svg>
-          <p className="text-sm">No data found for this topic and time range</p>
-        </motion.div>
+        <div className="py-12 text-center">
+          <p className="text-sm text-gray-400">No data found for this topic and time range</p>
+        </div>
       )}
 
+      {/* Results */}
       {!loading && timeline.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
+        <div className="space-y-6">
           {/* Summary stats */}
           {summary && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <StatCard label="Total Articles" value={summary.totalArticles} delay={0.1} />
-              <StatCard 
-                label="Avg Sentiment" 
-                value={summary.avgSentiment > 0 ? `+${summary.avgSentiment}` : summary.avgSentiment}
-                sub={summary.avgSentiment > 0.1 ? 'Leaning positive' : summary.avgSentiment < -0.1 ? 'Leaning negative' : 'Mostly neutral'}
-                delay={0.15}
-              />
-              <StatCard label="Trend" value={<TrendBadge trend={summary.trend} />} delay={0.2} />
-              <StatCard 
-                label="Peak Dates" 
-                value={summary.peakPositiveDate ? `📈 ${summary.peakPositiveDate}` : 'N/A'}
-                sub={summary.peakNegativeDate ? `📉 ${summary.peakNegativeDate}` : ''}
-                delay={0.25}
-              />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Articles</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white font-mono">{summary.totalArticles}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Avg Sentiment</p>
+                <p className={`text-xl font-bold font-mono ${
+                  summary.avgSentiment > 0.1 ? 'text-green-600 dark:text-green-400' :
+                  summary.avgSentiment < -0.1 ? 'text-red-600 dark:text-red-400' :
+                  'text-gray-900 dark:text-white'
+                }`}>
+                  {summary.avgSentiment > 0 ? '+' : ''}{summary.avgSentiment}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Trend</p>
+                <p className={`text-xl font-bold ${
+                  summary.trend === 'improving' ? 'text-green-600 dark:text-green-400' :
+                  summary.trend === 'declining' ? 'text-red-600 dark:text-red-400' :
+                  'text-gray-900 dark:text-white'
+                }`}>
+                  {summary.trend === 'improving' ? '↑' : summary.trend === 'declining' ? '↓' : '→'} {summary.trend}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Peak</p>
+                <p className="text-sm font-mono text-gray-900 dark:text-white">
+                  {summary.peakPositiveDate || 'N/A'}
+                </p>
+                {summary.peakNegativeDate && (
+                  <p className="text-xs font-mono text-red-500 mt-0.5">
+                    Low: {summary.peakNegativeDate}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
           {/* Sentiment line chart */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a]">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Sentiment Score Over Time</h3>
-            <ResponsiveContainer width="100%" height={280}>
+          <div className="border-t border-gray-200 dark:border-[#2a2a2a] pt-5">
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-4">
+              Sentiment Score
+            </h3>
+            <ResponsiveContainer width="100%" height={260}>
               <LineChart data={timeline} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border, #eee)" opacity={0.5} />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 11, fill: 'var(--text-secondary, #888)' }}
-                  tickFormatter={(d) => d.slice(5)} // MM-DD
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border, #eee)" opacity={0.4} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10, fill: '#999' }}
+                  tickFormatter={(d) => d.slice(5)}
                 />
-                <YAxis 
-                  domain={[-1, 1]} 
-                  tick={{ fontSize: 11, fill: 'var(--text-secondary, #888)' }}
+                <YAxis
+                  domain={[-1, 1]}
+                  tick={{ fontSize: 10, fill: '#999' }}
                   tickFormatter={(v) => v.toFixed(1)}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <ReferenceLine y={0} stroke="#888" strokeDasharray="3 3" opacity={0.5} />
-                <Line 
-                  type="monotone" 
-                  dataKey="avgSentiment" 
-                  stroke="#2563eb" 
-                  strokeWidth={2.5}
-                  dot={{ r: 3, fill: '#2563eb' }}
-                  activeDot={{ r: 5, fill: '#2563eb', stroke: '#fff', strokeWidth: 2 }}
+                <ReferenceLine y={0} stroke="#ccc" strokeDasharray="3 3" />
+                <Line
+                  type="monotone"
+                  dataKey="avgSentiment"
+                  stroke="#111"
+                  strokeWidth={2}
+                  dot={{ r: 2.5, fill: '#111', stroke: '#111' }}
+                  activeDot={{ r: 4, fill: '#111', stroke: '#fff', strokeWidth: 2 }}
+                  className="dark:[&>path]:!stroke-white dark:[&>circle]:!fill-white"
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           {/* Volume area chart */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a]">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Article Volume</h3>
-            <ResponsiveContainer width="100%" height={200}>
+          <div className="border-t border-gray-200 dark:border-[#2a2a2a] pt-5">
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-4">
+              Volume
+            </h3>
+            <ResponsiveContainer width="100%" height={180}>
               <AreaChart data={timeline} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border, #eee)" opacity={0.5} />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 11, fill: 'var(--text-secondary, #888)' }}
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border, #eee)" opacity={0.4} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10, fill: '#999' }}
                   tickFormatter={(d) => d.slice(5)}
                 />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--text-secondary, #888)' }} />
+                <YAxis tick={{ fontSize: 10, fill: '#999' }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="positiveCount" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
-                <Area type="monotone" dataKey="neutralCount" stackId="1" stroke="#6b7280" fill="#6b7280" fillOpacity={0.2} />
-                <Area type="monotone" dataKey="negativeCount" stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} />
+                <Area type="monotone" dataKey="positiveCount" stackId="1" stroke="#22c55e" fill="#22c55e" fillOpacity={0.25} />
+                <Area type="monotone" dataKey="neutralCount" stackId="1" stroke="#9ca3af" fill="#9ca3af" fillOpacity={0.15} />
+                <Area type="monotone" dataKey="negativeCount" stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.25} />
               </AreaChart>
             </ResponsiveContainer>
-            <div className="flex items-center justify-center gap-4 mt-3">
-              <span className="flex items-center gap-1.5 text-[11px] text-gray-500"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/60" /> Positive</span>
-              <span className="flex items-center gap-1.5 text-[11px] text-gray-500"><span className="w-2.5 h-2.5 rounded-sm bg-gray-400/40" /> Neutral</span>
-              <span className="flex items-center gap-1.5 text-[11px] text-gray-500"><span className="w-2.5 h-2.5 rounded-sm bg-red-500/60" /> Negative</span>
+            <div className="flex items-center gap-4 mt-2 text-[10px] text-gray-400 uppercase tracking-wider">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-sm" /> Positive</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-gray-400 rounded-sm" /> Neutral</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-sm" /> Negative</span>
             </div>
           </div>
 
           {/* Significant events */}
           {spikes.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="p-5 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a]"
-            >
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Significant Events</h3>
-              <div className="space-y-2">
-                {spikes.map((spike, i) => (
-                  <motion.div
-                    key={spike.date}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + i * 0.05 }}
-                    className="flex items-center gap-3 text-xs"
-                  >
+            <div className="border-t border-gray-200 dark:border-[#2a2a2a] pt-5">
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-3">
+                Notable Shifts
+              </h3>
+              <div className="space-y-1.5">
+                {spikes.map((spike) => (
+                  <div key={spike.date} className="flex items-center gap-3 text-xs">
                     <span className="font-mono text-gray-500 dark:text-gray-400 w-20">{spike.date}</span>
-                    <span className={`px-2 py-0.5 rounded-full font-medium ${
-                      spike.avgSentiment > 0 
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                    <span className={`font-mono font-medium ${
+                      spike.avgSentiment > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                     }`}>
-                      {spike.avgSentiment > 0 ? '📈 Spike' : '📉 Drop'} ({spike.avgSentiment.toFixed(2)})
+                      {spike.avgSentiment > 0 ? '+' : ''}{spike.avgSentiment.toFixed(2)}
                     </span>
-                    <span className="text-gray-500 dark:text-gray-400">{spike.totalArticles} articles</span>
-                  </motion.div>
+                    <span className="text-gray-400">{spike.totalArticles} articles</span>
+                  </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       )}
     </motion.div>
   );
