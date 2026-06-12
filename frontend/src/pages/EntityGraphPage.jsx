@@ -8,7 +8,7 @@ const SENTIMENT_COLORS = { Positive: '#10B981', Negative: '#EF4444', Neutral: '#
 const SENTIMENT_GLOW = { Positive: 'rgba(16,185,129,0.4)', Negative: 'rgba(239,68,68,0.4)', Neutral: 'rgba(245,158,11,0.4)' };
 const TYPE_LABELS = { politicians: 'Politicians', parties: 'Parties', organizations: 'Organizations', locations: 'Locations' };
 const TYPE_COLORS = { politicians: '#6366f1', parties: '#8b5cf6', organizations: '#06b6d4', locations: '#f59e0b' };
-const TYPE_ICONS = { politicians: '👤', parties: '🏛️', organizations: '🏢', locations: '📍' };
+const TYPE_ICONS = { politicians: '', parties: '', organizations: '', locations: '' };
 
 export default function EntityGraphPage() {
   const { theme } = useTheme();
@@ -170,7 +170,7 @@ export default function EntityGraphPage() {
           labelCfg: {
             style: {
               fill: isDark ? '#f1f5f9' : '#0f172a',
-              fontSize: mobileGraphMode ? 10 : 12,
+              fontSize: mobileGraphMode ? 10 : 13,
               fontWeight: 600,
             },
             position: 'bottom',
@@ -202,9 +202,9 @@ export default function EntityGraphPage() {
       layout: {
         type: 'force',
         preventOverlap: true,
-        nodeSpacing: mobileGraphMode ? 100 : 80,
-        linkDistance: mobileGraphMode ? 120 : 180,
-        nodeStrength: mobileGraphMode ? -800 : -1200,
+        nodeSpacing: mobileGraphMode ? 100 : 120,
+        linkDistance: mobileGraphMode ? 120 : 250,
+        nodeStrength: mobileGraphMode ? -800 : -2000,
         edgeStrength: 0.25,
         collideStrength: 1,
         alphaDecay: 0.015,
@@ -281,12 +281,12 @@ export default function EntityGraphPage() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col h-full">
       {/* Header */}
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <Network size={24} className="text-blue-600" />
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase">
+          
           Entity Graph
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Explore relationships between entities in the news
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 tracking-wide">
+          Entity relationships extracted from news articles
         </p>
       </div>
 
@@ -312,7 +312,7 @@ export default function EntityGraphPage() {
               onClick={() => setTypeFilter(t)}
               className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                 typeFilter === t
-                  ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
@@ -329,7 +329,7 @@ export default function EntityGraphPage() {
               onClick={() => setTimeframe(o.k)}
               className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                 timeframe === o.k
-                  ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
@@ -379,7 +379,7 @@ export default function EntityGraphPage() {
         <div className="flex gap-3 text-[11px] text-gray-500 dark:text-gray-400">
           {Object.entries(SENTIMENT_COLORS).map(([k, v]) => (
             <span key={k} className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: v, boxShadow: `0 0 6px ${v}` }} />{k}
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: v }} />{k}
             </span>
           ))}
         </div>
@@ -388,14 +388,14 @@ export default function EntityGraphPage() {
         {isMobile && data.nodes.length > 0 && (
           <div className="flex gap-1 bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-lg p-0.5">
             <button
-              className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600' : 'text-gray-400'}`}
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' : 'text-gray-400'}`}
               onClick={() => setViewMode('list')}
               title="List View"
             >
               <List size={16} />
             </button>
             <button
-              className={`p-1.5 rounded-md transition-all ${viewMode === 'graph' ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-600' : 'text-gray-400'}`}
+              className={`p-1.5 rounded-md transition-all ${viewMode === 'graph' ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' : 'text-gray-400'}`}
               onClick={() => setViewMode('graph')}
               title="Graph View"
             >
@@ -437,7 +437,7 @@ export default function EntityGraphPage() {
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full" style={{ background: SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral, boxShadow: `0 0 6px ${SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral}` }} />
+                        <span className="w-2 h-2 rounded-full" style={{ background: SENTIMENT_COLORS[node.sentiment] || SENTIMENT_COLORS.Neutral }} />
                         <span className="text-[11px] text-gray-500 dark:text-gray-400">{node.sentiment}</span>
                       </div>
                       <span className="text-[11px] text-gray-400 dark:text-gray-500">{connectedCount} connection{connectedCount !== 1 ? 's' : ''}</span>
