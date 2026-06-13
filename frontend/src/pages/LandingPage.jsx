@@ -1274,9 +1274,6 @@ const LandingPage = () => {
             </motion.button>
           </motion.div>
 
-          {/* Live Sentiment Demo */}
-          <LiveSentimentDemo />
-
           {/* Source tags */}
           <motion.div variants={staggerItem} className="mt-12 flex flex-wrap items-center justify-center gap-3">
             <span className="text-xs text-gray-400 uppercase tracking-wider">Powered by</span>
