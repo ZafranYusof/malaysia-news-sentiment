@@ -1,118 +1,142 @@
-import React, { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { OrbitControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
 
-const headlines = [
-  { text: "GDP grows 5.2%", sentiment: 'positive', color: '#22c55e' },
-  { text: "Ringgit weakens", sentiment: 'negative', color: '#ef4444' },
-  { text: "MRT on schedule", sentiment: 'neutral', color: '#f59e0b' },
-  { text: "Tech investment record", sentiment: 'positive', color: '#22c55e' },
-  { text: "Flood warning issued", sentiment: 'negative', color: '#ef4444' },
-  { text: "New policy announced", sentiment: 'neutral', color: '#f59e0b' },
+const defaultHeadlines = [
+  { text: "Malaysia's GDP grows 5.2% in Q1 2026", source: "The Star", sentiment: 'positive', color: '#22c55e' },
+  { text: "Ringgit weakens against USD amid uncertainty", source: "Malaysiakini", sentiment: 'negative', color: '#ef4444' },
+  { text: "New MRT line construction ahead of schedule", source: "Bernama", sentiment: 'neutral', color: '#f59e0b' },
+  { text: "Tech sector sees record RM4.2B investment", source: "FMT", sentiment: 'positive', color: '#22c55e' },
+  { text: "Flood warning issued for east coast states", source: "Astro Awani", sentiment: 'negative', color: '#ef4444' },
+  { text: "PETRONAS reports strong quarterly earnings", source: "The Edge", sentiment: 'positive', color: '#22c55e' },
 ];
 
-const NewsCard = ({ headline, position, rotation, index }) => {
+const NewsCard = ({ headline, position, index }) => {
   const meshRef = useRef();
   const baseY = position[1];
+  const [hovered, setHovered] = useState(false);
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
-    // Floating bob
-    meshRef.current.position.y = baseY + Math.sin(t * 0.8 + index * 1.2) * 0.15;
-    // Gentle rotation
-    meshRef.current.rotation.y = Math.sin(t * 0.3 + index) * 0.12;
-    meshRef.current.rotation.x = Math.sin(t * 0.2 + index * 0.5) * 0.05;
+    meshRef.current.position.y = baseY + Math.sin(t * 0.7 + index * 1.3) * 0.12;
+    meshRef.current.rotation.y = Math.sin(t * 0.25 + index) * 0.08;
+    meshRef.current.rotation.x = Math.sin(t * 0.15 + index * 0.7) * 0.03;
   });
 
-  const cardColor = useMemo(() => new THREE.Color(headline.color), [headline.color]);
+  const sentimentLabel = headline.sentiment === 'positive' ? 'Positive' : headline.sentiment === 'negative' ? 'Negative' : 'Neutral';
 
   return (
-    <group ref={meshRef} position={position} rotation={rotation}>
-      {/* Card body - frosted glass look */}
-      <mesh>
-        <boxGeometry args={[2.2, 1.1, 0.04]} />
+    <group ref={meshRef} position={position}>
+      {/* Card with HTML overlay for real text */}
+      <mesh
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+      >
+        <boxGeometry args={[2.6, 1.4, 0.03]} />
         <meshPhysicalMaterial
-          color="#ffffff"
+          color={hovered ? '#f8f8f8' : '#ffffff'}
           transparent
-          opacity={0.75}
-          roughness={0.15}
-          metalness={0.02}
-          clearcoat={0.3}
-          clearcoatRoughness={0.2}
+          opacity={0.92}
+          roughness={0.1}
+          metalness={0.01}
+          clearcoat={0.2}
         />
       </mesh>
 
       {/* Top accent bar */}
-      <mesh position={[0, 0.52, 0.025]}>
-        <boxGeometry args={[2.2, 0.04, 0.01]} />
+      <mesh position={[0, 0.67, 0.02]}>
+        <boxGeometry args={[2.6, 0.04, 0.01]} />
         <meshBasicMaterial color={headline.color} />
       </mesh>
 
-      {/* Sentiment dot */}
-      <mesh position={[-0.85, 0.3, 0.025]}>
-        <circleGeometry args={[0.06, 16]} />
-        <meshBasicMaterial color={headline.color} />
-      </mesh>
-
-      {/* Glow ring around dot */}
-      <mesh position={[-0.85, 0.3, 0.024]}>
-        <ringGeometry args={[0.07, 0.1, 16]} />
-        <meshBasicMaterial color={headline.color} transparent opacity={0.3} />
-      </mesh>
-
-      {/* Placeholder lines representing text */}
-      <mesh position={[0.1, 0.15, 0.025]}>
-        <boxGeometry args={[1.6, 0.06, 0.005]} />
-        <meshBasicMaterial color="#333333" transparent opacity={0.7} />
-      </mesh>
-      <mesh position={[-0.1, 0, 0.025]}>
-        <boxGeometry args={[1.2, 0.04, 0.005]} />
-        <meshBasicMaterial color="#666666" transparent opacity={0.5} />
-      </mesh>
-      <mesh position={[0, -0.15, 0.025]}>
-        <boxGeometry args={[0.8, 0.03, 0.005]} />
-        <meshBasicMaterial color="#999999" transparent opacity={0.4} />
-      </mesh>
-
-      {/* Bottom sentiment bar */}
-      <mesh position={[0, -0.4, 0.025]}>
-        <boxGeometry args={[1.8, 0.03, 0.005]} />
-        <meshBasicMaterial color={headline.color} transparent opacity={0.5} />
-      </mesh>
+      {/* HTML content overlay */}
+      <Html
+        position={[0, 0, 0.03]}
+        transform
+        occlude
+        style={{
+          width: '220px',
+          padding: '10px 14px',
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      >
+        <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+          {/* Sentiment badge */}
+          <div style={{
+            display: 'inline-block',
+            padding: '2px 8px',
+            borderRadius: '10px',
+            backgroundColor: headline.color + '20',
+            color: headline.color,
+            fontSize: '9px',
+            fontWeight: 600,
+            marginBottom: '6px',
+            letterSpacing: '0.5px',
+          }}>
+            {sentimentLabel}
+          </div>
+          {/* Headline */}
+          <div style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            color: '#1a1a1a',
+            lineHeight: 1.3,
+            marginBottom: '6px',
+          }}>
+            {headline.text}
+          </div>
+          {/* Source */}
+          <div style={{
+            fontSize: '9px',
+            color: '#888',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}>
+            <span style={{
+              width: '5px',
+              height: '5px',
+              borderRadius: '50%',
+              backgroundColor: headline.color,
+              display: 'inline-block',
+            }} />
+            {headline.source}
+          </div>
+        </div>
+      </Html>
     </group>
   );
 };
 
 const Floating3DCards = () => {
   const cardPositions = [
-    { pos: [-2.5, 0.8, -0.5], rot: [0, 0.2, 0] },
-    { pos: [2.5, 0.3, -0.8], rot: [0, -0.15, 0] },
-    { pos: [-1.2, -0.8, 0.3], rot: [0, 0.1, 0.03] },
-    { pos: [1.5, -0.6, -1.2], rot: [0, -0.2, -0.02] },
-    { pos: [0, 1.3, -1.5], rot: [0.03, 0, 0] },
-    { pos: [-2, -0.2, -2], rot: [0, 0.25, 0] },
+    [-2.4, 0.9, -0.3],
+    [2.4, 0.5, -0.6],
+    [-1.0, -0.9, 0.2],
+    [1.6, -0.7, -1.0],
+    [0.1, 1.4, -1.3],
+    [-2.0, -0.1, -1.8],
   ];
 
   return (
     <div className="w-full h-[500px] relative">
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 50 }}
+        camera={{ position: [0, 0, 6.5], fov: 48 }}
         style={{ background: 'transparent' }}
         gl={{ alpha: true, antialias: true }}
       >
-        <ambientLight intensity={0.9} />
-        <directionalLight position={[5, 5, 5]} intensity={0.4} />
+        <ambientLight intensity={1} />
+        <directionalLight position={[5, 5, 5]} intensity={0.3} />
         <pointLight position={[-3, 2, 4]} intensity={0.2} color="#2563eb" />
-        <pointLight position={[3, -1, 3]} intensity={0.15} color="#22c55e" />
 
-        {headlines.map((headline, i) => (
+        {defaultHeadlines.map((headline, i) => (
           <NewsCard
             key={i}
             headline={headline}
-            position={cardPositions[i].pos}
-            rotation={cardPositions[i].rot}
+            position={cardPositions[i]}
             index={i}
           />
         ))}
@@ -121,7 +145,7 @@ const Floating3DCards = () => {
           enableZoom={false}
           enablePan={false}
           autoRotate
-          autoRotateSpeed={0.4}
+          autoRotateSpeed={0.35}
           maxPolarAngle={Math.PI / 1.8}
           minPolarAngle={Math.PI / 2.5}
         />
