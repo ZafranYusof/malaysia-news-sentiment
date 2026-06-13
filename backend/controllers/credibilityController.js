@@ -1,4 +1,5 @@
 const Source = require('../models/Source');
+const Article = require('../models/Article');
 
 // GET /api/credibility — list all sources with scores
 exports.getSources = async (req, res) => {
@@ -10,6 +11,18 @@ exports.getSources = async (req, res) => {
     const sources = await Source.find(filter)
       .sort({ [sort]: order === 'asc' ? 1 : -1 })
       .lean();
+
+    // Count articles per source from Article collection
+    const articleCounts = await Article.aggregate([
+      { $group: { _id: '$source', count: { $sum: 1 } } }
+    ]);
+    const countMap = {};
+    articleCounts.forEach(a => { countMap[a._id] = a.count; });
+
+    // Attach real article counts
+    sources.forEach(s => {
+      s.totalArticles = countMap[s.name] || 0;
+    });
 
     res.json({ sources });
   } catch (err) {

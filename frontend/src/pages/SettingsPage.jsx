@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
+import { settingsTranslations } from '../services/settingsTranslations';
 import { Settings, Sun, Moon, Monitor, LogOut, User, Bell, Globe, Shield, CreditCard, Info } from 'lucide-react';
 
 const Section = ({ title, icon, children }) => (
@@ -67,6 +69,8 @@ const loadGuestNotificationPrefs = () => {
 
 const SettingsPage = () => {
   const { user, updatePreferences, updateProfile, logout } = useAuth();
+  const { lang, setLang } = useLanguage();
+  const ts = (key) => settingsTranslations[lang]?.[key] || settingsTranslations.en[key] || key;
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -103,6 +107,7 @@ const SettingsPage = () => {
       } else {
         await updatePreferences({ [key]: value });
       }
+      if (key === 'language') setLang(value);
       setSaved(key);
       setTimeout(() => setSaved(null), 2000);
     } catch (err) {
@@ -258,7 +263,7 @@ const SettingsPage = () => {
           <div className="flex items-center gap-2">
             <select
               className="px-3 py-1.5 text-sm bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a] rounded-lg outline-none text-gray-700 dark:text-gray-300"
-              value={prefs.language || 'en'}
+              value={lang}
               onChange={e => savePreference('language', e.target.value)}
             >
               {LANG_OPTIONS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}

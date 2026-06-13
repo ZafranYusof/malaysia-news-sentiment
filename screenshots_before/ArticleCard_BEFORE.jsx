@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import SentimentBadge from './SentimentBadge';
 import AlertBadge from './AlertBadge';
 import ShareButton from './ShareButton';

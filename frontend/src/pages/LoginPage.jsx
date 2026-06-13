@@ -3,272 +3,207 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import api from '../services/api';
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-const staggerItem = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
-};
 
 const LoginPage = () => {
-  const { login, guestLogin, googleLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  const [tab, setTab] = useState('email');
-  const [form, setForm] = useState({ email: '', phone: '', password: '' });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showReset, setShowReset] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
-  const [resetLoading, setResetLoading] = useState(false);
-  const [resetMsg, setResetMsg] = useState('');
-  const [guestLoading, setGuestLoading] = useState(false);
-
-  const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    
     try {
-      const payload = tab === 'email'
-        ? { email: form.email, password: form.password }
-        : { phone: form.phone, password: form.password };
-      await login(payload);
+      await login({ email, password });
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      setError(err.response?.data?.error || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogle = async () => {
-    setError('');
-    try { await googleLogin(); navigate('/dashboard'); }
-    catch (err) { setError(err.response?.data?.error || 'Google login failed.'); }
-  };
-
-  const handleGuest = async () => {
-    setGuestLoading(true);
-    setError('');
-    try { await guestLogin(); navigate('/dashboard'); }
-    catch { setError('Guest login failed.'); }
-    finally { setGuestLoading(false); }
-  };
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setResetLoading(true);
-    setResetMsg('');
-    try {
-      const res = await api.post('/auth/forgot-password', { email: resetEmail });
-      setResetMsg(res.data.message);
-    } catch (err) { setResetMsg(err.response?.data?.error || 'Something went wrong.'); }
-    finally { setResetLoading(false); }
-  };
-
-  if (showReset) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center p-4 bg-[#fafaf9] dark:bg-[#0f0f0f] ${isDark ? 'dark' : ''}`}>
+  return (
+    <div className="min-h-screen flex">
+      {/* Left side - Form */}
+      <div className="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 lg:px-20 bg-white dark:bg-zinc-950">
         <motion.div
-          className="w-full max-w-md bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#eee] dark:border-[#2a2a2a] p-8 shadow-sm"
-          initial="hidden" animate="visible" variants={staggerContainer}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md mx-auto"
         >
-          <motion.h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" variants={staggerItem}>
-            Forgot Password
-          </motion.h1>
-          {resetMsg ? (
-            <motion.div className="p-4 rounded-xl bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 text-sm" variants={staggerItem}>
-              ✅ {resetMsg}
-            </motion.div>
-          ) : (
-            <motion.form onSubmit={handleForgotPassword} variants={staggerItem} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Email Address</label>
-                <input
-                  type="email"
-                  placeholder="name@email.com"
-                  value={resetEmail}
-                  onChange={e => setResetEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-                />
+          {/* Logo/Brand */}
+          <div className="mb-12">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+              <span className="font-serif">MY News</span>{' '}
+              <span className="font-serif italic text-red-700 dark:text-red-500">Sentiment</span>
+            </h1>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
+              Est. 2026 · Kuala Lumpur
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="p-4 border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
               </div>
-              <motion.button
-                type="submit"
-                disabled={resetLoading}
-                className="w-full py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent/90 disabled:opacity-50 transition-all"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
+            )}
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2 uppercase tracking-wide">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-red-700 dark:focus:border-red-500 transition-colors"
+                placeholder="ahmad@example.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2 uppercase tracking-wide">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-red-700 dark:focus:border-red-500 transition-colors"
+                placeholder="Enter your password"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 border-2 border-zinc-900 dark:border-zinc-700 text-red-700 focus:ring-red-700 dark:focus:ring-red-500"
+                />
+                <span className="ml-2 text-zinc-600 dark:text-zinc-400">
+                  Remember me
+                </span>
+              </label>
+              <Link
+                to="/reset-password"
+                className="text-red-700 dark:text-red-500 hover:text-red-800 dark:hover:text-red-400 transition-colors"
               >
-                {resetLoading ? 'Sending...' : 'Send Reset Link'}
-              </motion.button>
-            </motion.form>
-          )}
-          <motion.p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6" variants={staggerItem}>
-            Remembered?{' '}
-            <button className="text-accent font-medium hover:underline" onClick={() => { setShowReset(false); setResetMsg(''); }}>
-              Sign in
-            </button>
-          </motion.p>
+                Forgot password?
+              </Link>
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={loading}
+              whileTap={{ scale: 0.98 }}
+              className="w-full px-6 py-3 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-medium uppercase tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Signing in...' : 'Sign in →'}
+            </motion.button>
+          </form>
+
+          {/* Register link */}
+          <p className="mt-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="font-medium text-red-700 dark:text-red-500 hover:text-red-800 dark:hover:text-red-400 transition-colors"
+            >
+              Create account
+            </Link>
+          </p>
         </motion.div>
       </div>
-    );
-  }
 
-  return (
-    <div className={`min-h-screen flex ${isDark ? 'dark' : ''}`}>
-      {/* Left side - Visual */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-accent to-secondary items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          {/* Floating particles */}
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-white rounded-full"
-              style={{ left: `${20 + i * 12}%`, top: `${15 + i * 10}%` }}
-              animate={{
-                y: [0, -20, 0],
-                opacity: [0.3, 0.8, 0.3],
-              }}
-              transition={{
-                duration: 3 + i * 0.5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: i * 0.3,
-              }}
-            />
-          ))}
-        </div>
-        <div className="relative z-10 text-center text-white px-12">
+      {/* Right side - Editorial Visual */}
+      <div className="hidden lg:flex lg:w-[55%] bg-zinc-50 dark:bg-zinc-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-zinc-500/5 dark:from-red-500/10 dark:to-zinc-500/10" />
+        
+        {/* Decorative lines */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-zinc-200 dark:bg-zinc-800" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-zinc-200 dark:bg-zinc-800" />
+        
+        <div className="relative z-10 flex flex-col justify-center px-16 py-20 w-full">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-12"
           >
-            <div className="text-6xl mb-6">📰</div>
-            <h2 className="text-3xl font-bold mb-3">MY News Sentiment</h2>
-            <p className="text-white/70 text-lg">AI-powered Malaysian news analysis and sentiment intelligence</p>
+            {/* Masthead style header */}
+            <div className="border-b-2 border-zinc-900 dark:border-zinc-700 pb-8">
+              <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-4">
+                <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
+                <span>Vol. 1 · No. 01</span>
+                <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
+              </div>
+              <h3 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-3">
+                Malaysia News
+              </h3>
+              <p className="text-3xl md:text-4xl font-serif italic text-red-700 dark:text-red-500">
+                Reported Plainly.
+              </p>
+            </div>
+
+            {/* Featured article card */}
+            <div className="border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  Live Analysis
+                </span>
+              </div>
+              <h4 className="text-xl font-serif font-bold text-zinc-900 dark:text-zinc-50 mb-4 leading-tight">
+                Malaysia's GDP grows 5.2% in Q1 2026
+              </h4>
+              <div className="flex items-center gap-4">
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium uppercase tracking-wide">
+                  Positive
+                </span>
+                <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Score: 0.87
+                </span>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8">
+              <p className="text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-4">
+                Powered By
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {['Malaysiakini', 'Astro Awani', 'FMT', 'Bernama', 'The Star'].map((source) => (
+                  <span
+                    key={source}
+                    className="px-3 py-1 border border-zinc-300 dark:border-zinc-700 text-xs text-zinc-600 dark:text-zinc-400"
+                  >
+                    {source}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Tagline */}
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 font-serif italic">
+              Real-time AI that monitors, classifies, and visualises sentiment across Malaysia's top news sources.
+            </p>
           </motion.div>
         </div>
-      </div>
-
-      {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-[#fafaf9] dark:bg-[#0f0f0f]">
-        <motion.form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md space-y-5"
-          initial="hidden" animate="visible" variants={staggerContainer}
-        >
-          <motion.div variants={staggerItem} className="text-center lg:text-left">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome back</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Login to your News Intelligence Dashboard</p>
-          </motion.div>
-
-          {/* Tabs */}
-          <motion.div className="flex gap-1 p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl" variants={staggerItem}>
-            <button
-              type="button"
-              className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${tab === 'email' ? 'bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}
-              onClick={() => setTab('email')}
-            >Email</button>
-            <button
-              type="button"
-              className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${tab === 'phone' ? 'bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}
-              onClick={() => setTab('phone')}
-            >Phone</button>
-          </motion.div>
-
-          {error && (
-            <motion.div className="p-3 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-medium" variants={staggerItem}>
-              {error}
-            </motion.div>
-          )}
-
-          {/* Input fields */}
-          <motion.div variants={staggerItem}>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-              {tab === 'email' ? 'Email Address' : 'Phone Number'}
-            </label>
-            {tab === 'email' ? (
-              <input
-                type="email" name="email" placeholder="name@mail.com"
-                value={form.email} onChange={handleChange} required
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-              />
-            ) : (
-              <input
-                type="tel" name="phone" placeholder="+60 123 4567"
-                value={form.phone} onChange={handleChange} required
-                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-              />
-            )}
-          </motion.div>
-
-          <motion.div variants={staggerItem}>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Password</label>
-              <button type="button" className="text-xs text-accent hover:underline" onClick={() => setShowReset(true)}>Forgot?</button>
-            </div>
-            <input
-              type="password" name="password" placeholder="••••••••"
-              value={form.password} onChange={handleChange} required
-              className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
-            />
-          </motion.div>
-
-          <motion.button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent/90 disabled:opacity-50 transition-all shadow-sm shadow-accent/20"
-            variants={staggerItem}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            {loading ? 'Processing...' : 'Sign In'}
-          </motion.button>
-
-          <motion.div className="relative flex items-center gap-3" variants={staggerItem}>
-            <div className="flex-1 h-px bg-gray-200 dark:bg-[#2a2a2a]" />
-            <span className="text-xs text-gray-400">Or continue with</span>
-            <div className="flex-1 h-px bg-gray-200 dark:bg-[#2a2a2a]" />
-          </motion.div>
-
-          <motion.div className="flex gap-3" variants={staggerItem}>
-            <motion.button
-              type="button"
-              onClick={handleGoogle}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#222] transition-all"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <svg height="16" width="16" viewBox="0 0 32 32"><g transform="matrix(.727273 0 0 .727273 -.954545 -1.45455)"><path fill="#fbbc05" d="M0 37V11l17 13z"/><path fill="#ea4335" d="M0 11l17 13 7-6.1L48 14V0H0z"/><path fill="#34a853" d="M0 37l30-23 7.9 1L48 0v48H0z"/><path fill="#4285f4" d="M48 48L17 24l-4-3 35-10z"/></g></svg>
-              Google
-            </motion.button>
-            <motion.button
-              type="button"
-              onClick={handleGuest}
-              disabled={guestLoading}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#eee] dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#222] transition-all disabled:opacity-50"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              👤 {guestLoading ? 'Entering...' : 'Guest'}
-            </motion.button>
-          </motion.div>
-
-          <motion.p className="text-center text-sm text-gray-500 dark:text-gray-400" variants={staggerItem}>
-            Don't have an account?{' '}
-            <Link to="/register" className="text-accent font-medium hover:underline">Create one</Link>
-          </motion.p>
-        </motion.form>
       </div>
     </div>
   );

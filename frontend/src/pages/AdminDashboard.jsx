@@ -4,7 +4,11 @@ import { getAdminStats, getSourceHealth } from '../services/api';
 import toast from 'react-hot-toast';
 import ScrollToTop from '../components/ScrollToTop';
 import { useSocket } from '../context/SocketContext';
+<<<<<<< HEAD
 import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap, Rss, CheckCircle2, XCircle, AlertCircle, HelpCircle } from 'lucide-react';
+=======
+import { Shield, RefreshCw, FileText, Activity, Users, Eye, TrendingUp, AlertTriangle, Clock, Cpu, Zap, Search } from 'lucide-react';
+>>>>>>> 9c595a5a56fd98cabf4020497f1fb782b77ca53a
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -17,6 +21,7 @@ const AdminDashboard = () => {
   const [health, setHealth] = useState(null);
   const [healthLoading, setHealthLoading] = useState(false);
   const socket = useSocket();
+  const [userSearch, setUserSearch] = useState('');
 
   const loadData = useCallback(async () => {
     try {

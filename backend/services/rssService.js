@@ -247,6 +247,7 @@ const fetchRSS = async (config) => {
       status: health.healthy ? 'healthy' : 'degraded',
       ...health,
     });
+    console.log(`✅ [${sourceName}] fetched ${articles.length} articles (format: ${kind})`);
     return articles;
   } catch (error) {
     console.error(`❌ [${sourceName}] RSS fetch failed after retries/fallbacks:`, error.message);
@@ -337,3 +338,4 @@ const probeAllSources = async () => {
 };
 
 module.exports = { fetchRSS, fetchSource, fetchAllSources, getSourcesHealth, probeAllSources };
+

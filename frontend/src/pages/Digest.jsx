@@ -1,47 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
-
-const TypewriterText = ({ text, speed = 15 }) => {
-  const [displayed, setDisplayed] = useState('');
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    setDisplayed('');
-    setDone(false);
-    if (!text) return;
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) {
-        clearInterval(interval);
-        setDone(true);
-      }
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed]);
-
-  return (
-    <span>
-      {displayed}
-      {!done && <span className="animate-pulse">|</span>}
-    </span>
-  );
-};
-
-const SentimentMoodBadge = ({ mood }) => {
-  if (!mood) return null;
-  return (
-    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a]">
-      <span className="text-2xl">{mood.emoji}</span>
-      <div>
-        <p className="text-sm font-semibold text-gray-900 dark:text-white">{mood.text}</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">{mood.textMs}</p>
-      </div>
-    </div>
-  );
-};
 
 const Digest = () => {
   const [activeTab, setActiveTab] = useState('daily');
@@ -108,69 +67,71 @@ const Digest = () => {
     return digest.en || digest.ms || JSON.stringify(digest);
   };
 
-  const renderDigestContent = (digest) => {
-    const text = getDigestText(digest);
-    if (!text) return null;
-    return (
-      <div className="prose dark:prose-invert max-w-none">
-        <div className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-          <TypewriterText text={text} speed={10} />
-        </div>
-      </div>
-    );
-  };
-
   const currentData = activeTab === 'daily' ? dailyData : activeTab === 'weekly' ? weeklyData : null;
+
+  const formatDate = () => {
+    const now = new Date();
+    return now.toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4 }}
       className="max-w-4xl mx-auto space-y-6"
     >
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.1 }}
-        className="flex items-center justify-between"
-      >
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
-              <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/>
-            </svg>
-            News Digest
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">AI-powered news summaries and insights</p>
+      {/* Header - editorial style */}
+      <div className="border-b-2 border-gray-900 dark:border-white pb-3">
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight uppercase">
+              News Digest
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 tracking-wide uppercase">
+              {formatDate()}
+            </p>
+          </div>
+          {currentData && (
+            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+              <span>{currentData.articleCount} articles</span>
+              {currentData.sentimentBreakdown && (
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    {currentData.sentimentBreakdown.Positive || 0}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                    {currentData.sentimentBreakdown.Neutral || 0}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    {currentData.sentimentBreakdown.Negative || 0}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </motion.div>
+      </div>
 
-      {/* Tabs */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit"
-      >
+      {/* Tabs - minimal underline style */}
+      <div className="flex gap-6 border-b border-gray-200 dark:border-[#2a2a2a]">
         {['daily', 'weekly', 'topic'].map(tab => (
-          <motion.button
+          <button
             key={tab}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`pb-2 text-sm font-medium transition-all border-b-2 -mb-px ${
               activeTab === tab
-                ? 'bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
             }`}
           >
-            {tab === 'daily' ? '📅 Daily' : tab === 'weekly' ? '📊 Weekly' : '🔍 Topic'}
-          </motion.button>
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
         ))}
-      </motion.div>
+      </div>
 
       {/* Daily/Weekly Content */}
       {(activeTab === 'daily' || activeTab === 'weekly') && (
@@ -180,94 +141,84 @@ const Digest = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="space-y-4"
+            className="space-y-6"
           >
             {loading ? (
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Generating AI digest...</span>
-                </div>
+              <div className="py-12 text-center">
+                <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 border-t-gray-900 dark:border-t-white rounded-full animate-spin mx-auto" />
+                <p className="text-xs text-gray-400 mt-3">Loading digest...</p>
               </div>
             ) : currentData ? (
               <>
-                {/* Mood + Stats */}
-                <div className="flex flex-wrap gap-3">
-                  <SentimentMoodBadge mood={currentData.sentimentMood} />
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a]">
-                    <span className="text-lg">📰</span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{currentData.articleCount} articles</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">analyzed</p>
-                    </div>
+                {/* Sentiment mood - subtle */}
+                {currentData.sentimentMood && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      Overall mood:
+                    </span>
+                    <span>{currentData.sentimentMood.text}</span>
                   </div>
-                  {currentData.sentimentBreakdown && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-[#eee] dark:border-[#2a2a2a]">
-                      <div className="flex gap-1.5 text-xs">
-                        <span className="text-green-500">+{currentData.sentimentBreakdown.Positive || 0}</span>
-                        <span className="text-gray-400">•</span>
-                        <span className="text-gray-500">{currentData.sentimentBreakdown.Neutral || 0}</span>
-                        <span className="text-gray-400">•</span>
-                        <span className="text-red-500">-{currentData.sentimentBreakdown.Negative || 0}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
 
-                {/* Main Digest Card */}
-                <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {activeTab === 'daily' ? '📋 Daily Summary' : '📊 Weekly Summary'}
+                {/* Main Digest */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+                      {activeTab === 'daily' ? 'Today\'s Summary' : 'Weekly Roundup'}
                     </h2>
                     <button
                       onClick={() => handleShare(getDigestText(currentData.digest))}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                      className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                     >
-                      {copied ? '✓ Copied!' : '📋 Share'}
+                      {copied ? 'Copied' : 'Copy'}
                     </button>
                   </div>
-                  {renderDigestContent(currentData.digest)}
+                  <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {getDigestText(currentData.digest)}
+                  </div>
                 </div>
 
                 {/* Highlights */}
                 {currentData.highlights && currentData.highlights.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6"
-                  >
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">🔑 Key Highlights</h3>
-                    <ul className="space-y-2">
+                  <div className="border-t border-gray-200 dark:border-[#2a2a2a] pt-5">
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-3">
+                      Key Stories
+                    </h3>
+                    <div className="space-y-0 divide-y divide-gray-100 dark:divide-[#2a2a2a]">
                       {currentData.highlights.map((h, i) => (
-                        <motion.li
+                        <motion.div
                           key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.2 + i * 0.05 }}
-                          className="flex items-start gap-2 text-sm"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: i * 0.04 }}
+                          className="flex items-start gap-3 py-2.5 group"
                         >
-                          <span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${
+                          <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${
                             h.sentiment === 'Positive' ? 'bg-green-500' :
-                            h.sentiment === 'Negative' ? 'bg-red-500' : 'bg-gray-400'
+                            h.sentiment === 'Negative' ? 'bg-red-500' : 'bg-gray-300 dark:bg-gray-600'
                           }`} />
-                          <span className="text-gray-700 dark:text-gray-300">{h.title}</span>
-                          <span className="text-xs text-gray-400 ml-auto flex-shrink-0">{h.source}</span>
-                        </motion.li>
+                          <span className="text-sm text-gray-800 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors flex-1">
+                            {h.title}
+                          </span>
+                          <span className="text-[11px] text-gray-400 flex-shrink-0 font-medium">
+                            {h.source}
+                          </span>
+                        </motion.div>
                       ))}
-                    </ul>
-                  </motion.div>
+                    </div>
+                  </div>
                 )}
 
                 {/* Top Sources (weekly) */}
                 {currentData.topSources && (
-                  <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">📡 Top Sources This Week</h3>
+                  <div className="border-t border-gray-200 dark:border-[#2a2a2a] pt-5">
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-3">
+                      Sources
+                    </h3>
                     <div className="flex flex-wrap gap-2">
                       {currentData.topSources.map((s, i) => (
-                        <span key={i} className="px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-white/5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-[#eee] dark:border-[#2a2a2a]">
-                          {s.name} ({s.count})
+                        <span key={i} className="px-2.5 py-1 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#333] rounded">
+                          {s.name} <span className="text-gray-400 dark:text-gray-500">({s.count})</span>
                         </span>
                       ))}
                     </div>
@@ -275,8 +226,8 @@ const Digest = () => {
                 )}
               </>
             ) : (
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-8 text-center">
-                <p className="text-gray-500 dark:text-gray-400">No digest available. Click refresh to generate.</p>
+              <div className="py-12 text-center">
+                <p className="text-sm text-gray-400">No digest available for this period.</p>
               </div>
             )}
           </motion.div>
@@ -288,24 +239,24 @@ const Digest = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
+          className="space-y-5"
         >
           <form onSubmit={fetchTopicDigest} className="flex gap-2">
             <input
               type="text"
               value={topicInput}
               onChange={(e) => setTopicInput(e.target.value)}
-              placeholder="Enter topic (e.g., economy, politics, flood)..."
-              className="flex-1 px-4 py-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/30"
+              placeholder="Enter a topic..."
+              className="flex-1 px-4 py-2.5 text-sm bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 dark:focus:border-gray-500"
             />
             <button
               type="submit"
               disabled={topicLoading || !topicInput.trim()}
-              className="px-6 py-3 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-50 transition-all"
+              className="px-5 py-2.5 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 transition-all"
             >
               {topicLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : 'Generate'}
+                <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
+              ) : 'Search'}
             </button>
           </form>
 
@@ -313,30 +264,45 @@ const Digest = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-[#1a1a1a] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 space-y-4"
+              className="space-y-4"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-end justify-between border-b border-gray-200 dark:border-[#2a2a2a] pb-3">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Topic: {topicData.topic}
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {topicData.topic}
                   </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{topicData.articleCount} articles found</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {topicData.articleCount} articles found
+                  </p>
                 </div>
-                <button
-                  onClick={() => handleShare(getDigestText(topicData.digest))}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
-                >
-                  {copied ? '✓ Copied!' : '📋 Share'}
-                </button>
+                <div className="flex items-center gap-3">
+                  {topicData.sentimentBreakdown && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        {topicData.sentimentBreakdown.Positive || 0}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                        {topicData.sentimentBreakdown.Neutral || 0}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        {topicData.sentimentBreakdown.Negative || 0}
+                      </span>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => handleShare(getDigestText(topicData.digest))}
+                    className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  >
+                    {copied ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
               </div>
-              {topicData.sentimentBreakdown && (
-                <div className="flex gap-3 text-xs">
-                  <span className="text-green-500">Positive: {topicData.sentimentBreakdown.Positive || 0}</span>
-                  <span className="text-gray-500">Neutral: {topicData.sentimentBreakdown.Neutral || 0}</span>
-                  <span className="text-red-500">Negative: {topicData.sentimentBreakdown.Negative || 0}</span>
-                </div>
-              )}
-              {renderDigestContent(topicData.digest)}
+              <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                {getDigestText(topicData.digest)}
+              </div>
             </motion.div>
           )}
         </motion.div>

@@ -381,7 +381,7 @@ const Navbar = ({ isDark, toggleTheme, navigate }) => {
           </Link>
           <div className="hidden md:flex items-center gap-8 text-[13px] tracking-wider uppercase text-ink-muted dark:text-ink-faint">
             <a href="#features" className="hover:text-accent transition-colors">Features</a>
-            <Link to="/api" className="hover:text-accent transition-colors">Docs</Link>
+            <Link to="/api-docs" className="hover:text-accent transition-colors">Docs</Link>
             <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
             <Link to="/about" className="hover:text-accent transition-colors">About</Link>
             <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
@@ -453,7 +453,7 @@ const Navbar = ({ isDark, toggleTheme, navigate }) => {
               <div className="flex flex-col px-6 py-4 space-y-1">
                 {[
                   { label: 'Features', href: '#features', isAnchor: true },
-                  { label: 'Docs', to: '/api' },
+                  { label: 'Docs', to: '/api-docs' },
                   { label: 'Pricing', to: '/pricing' },
                   { label: 'About', to: '/about' },
                   { label: 'Contact', to: '/contact' },
@@ -529,7 +529,7 @@ const Footer = () => (
           <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Link to="/features" className="hover:text-accent transition-colors">Features</Link>
             <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
-            <Link to="/api" className="hover:text-accent transition-colors">API</Link>
+            <Link to="/api-docs" className="hover:text-accent transition-colors">API</Link>
           </div>
         </div>
         <div>
@@ -1166,8 +1166,6 @@ const LandingPage = () => {
     { icon: FileDown, title: 'Export Reports', desc: 'Generate PowerPoint presentations and CSV exports with one click.', color: 'text-teal-500', glowColor: 'rgba(20,184,166,0.2)' },
   ];
 
-  if (user) return <Navigate to="/dashboard" replace />;
-
   return (
     <div className="min-h-screen bg-[#fafaf9] dark:bg-[#0f0f0f] transition-colors overflow-x-hidden relative">
       {/* #4 Scroll progress indicator */}
@@ -1221,9 +1219,9 @@ const LandingPage = () => {
 
           {/* Title */}
           <motion.h1 variants={staggerItem} className="font-display text-5xl sm:text-6xl md:text-7xl font-bold text-ink dark:text-paper leading-[1.05] mb-6 tracking-tight">
-            Malaysia News Sentiment,{' '}
+            Malaysia's News Sentiment,{' '}
             <span className="italic text-accent">
-              Reported Plainly.
+              Decoded in Real-Time.
             </span>
             <br />
             <span className="block mt-4 text-2xl sm:text-3xl md:text-4xl font-normal italic text-ink-muted dark:text-ink-faint">
@@ -1237,7 +1235,7 @@ const LandingPage = () => {
 
           {/* Subtitle */}
           <motion.p variants={staggerItem} className="text-lg text-ink-muted dark:text-ink-faint max-w-2xl mx-auto mb-10 font-serif italic">
-            Real-time AI that monitors, classifies, and visualises sentiment across Malaysia's top news sources. Never miss a narrative shift.
+            AI-powered sentiment analysis tracking Malaysia's media landscape. From breaking news to trending narratives—understand public sentiment as it unfolds, backed by 92% classification accuracy.
           </motion.p>
 
           {/* CTA */}
@@ -1286,8 +1284,8 @@ const LandingPage = () => {
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
           {[
             { target: realArticleCount || 1000, suffix: realArticleCount ? '+' : '+', label: 'Articles Analyzed', icon: Newspaper },
-            { target: 50, suffix: '+', label: 'News Sources', icon: Globe },
-            { target: 95, suffix: '%', label: 'AI Accuracy', icon: Star },
+            { target: 15, suffix: '', label: 'News Sources', icon: Globe },
+            { target: 92, suffix: '%', label: 'Classification Accuracy', icon: Star },
           ].map((s, i) => (
             <motion.div
               key={i}
@@ -1845,60 +1843,6 @@ const LandingPage = () => {
         </div>
       </AnimatedSection>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <AnimatedSection className="py-12 px-6 bg-white dark:bg-[#1a1a1a] border-t border-[#eee] dark:border-[#2a2a2a]" variants={staggerContainer}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-8">
-            <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">Feedback</p>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">What users say</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: 'Dr. Ahmad', role: 'FYP Supervisor', text: 'The technical implementation demonstrates strong understanding of NLP pipelines and real-time data processing. Well-architected system.' },
-              { name: 'Peer Reviewer', role: 'Software Engineering', text: 'Clean UI/UX with intuitive navigation. The dashboard visualizations are professional-grade and responsive across devices.' },
-              { name: 'Beta Tester', role: 'UMPSA Student', text: 'Really useful for tracking Malaysian news sentiment. The entity graph helped me understand connections between political figures.' },
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                variants={staggerItem}
-                className="relative bg-[#fafaf9] dark:bg-[#111] border border-[#eee] dark:border-[#2a2a2a] rounded-2xl p-6 group"
-                {...(!prefersReducedMotion && {
-                  animate: { y: [0, -5, 0] },
-                  transition: { duration: 4 + i * 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.5 },
-                })}
-              >
-                {/* Decorative quote */}
-                <motion.span
-                  className="absolute top-3 right-4 text-5xl text-accent/10 font-serif leading-none select-none"
-                  animate={{ opacity: [0.1, 0.2, 0.1] }}
-                  transition={{ duration: 3, repeat: Infinity, delay: i * 0.3 }}
-                >
-                  "
-                </motion.span>
-                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4 italic relative z-10">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    className="relative w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-sm"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    {t.name[0]}
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-accent/30 opacity-0 group-hover:opacity-100"
-                      animate={{ scale: [1, 1.3], opacity: [0.5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{t.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4 italic">Feedback from project evaluation</p>
-        </div>
-      </AnimatedSection>
 
       {/* ─── FAQ ─── */}
       <AnimatedSection className="py-12 px-6" variants={staggerContainer}>
