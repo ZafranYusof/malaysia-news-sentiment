@@ -7,22 +7,33 @@ const Terrain = () => {
   const meshRef = useRef();
   const wireRef = useRef();
   const segments = 64;
+  const vertexCount = (segments + 1) * (segments + 1);
 
-  const colorArray = useMemo(() => {
-    const colors = new Float32Array((segments + 1) * (segments + 1) * 3);
-    return colors;
-  }, []);
+  const colorArray = useMemo(() => new Float32Array(vertexCount * 3), []);
+
+  // Attach color attribute on mount
+  const onMeshRef = (mesh) => {
+    meshRef.current = mesh;
+    if (mesh && !mesh.geometry.attributes.color) {
+      mesh.geometry.setAttribute(
+        'color',
+        new THREE.BufferAttribute(colorArray, 3)
+      );
+    }
+  };
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const geo = meshRef.current.geometry;
     const posArray = geo.attributes.position.array;
-    const colArray = geo.attributes.color.array;
+    const colAttr = geo.attributes.color;
+    if (!colAttr) return;
+    const colArray = colAttr.array;
     const time = state.clock.elapsedTime * 0.4;
 
     for (let i = 0; i <= segments; i++) {
       for (let j = 0; j <= segments; j++) {
-        const idx = (i * (segments + 1) + j);
+        const idx = i * (segments + 1) + j;
         const posIdx = idx * 3;
 
         const x = posArray[posIdx];
@@ -38,21 +49,18 @@ const Terrain = () => {
         posArray[posIdx + 1] = height;
 
         // Color based on height: green (high), neutral gray (mid), red (low)
-        const normalized = (height + 1) / 2; // 0 to 1
+        const normalized = (height + 1.05) / 2.1; // ~0 to 1
         if (normalized > 0.6) {
-          // Positive - green
           const t = (normalized - 0.6) / 0.4;
-          colArray[posIdx] = 0.133 * (1 - t) + 0.133 * t;
-          colArray[posIdx + 1] = 0.5 + t * 0.273;
-          colArray[posIdx + 2] = 0.2 + t * 0.169;
+          colArray[posIdx] = 0.13 + t * 0.0;
+          colArray[posIdx + 1] = 0.5 + t * 0.27;
+          colArray[posIdx + 2] = 0.2 + t * 0.17;
         } else if (normalized < 0.4) {
-          // Negative - red
-          const t = normalized / 0.4;
-          colArray[posIdx] = 0.937 - t * 0.4;
-          colArray[posIdx + 1] = 0.15 + t * 0.15;
-          colArray[posIdx + 2] = 0.15 + t * 0.05;
+          const t = 1 - (normalized / 0.4);
+          colArray[posIdx] = 0.5 + t * 0.44;
+          colArray[posIdx + 1] = 0.15 + (1 - t) * 0.15;
+          colArray[posIdx + 2] = 0.15 + (1 - t) * 0.05;
         } else {
-          // Neutral - muted gray-blue
           colArray[posIdx] = 0.4;
           colArray[posIdx + 1] = 0.45;
           colArray[posIdx + 2] = 0.5;
@@ -61,10 +69,10 @@ const Terrain = () => {
     }
 
     geo.attributes.position.needsUpdate = true;
-    geo.attributes.color.needsUpdate = true;
+    colAttr.needsUpdate = true;
     geo.computeVertexNormals();
 
-    // Update wireframe too
+    // Update wireframe
     if (wireRef.current) {
       wireRef.current.geometry.attributes.position.array.set(posArray);
       wireRef.current.geometry.attributes.position.needsUpdate = true;
@@ -74,7 +82,7 @@ const Terrain = () => {
   return (
     <group rotation={[-Math.PI / 3.5, 0, 0]}>
       {/* Solid terrain */}
-      <mesh ref={meshRef}>
+      <mesh ref={onMeshRef}>
         <planeGeometry args={[12, 12, segments, segments]} />
         <meshPhongMaterial
           vertexColors
