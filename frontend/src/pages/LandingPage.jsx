@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -9,7 +9,24 @@ import {
   ChevronRight, Star, Globe, Clock, X, Plus, Check
 } from 'lucide-react';
 
+// ── Lazy-loaded Three.js components ──
+const ParticleDataStream = lazy(() => import('../components/three/ParticleDataStream'));
+const Floating3DCards = lazy(() => import('../components/three/Floating3DCards'));
+const SentimentTerrain = lazy(() => import('../components/three/SentimentTerrain'));
 
+const ThreeSection = ({ children, title, subtitle }) => (
+  <div className="py-16 px-6">
+    {title && (
+      <div className="text-center mb-8 max-w-3xl mx-auto">
+        <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">{subtitle}</p>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{title}</h2>
+      </div>
+    )}
+    <Suspense fallback={<div className="w-full h-[400px] flex items-center justify-center text-gray-400 text-sm">Loading 3D visualization...</div>}>
+      {children}
+    </Suspense>
+  </div>
+);
 
 // ── Animation Variants ──
 const fadeInUp = {
@@ -1303,6 +1320,11 @@ const LandingPage = () => {
         </div>
       </AnimatedSection>
 
+      {/* ─── 3D PARTICLE DATA STREAM ─── */}
+      <ThreeSection title="Real-Time Data Flow" subtitle="Visualization">
+        <ParticleDataStream />
+      </ThreeSection>
+
       {/* ─── LIVE DEMO ─── */}
       <AnimatedSection className="py-10 px-6" variants={scaleIn}>
         <div className="max-w-4xl mx-auto">
@@ -1471,6 +1493,11 @@ const LandingPage = () => {
           </div>
         </div>
       </AnimatedSection>
+
+      {/* ─── 3D FLOATING NEWS CARDS ─── */}
+      <ThreeSection title="News at a Glance" subtitle="3D Visualization">
+        <Floating3DCards />
+      </ThreeSection>
 
       {/* ─── HOW IT WORKS ─── */}
       <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#0a0a0a] border-t border-[#eee] dark:border-[#1a1a1a] relative overflow-hidden" variants={staggerContainer}>
@@ -1760,6 +1787,11 @@ const LandingPage = () => {
           </div>
         </div>
       </AnimatedSection>
+
+      {/* ─── 3D SENTIMENT TERRAIN ─── */}
+      <ThreeSection title="Sentiment Landscape" subtitle="Data Terrain">
+        <SentimentTerrain />
+      </ThreeSection>
 
       {/* ─── COMPARISON ─── */}
       <AnimatedSection className="py-12 px-6" variants={staggerContainer}>
