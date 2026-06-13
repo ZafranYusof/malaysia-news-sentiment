@@ -1491,11 +1491,6 @@ const LandingPage = () => {
         </div>
       </AnimatedSection>
 
-      {/* ─── 3D FLOATING NEWS CARDS ─── */}
-      <ThreeSection title="News at a Glance" subtitle="3D Visualization">
-        <Floating3DCards />
-      </ThreeSection>
-
       {/* ─── HOW IT WORKS ─── */}
       <AnimatedSection className="py-20 px-6 bg-white dark:bg-[#0a0a0a] border-t border-[#eee] dark:border-[#1a1a1a] relative overflow-hidden" variants={staggerContainer}>
         {/* Background glow */}
