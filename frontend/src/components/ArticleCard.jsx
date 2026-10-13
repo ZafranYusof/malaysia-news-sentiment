@@ -237,11 +237,12 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
           
           <div className="art-footer-right" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
              <div className="art-view-pill" style={{ 
-               display: 'flex', alignItems: 'center', gap: 5, 
-               fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
-               padding: '2px 8px', borderRadius: 6
+               display: 'flex', alignItems: 'center', gap: 6, 
+               fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)',
+               padding: '4px 10px', borderRadius: 6,
+               background: 'var(--bg-secondary)', border: '1px solid var(--border)'
              }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                   <circle cx="12" cy="12" r="3"/>
                 </svg>
@@ -249,12 +250,14 @@ const ArticleCard = ({ article, onPreview, onDelete, onBookmark, isBookmarked })
              </div>
 
              <div className="art-bookmark-pill" style={{ 
-               display: 'flex', alignItems: 'center', gap: 5, 
-               fontSize: 11, fontWeight: 600, color: localBookmarkCount > 0 ? '#f59e0b' : 'var(--text-muted)',
-               padding: '2px 8px', borderRadius: 6,
-               opacity: localBookmarkCount > 0 ? 1 : 0.6
+               display: 'flex', alignItems: 'center', gap: 6, 
+               fontSize: 12, fontWeight: 600, color: localBookmarkCount > 0 ? '#f59e0b' : 'var(--text-secondary)',
+               padding: '4px 10px', borderRadius: 6,
+               background: localBookmarkCount > 0 ? 'rgba(245, 158, 11, 0.1)' : 'var(--bg-secondary)',
+               border: localBookmarkCount > 0 ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid var(--border)',
+               opacity: localBookmarkCount > 0 ? 1 : 0.8
              }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill={localBookmarkCount > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill={localBookmarkCount > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
                 </svg>
                 {localBookmarkCount}

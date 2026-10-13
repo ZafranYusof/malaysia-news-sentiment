@@ -183,7 +183,7 @@ export const translations = {
     noEntitiesFound: 'No entities found.',
     summary: 'summary',
     sentiment: 'sentiment',
-    entities: 'entities',
+    entities: 'Entities',
     // Translate
     translate: 'Translate',
     translating: 'Translating...',

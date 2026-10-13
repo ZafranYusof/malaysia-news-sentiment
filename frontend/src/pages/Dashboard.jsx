@@ -1337,74 +1337,75 @@ const Dashboard = () => {
                           animate="visible"
                         >
                           {/* Editorial Stats Grid */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-ink/10 dark:border-paper/10">
-                            {/* Total Articles */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-ink/10 dark:border-paper/10 border-l-[3px] border-l-accent">
+                            {/* Total Articles - HERO */}
                             <motion.div 
-                              className="col-span-2 md:col-span-1 p-5 border-r border-b border-ink/10 dark:border-paper/10"
+                              className="col-span-2 md:col-span-1 p-6 border-r border-b border-ink/10 dark:border-paper/10 bg-gradient-to-br from-accent/5 to-transparent"
                               variants={kpiItemVariants}
                             >
-                              <div className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans mb-2">
+                              <div className="text-[11px] uppercase tracking-[0.25em] text-ink-muted dark:text-ink-faint font-sans mb-3">
                                 Total Analyzed
                               </div>
-                              <div className="font-['Playfair_Display'] text-4xl font-bold text-ink dark:text-paper">
+                              <div className="font-['Playfair_Display'] text-5xl font-bold text-ink dark:text-paper leading-tight">
                                 {counts.total.toLocaleString()}
                               </div>
-                              <div className="mt-1">
+                              <div className="text-xs text-ink-muted dark:text-ink-faint mb-2">articles processed</div>
+                              <div className="mt-2">
                                 <TrendBadge pct={periodComparison.total} />
                               </div>
                             </motion.div>
 
                             {/* Positive */}
                             <motion.div 
-                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-ink/5 dark:hover:bg-paper/5 transition-colors"
+                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors relative before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-emerald-500"
                               variants={kpiItemVariants}
                               onClick={() => handleKpiClick('positive')}
                             >
                               <div className="flex items-center gap-1.5 mb-2">
-                                <div className="w-1.5 h-1.5 bg-emerald-500" />
-                                <span className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans">Positive</span>
+                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400 font-semibold">Positive</span>
                               </div>
-                              <div className="font-['Playfair_Display'] text-3xl font-bold text-emerald-600">
+                              <div className="font-['Playfair_Display'] text-4xl font-bold text-emerald-600">
                                 {counts.positive.toLocaleString()}
                               </div>
-                              <div className="text-[11px] text-ink-muted dark:text-ink-faint mt-1">
-                                {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}%
+                              <div className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-1">
+                                {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total
                               </div>
                             </motion.div>
 
                             {/* Negative */}
                             <motion.div 
-                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-ink/5 dark:hover:bg-paper/5 transition-colors md:border-r-0"
+                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors relative before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-red-500 md:border-r-0"
                               variants={kpiItemVariants}
                               onClick={() => handleKpiClick('negative')}
                             >
                               <div className="flex items-center gap-1.5 mb-2">
-                                <div className="w-1.5 h-1.5 bg-red-500" />
-                                <span className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans">Negative</span>
+                                <div className="w-2 h-2 rounded-full bg-red-500" />
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-red-700 dark:text-red-400 font-semibold">Negative</span>
                               </div>
-                              <div className="font-['Playfair_Display'] text-3xl font-bold text-red-600">
+                              <div className="font-['Playfair_Display'] text-4xl font-bold text-red-600">
                                 {counts.negative.toLocaleString()}
                               </div>
-                              <div className="text-[11px] text-ink-muted dark:text-ink-faint mt-1">
-                                {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}%
+                              <div className="text-sm font-medium text-red-700 dark:text-red-400 mt-1">
+                                {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total
                               </div>
                             </motion.div>
 
                             {/* Neutral */}
                             <motion.div 
-                              className="col-span-2 md:col-span-1 p-5 cursor-pointer hover:bg-ink/5 dark:hover:bg-paper/5 transition-colors"
+                              className="col-span-2 md:col-span-1 p-5 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors relative before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-amber-500"
                               variants={kpiItemVariants}
                               onClick={() => handleKpiClick('neutral')}
                             >
                               <div className="flex items-center gap-1.5 mb-2">
-                                <div className="w-1.5 h-1.5 bg-amber-500" />
-                                <span className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans">Neutral</span>
+                                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-semibold">Neutral</span>
                               </div>
-                              <div className="font-['Playfair_Display'] text-3xl font-bold text-amber-600">
+                              <div className="font-['Playfair_Display'] text-4xl font-bold text-amber-600">
                                 {counts.neutral.toLocaleString()}
                               </div>
-                              <div className="text-[11px] text-ink-muted dark:text-ink-faint mt-1">
-                                {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}%
+                              <div className="text-sm font-medium text-amber-700 dark:text-amber-400 mt-1">
+                                {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}% of total
                               </div>
                             </motion.div>
                           </div>
@@ -1658,74 +1659,75 @@ const Dashboard = () => {
                           animate="visible"
                         >
                           {/* Editorial Stats Grid */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-ink/10 dark:border-paper/10">
-                            {/* Total Articles */}
-                            <motion.div
-                              className="col-span-2 md:col-span-1 p-5 border-r border-b border-ink/10 dark:border-paper/10"
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-ink/10 dark:border-paper/10 border-l-[3px] border-l-accent">
+                            {/* Total Articles - HERO */}
+                            <motion.div 
+                              className="col-span-2 md:col-span-1 p-6 border-r border-b border-ink/10 dark:border-paper/10 bg-gradient-to-br from-accent/5 to-transparent"
                               variants={kpiItemVariants}
                             >
-                              <div className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans mb-2">
+                              <div className="text-[11px] uppercase tracking-[0.25em] text-ink-muted dark:text-ink-faint font-sans mb-3">
                                 Total Analyzed
                               </div>
-                              <div className="font-['Playfair_Display'] text-4xl font-bold text-ink dark:text-paper">
+                              <div className="font-['Playfair_Display'] text-5xl font-bold text-ink dark:text-paper leading-tight">
                                 {counts.total.toLocaleString()}
                               </div>
-                              <div className="mt-1">
+                              <div className="text-xs text-ink-muted dark:text-ink-faint mb-2">articles processed</div>
+                              <div className="mt-2">
                                 <TrendBadge pct={periodComparison.total} />
                               </div>
                             </motion.div>
 
                             {/* Positive */}
-                            <motion.div
-                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-ink/5 dark:hover:bg-paper/5 transition-colors"
+                            <motion.div 
+                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors relative before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-emerald-500"
                               variants={kpiItemVariants}
                               onClick={() => handleKpiClick('positive')}
                             >
                               <div className="flex items-center gap-1.5 mb-2">
-                                <div className="w-1.5 h-1.5 bg-emerald-500" />
-                                <span className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans">Positive</span>
+                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400 font-semibold">Positive</span>
                               </div>
-                              <div className="font-['Playfair_Display'] text-3xl font-bold text-emerald-600">
+                              <div className="font-['Playfair_Display'] text-4xl font-bold text-emerald-600">
                                 {counts.positive.toLocaleString()}
                               </div>
-                              <div className="text-[11px] text-ink-muted dark:text-ink-faint mt-1">
-                                {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}%
+                              <div className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mt-1">
+                                {counts.total ? Math.round(counts.positive / counts.total * 100) : 0}% of total
                               </div>
                             </motion.div>
 
                             {/* Negative */}
-                            <motion.div
-                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-ink/5 dark:hover:bg-paper/5 transition-colors md:border-r-0"
+                            <motion.div 
+                              className="p-5 border-r border-b border-ink/10 dark:border-paper/10 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors relative before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-red-500 md:border-r-0"
                               variants={kpiItemVariants}
                               onClick={() => handleKpiClick('negative')}
                             >
                               <div className="flex items-center gap-1.5 mb-2">
-                                <div className="w-1.5 h-1.5 bg-red-500" />
-                                <span className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans">Negative</span>
+                                <div className="w-2 h-2 rounded-full bg-red-500" />
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-red-700 dark:text-red-400 font-semibold">Negative</span>
                               </div>
-                              <div className="font-['Playfair_Display'] text-3xl font-bold text-red-600">
+                              <div className="font-['Playfair_Display'] text-4xl font-bold text-red-600">
                                 {counts.negative.toLocaleString()}
                               </div>
-                              <div className="text-[11px] text-ink-muted dark:text-ink-faint mt-1">
-                                {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}%
+                              <div className="text-sm font-medium text-red-700 dark:text-red-400 mt-1">
+                                {counts.total ? Math.round(counts.negative / counts.total * 100) : 0}% of total
                               </div>
                             </motion.div>
 
                             {/* Neutral */}
-                            <motion.div
-                              className="col-span-2 md:col-span-1 p-5 cursor-pointer hover:bg-ink/5 dark:hover:bg-paper/5 transition-colors"
+                            <motion.div 
+                              className="col-span-2 md:col-span-1 p-5 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors relative before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-amber-500"
                               variants={kpiItemVariants}
                               onClick={() => handleKpiClick('neutral')}
                             >
                               <div className="flex items-center gap-1.5 mb-2">
-                                <div className="w-1.5 h-1.5 bg-amber-500" />
-                                <span className="text-[10px] uppercase tracking-[0.2em] text-ink-muted dark:text-ink-faint font-sans">Neutral</span>
+                                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400 font-semibold">Neutral</span>
                               </div>
-                              <div className="font-['Playfair_Display'] text-3xl font-bold text-amber-600">
+                              <div className="font-['Playfair_Display'] text-4xl font-bold text-amber-600">
                                 {counts.neutral.toLocaleString()}
                               </div>
-                              <div className="text-[11px] text-ink-muted dark:text-ink-faint mt-1">
-                                {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}%
+                              <div className="text-sm font-medium text-amber-700 dark:text-amber-400 mt-1">
+                                {counts.total ? Math.round(counts.neutral / counts.total * 100) : 0}% of total
                               </div>
                             </motion.div>
                           </div>
